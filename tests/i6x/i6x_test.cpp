@@ -4,6 +4,7 @@
 #include <limits>
 #include "I6x.hpp"
 #include "EventBinder.hpp"
+#include "HostData.hpp"
 
 extern "C"
 {
@@ -146,10 +147,11 @@ int main()
   CMD::Data ai{};
   ai.chassis.x = .7f;
   ai.gimbal.yaw = .8f;
-  ai.chassis_online = ai.gimbal_online = true;
   ai.launcher.isfire = true;
   LibXR::Timebase::now = 1000;
-  command.FeedAI(ai);
+  command.FeedAI(CMD::Channel::CHASSIS, ai);
+  command.FeedAI(CMD::Channel::GIMBAL, ai);
+  command.FeedAI(CMD::Channel::LAUNCHER, ai);
   state.switches[2] = 1;
   submit();
   assert(chassis().x == .7f && gimbal().yaw == .8f);
@@ -170,10 +172,10 @@ int main()
   submit();
   assert(chassis().x == .7f);
   assert(command.GetChannelMode(CMD::Channel::CHASSIS) == CMD::Mode::CMD_AUTO_CTRL);
-  // 坏帧不触发事件，但立即撤销输出；不把短暂坏帧变成一次模式切换。
+  // 单帧坏帧不新增 CMD 有效位判据，沿用链路在线状态。
   state.frame_lost = true;
   submit();
-  assert(chassis_probe.mode == 1 && chassis().x == 0 && gimbal().yaw == 0 && !fire());
+  assert(chassis_probe.mode == 1 && chassis().x == .7f && gimbal().yaw == .8f && fire());
   state.frame_lost = false;
   submit();
   LibXR::Timebase::now = 1100;
@@ -205,7 +207,9 @@ int main()
   // 从两个独立事件分别设置来源；上位机数据过期跨计时回绕后仍归零。
   command.GetEvent().Active(static_cast<uint32_t>(Source::SET_GIMBAL_PC));
   LibXR::Timebase::now = UINT32_MAX - 20;
-  command.FeedAI(ai);
+  command.FeedAI(CMD::Channel::CHASSIS, ai);
+  command.FeedAI(CMD::Channel::GIMBAL, ai);
+  command.FeedAI(CMD::Channel::LAUNCHER, ai);
   submit(false);
   assert(chassis().x == .5f && gimbal().yaw == .8f);
   LibXR::Timebase::now = 80;
@@ -214,7 +218,9 @@ int main()
   // 原全局AUTO仍需要遥控开火许可，避免改变DR16的双端许可。
   command.SetCtrlMode(CMD::Mode::CMD_AUTO_CTRL);
   LibXR::Timebase::now = 2000;
-  command.FeedAI(ai);
+  command.FeedAI(CMD::Channel::CHASSIS, ai);
+  command.FeedAI(CMD::Channel::GIMBAL, ai);
+  command.FeedAI(CMD::Channel::LAUNCHER, ai);
   state.switches[0] = -1;
   submit(false);
   assert(!fire());
@@ -224,8 +230,44 @@ int main()
   state.online = false;
   submit(false);
   CMD::Data dr16{};
-  dr16.chassis_online = true;
+  dr16.input_online = true;
   dr16.chassis.x = -.25f;
   command.FeedRC(CMD::RCInputSource::RC_INPUT_DR16, dr16);
   assert(chassis().x == -.25f);
+  // 真实 HostData 回调：零角度保留导数，各通道接收独立刷新时效。
+  CMD pc_command;
+  HostData host(pc_command);
+  CMD::Data rc{};
+  rc.input_online = true;
+  rc.launcher.isfire = true;
+  pc_command.FeedRC(rc);
+  pc_command.SetCtrlMode(CMD::Mode::CMD_AUTO_CTRL);
+  auto poll = [&]() { pc_command.FeedRC(rc); };
+  LibXR::Timebase::now = 3000;
+  HostData::HostChassisTarget target{.6f, .2f, .1f};
+  auto chassis_topic = LibXR::Topic::CreateTopic<HostData::HostChassisTarget>("host_chassis_data");
+  auto gimbal_topic = LibXR::Topic::CreateTopic<HostData::HostGimbalTarget>("target_euler");
+  auto fire_topic = LibXR::Topic::CreateTopic<HostData::LauncherCMD>("host_fire_notify");
+  chassis_topic.Publish(target);
+  assert(chassis().x == .6f && gimbal().yaw_dot == 0 && !fire());
+  LibXR::Timebase::now = 3050;
+  HostData::HostGimbalTarget aim{};
+  aim.yaw_dot = 2.0f; aim.rol = .3f; aim.rol_ddot = .4f;
+  gimbal_topic.Publish(aim);
+  HostData::LauncherCMD shot{true};
+  fire_topic.Publish(shot);
+  assert(gimbal().yaw == 0 && gimbal().pit == 0 && gimbal().yaw_dot == 2.0f);
+  assert(gimbal().rol == .3f && gimbal().rol_ddot == .4f && fire());
+  LibXR::Timebase::now = 3100;
+  poll();
+  assert(chassis().x == 0 && gimbal().yaw_dot == 2.0f && fire());
+  // 持续云台收包不能延长旧开火命令，也不能延长旧底盘命令。
+  LibXR::Timebase::now = 3150;
+  gimbal_topic.Publish(aim);
+  assert(chassis().x == 0 && !fire() && gimbal().yaw_dot == 2.0f);
+  target = {}; chassis_topic.Publish(target);
+  assert(chassis().x == 0 && gimbal().yaw_dot == 2.0f);
+  rc.input_online = false; poll();
+  assert(!pc_command.Online() && gimbal().yaw_dot == 0 && !fire());
+
 }

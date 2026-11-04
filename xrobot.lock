@@ -34,7 +34,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: b7aecbf7b4898ca2ceab08d87e1dd2378be74cd0
+    commit: 052d1271a62c1296b6a83bcada6b3a089f2ac4a7
   YunMo-yanyu/DMMotor:
     repo: https://github.com/YunMo-yanyu/DMMotor.git
     source: ModuleIndex/index.yaml
@@ -48,7 +48,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: ff7859789d945cfd74071a9291e1cea8c216385e
+    commit: 2940ecaafb62f10ce9fe0e20d3ff33e9cd8842d1
   YunMo-yanyu/EventBinder:
     repo: https://github.com/YunMo-yanyu/EventBinder.git
     source: ModuleIndex/index.yaml
@@ -62,14 +62,14 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 5f03b52a3baa423aca74b2f114842cb6fec4988e
+    commit: 710bc179747325704fcb5fb26730501c30b22542
   YunMo-yanyu/I6x:
     repo: https://github.com/YunMo-yanyu/I6x.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 4e7aeeb254167de75394cea81e0f5e77305bd2ac
+    commit: 450eeef94769820fb6f51cf4fd2f3c718abe7764
   YunMo-yanyu/Motor:
     repo: https://github.com/YunMo-yanyu/Motor.git
     source: ModuleIndex/index.yaml
@@ -90,7 +90,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: ef0ffc41ca7f2f4045f8fb4b4120620c4e250a7d
+    commit: 1e084b1fb30f3a65a260f5a43878f286c3702524
   xrobot-org/BMI088:
     repo: https://github.com/xrobot-org/BMI088.git
     source: https://xrobot.work/xrobot-modules/index.yaml

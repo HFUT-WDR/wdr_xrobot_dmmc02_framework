@@ -70,8 +70,8 @@ UP/MID/DOWN 沿用逻辑值 +1/0/-1，因此 UP 对应物理下拨。启动或�
 默认来源为 RC，必须出现后续边沿才切换。保持拨杆和无效帧不会重复触发事件。
 CMD 的 START/LOST 继续恢复 RC 来源；未来机构需将这两个事件绑定到 RELAX。
 
-单个失控／丢帧标志帧清摇杆和开火意图，不刷新有效接收时间；连续3帧失控或严格超过30ms无
-有效帧时离线。CMD 对无效输入归零，PC 数据超过100ms也归零，不回退到遥控运动目标。
+单个失控／丢帧标志帧沿用解码器清摇杆处理，不额外撤销 CMD 开火或 PC 命令，也不刷新有效接收时间；连续3帧失控或严格超过30ms无
+有效帧时离线。CMD 仅按 input_online 判断遥控链路；不新增单帧 failsafe 有效位。PC 三路各自超过100ms归零，不回退到遥控运动目标。
 按机构选择 PC 发射来源代表操作许可；旧全局 AUTO 路径仍保留 RC 开火与 PC 开火同时有效的约束。
 
 原26_sentry还有20ms上线稳定窗口，本模块尚未迁移，不能宣称完整实车行为等价。
@@ -113,3 +113,12 @@ python3 tests/external_modules/run_tests.py --preset Release
 路由；这不替代真实接收机、电机或机构硬件验收。
 
 另已在独立检出中选择 `User/xrobot_i6x.yaml` 并链接出完整ARM固件，未改变默认工作区配置，未烧录。
+
+## 输入在线与 PC 时效
+
+`CMD::Data::input_online` 仅表达遥控输入链路状态，不表达机构或电机健康。
+旧 chassis_online、gimbal_online、controls_valid 及 GetAIGimbalStatus 已删除。
+HostData 每个 Topic 回调调用 `FeedAI(Channel, Data)`，不再汇总并刷新其他通道。
+底盘、云台、开火分别记录是否收到过和接收时间；未收到或距离上次接收达到100ms即输出零。
+超时在 CMD 处理输入时重新判断；I6x 会至少每5ms提交状态，这不是独立的100ms硬实时看门狗。
+正常零目标完整传递；云台包含 roll、pitch、yaw 及其导数。遥控失联仍撤销全部命令。

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""对照参考 SBUS 解码，并验证真实 CMD 的停机和输入来源路由。"""
+"""对照参考 SBUS 解码，并验证真实 CMD、HostData 与事件路由。"""
 from pathlib import Path
 import subprocess
 import argparse
@@ -18,8 +18,8 @@ with tempfile.TemporaryDirectory(prefix='wdr-i6x-test-') as temp:
                     '-fsanitize=address,undefined', '-static-libasan', '-g',
                     '-I' + str(root / 'tests/i6x/stubs'),
                     '-I' + str(modules / 'I6x'),
-                    '-I' + str(modules / 'CMD'),
+                    '-I' + str(modules / 'CMD'), '-I' + str(modules / 'HostData'),
                     '-I' + str(modules / 'EventBinder'), '-I' + str(reference), str(root / 'tests/i6x/i6x_test.cpp'),
                     str(obj), '-o', str(exe)], check=True)
     subprocess.run([str(exe)], check=True)
-print('PASS: 1568 frozen-reference vectors; framing, failsafe, timeout, independent CMD routing and STOP')
+print('PASS: 1568 frozen-reference vectors; framing, failsafe threshold, CMD routing, HostData zero targets, independent PC expiry and STOP')
