@@ -7,7 +7,7 @@
 | --- | --- |
 | YunMo-yanyu/wdr_xrobot_dmmc02_framework | 当前MC02主工程 |
 | YunMo-yanyu/xrobot-modules | 私有组件索引，作为ModuleIndex子模块 |
-| YunMo-yanyu/CMD | 命令中枢，已包含i6x独立来源与策略扩展 |
+| YunMo-yanyu/CMD | 命令中枢，通用分机构来源选择事件 |
 | YunMo-yanyu/Motor | 电机抽象接口 |
 | YunMo-yanyu/RMMotor | DJI电机驱动 |
 | YunMo-yanyu/DMMotor | 达妙电机驱动 |
@@ -15,6 +15,7 @@
 | YunMo-yanyu/Referee | 裁判系统 |
 | YunMo-yanyu/HostData | 上位机输入汇总 |
 | YunMo-yanyu/I6x | i6x的正式XRobot模块 |
+| YunMo-yanyu/EventBinder | YAML事件绑定，来源与模式事件解耦 |
 
 原组件Git提交作为新仓库的祖先保留，原LICENSE未改写，UPSTREAM.md记录来源与迁移基线。
 I6x额外记录26_sentry原映射来源及MIT声明。组件提供main/dev分支，提交由主工程xrobot.lock锁定。

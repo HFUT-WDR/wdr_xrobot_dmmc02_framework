@@ -1,7 +1,7 @@
 # 基础设备与 i6x 模块
 
 主工程使用 YunMo-yanyu 名下的私有组件仓库。CMD、Motor、RMMotor、DMMotor、DR16、Referee、
-HostData、I6x 均通过 XRobot 管理；组件由 WDR 独立维护。LibXR、BMI088、BuzzerAlarm、
+HostData、I6x、EventBinder 均通过 XRobot 管理；组件由 WDR 独立维护。LibXR、BMI088、BuzzerAlarm、
 SharedTopic、SharedTopicClient 继续使用官方来源。
 
 模块索引由 `ModuleIndex` Git 子模块提供，依赖请求在 `Modules/modules.yaml`，实际提交固定在
@@ -9,7 +9,7 @@ SharedTopic、SharedTopicClient 继续使用官方来源。
 
 ## i6x 的 YAML 用法
 
-`User/xrobot_i6x.yaml` 是包含已验收板级功能、CMD 和 I6x 的独立配置。其外接输入为：
+`User/xrobot_i6x.yaml` 是包含已验收板级功能、CMD、I6x 和 EventBinder 的独立配置。其外接输入为：
 
 ```yaml
 - module: YunMo-yanyu/I6x
@@ -31,7 +31,7 @@ xrobot instance -c User/<配置>.yaml set i6x args.uart uart5
 xrobot instance -c User/<配置>.yaml set i6x args.cmd cmd
 ```
 
-无需再手写 I6x 构造或给 app_main 增加专门的 i6x 启动代码。CMD 的独立 i6x 输入槽与策略已经
+无需再手写 I6x 构造或给 app_main 增加专门的 i6x 启动代码。CMD 的独立 i6x 输入槽与通用分机构来源选择已
 提交到个人 CMD 仓库，不再由构建脚本打补丁。旧补丁仅在 `docs/archive` 留存迁移记录。
 
 ## 接口与语义
@@ -51,18 +51,34 @@ HAL侧8数据位加偶校验应为9B字长；锁定版LibXR驱动会正确转换
 | s[2] | -1云台无力、0手动、+1上位机 |
 | s[3] | -1底盘无力；+1时按s[2]选择手动／上位机 |
 | s[0] | +1开火意图 |
-| s[1]进入+1 | 摩擦轮切换序号增加一次 |
+| s[1]进入+1 | 发出 SW1_UP 边沿，后续由发射模块处理摩擦轮切换 |
 | s[1]=-1且s[3]=+1 | 上位机发射许可 |
 | ch[4] | 小陀螺旋钮归一化到[0,1] |
 
-完整输入和意图发布到`i6x_input`。CMD保留独立底盘／云台来源，无力档不回退到上位机。
-上位机数据超过100ms时，新i6x路径归零；原HostData的零目标／有效位契约仍需机构接入时复核。
-单个失控／丢帧标志帧清摇杆和开火许可，不刷新有效接收时间；连续3帧失控或严格超过30ms无
-有效帧时离线。重新上线首帧不触发摩擦轮切换。
+`i6x_input` 只发布 `I6xInput::State` 原始输入快照，供诊断使用；运动量经 CMD 发布，
+拨杆位置和组合边沿经 EventBinder 绑定。CMD 不再包含 I6xPolicy 或摩擦轮计数。
+
+### 连续命令与事件分工
+
+- 连续量：I6x → CMD → chassis_cmd / gimbal_cmd / launcher_cmd。
+- 来源选择：I6x.GetEvent → EventBinder（YAML）→ CMD.SourceEvent，三个机构独立选择 RC/PC。
+- 运行模式：后续机构模块自己的 GetEvent / SetMode 持有 RELAX、FOLLOW、ROTOR 等模式。
+  坐标变换归机构模式；本轮没有添加坐标系字段，也没有启动机构任务。
+
+可选 YAML 已绑定云台 s[2]、底盘 s[2]/s[3]组合、发射 s[1]/s[3]组合的来源选择。
+UP/MID/DOWN 沿用逻辑值 +1/0/-1，因此 UP 对应物理下拨。启动或离线恢复首帧只建立事件基准；
+默认来源为 RC，必须出现后续边沿才切换。保持拨杆和无效帧不会重复触发事件。
+CMD 的 START/LOST 继续恢复 RC 来源；未来机构需将这两个事件绑定到 RELAX。
+
+单个失控／丢帧标志帧清摇杆和开火意图，不刷新有效接收时间；连续3帧失控或严格超过30ms无
+有效帧时离线。CMD 对无效输入归零，PC 数据超过100ms也归零，不回退到遥控运动目标。
+按机构选择 PC 发射来源代表操作许可；旧全局 AUTO 路径仍保留 RC 开火与 PC 开火同时有效的约束。
 
 原26_sentry还有20ms上线稳定窗口，本模块尚未迁移，不能宣称完整实车行为等价。
-CMD的零目标不等于机构无力，后续机构任务必须读取无力意图实施零输出。PID、到速／热量许可、
-校准、PASSING_MODE等机构业务没有在本轮接入。
+**零运动目标不等于机构无力。** 当前只完成输入和来源链路，实际机构仍须绑定无力、跟随、
+小陀螺及摩擦轮事件并执行相应输出。原参考发射模块没有摩擦轮 toggle 事件；未来 WDR 发射模块
+应自己持有开关状态，不能恢复接收端切换计数。PID、到速／热量许可、校准和 PASSING_MODE 未接入。
+EventBinder 沿用参考实现，找不到名称会忽略绑定；修改 YAML 后必须做生成和编译验证。
 
 ## 其他基础模块
 
@@ -91,7 +107,7 @@ python3 tests/external_modules/run_tests.py --preset Debug
 python3 tests/external_modules/run_tests.py --preset Release
 ```
 
-普通构建自动通过官方`xrobot check-module`编译9个具体模块／依赖的构造接口；还在临时工程
+普通构建自动通过官方`xrobot check-module`编译10个具体模块／依赖的构造接口；还在临时工程
 分别生成、编译基础设备组合配置和完整i6x YAML，不替换主工程的已选配置。
 所有检查对象不链接进默认固件。主机测试对照本机26_sentry冻结解码源，并覆盖失控、超时和CMD
 路由；这不替代真实接收机、电机或机构硬件验收。

@@ -3,6 +3,7 @@
 #include <cstring>
 #include <limits>
 #include "I6x.hpp"
+#include "EventBinder.hpp"
 
 extern "C"
 {
@@ -92,6 +93,56 @@ int main()
   assert(!half.Update(0).online);
 
   CMD command;
+  LibXR::UART uart;
+  I6x receiver(uart, command);
+  struct ModeProbe
+  {
+    LibXR::Event event;
+    int mode = 0;
+    LibXR::Event& GetEvent() { return event; }
+  } chassis_probe;
+  chassis_probe.event.Register(1, [&](bool, uint32_t) { chassis_probe.mode = 1; });
+  // 测试替身仅观察事件，生产代码中不创建虚假机构任务。
+  command.GetEvent().Register(CMD::CMD_EVENT_LOST_CTRL,
+      [&](bool, uint32_t) { chassis_probe.mode = 0; });
+  command.GetEvent().Register(CMD::CMD_EVENT_START_CTRL,
+      [&](bool, uint32_t) { chassis_probe.mode = 0; });
+  using Pos = I6x::SwitchPos;
+  using Chord = I6x::Chord;
+  using Source = CMD::SourceEvent;
+  EventBinder binder({{"i6x", receiver}, {"cmd", command}, {"chassis", chassis_probe}},
+    {{{{"i6x", Pos::SW2_MID, "cmd", Source::SET_GIMBAL_RC},
+       {"i6x", Pos::SW2_UP, "cmd", Source::SET_GIMBAL_PC},
+       {"i6x", Chord::SW2_MID_SW3_UP_ENTER, "cmd", Source::SET_CHASSIS_RC},
+       {"i6x", Chord::SW2_UP_SW3_UP_ENTER, "cmd", Source::SET_CHASSIS_PC},
+       {"i6x", Chord::SW2_MID_SW3_UP_EXIT, "cmd", Source::SET_CHASSIS_RC},
+       {"i6x", Chord::SW2_UP_SW3_UP_EXIT, "cmd", Source::SET_CHASSIS_RC},
+       {"i6x", Chord::SW1_DOWN_SW3_UP_ENTER, "cmd", Source::SET_LAUNCHER_PC},
+       {"i6x", Chord::SW1_DOWN_SW3_UP_EXIT, "cmd", Source::SET_LAUNCHER_RC},
+       {"i6x", Chord::SW2_MID_SW3_UP_ENTER, "chassis", 1},
+       {"i6x", Chord::SW2_UP_SW3_UP_ENTER, "chassis", 1}}}});
+  unsigned friction_edges = 0;
+  receiver.GetEvent().Register(static_cast<uint32_t>(Pos::SW1_UP),
+                              [&](bool, uint32_t) { ++friction_edges; });
+  I6xEvents events;
+  I6xInput::State state{};
+  state.online = true;
+  state.channels[1] = 330;
+  state.channels[2] = 330;
+  state.switches = {-1, -1, -1, -1};
+  auto submit = [&](bool fresh = true)
+  {
+    events.Update(state, fresh, [&](uint32_t id) { receiver.GetEvent().Active(id); });
+    command.FeedRC(CMD::RCInputSource::RC_INPUT_I6X, I6x::MakeCommand(state));
+  };
+  submit();
+  assert(command.Online() && chassis_probe.mode == 0 && friction_edges == 0);
+  // 源选择由真正的 EventBinder 转发，不依赖任何 I6x 专用 CMD 策略。
+  state.switches[2] = 0;
+  state.switches[3] = 1;
+  submit();
+  assert(chassis_probe.mode == 1 && chassis().x == .5f && gimbal().yaw == -.5f);
+  assert(command.GetChannelMode(CMD::Channel::GIMBAL) == CMD::Mode::CMD_OP_CTRL);
   CMD::Data ai{};
   ai.chassis.x = .7f;
   ai.gimbal.yaw = .8f;
@@ -99,76 +150,79 @@ int main()
   ai.launcher.isfire = true;
   LibXR::Timebase::now = 1000;
   command.FeedAI(ai);
-  I6xInput::State state{};
-  state.online = true;
-  state.channels[1] = 330;
-  state.channels[2] = 330;
-  state.switches = {1, -1, 0, 1};
-  auto knob = I6x::MakeIntent(state);
-  knob.receiver.channels[4] = -660;
-  assert(I6x::MakeCommand(knob).chassis.z == 0);
-  knob.receiver.channels[4] = 0;
-  assert(I6x::MakeCommand(knob).chassis.z == .5f);
-  knob.receiver.channels[4] = 660;
-  assert(I6x::MakeCommand(knob).chassis.z == 1);
-  auto submit = [&]()
-  {
-    command.FeedRC(CMD::RCInputSource::RC_INPUT_I6X,
-                   I6x::MakeCommand(I6x::MakeIntent(state)));
-  };
-  submit();
-  assert(chassis().x == .5f && gimbal().yaw == -.5f && fire());
-  // 验证独立拨杆、停机，以及上位机数据过期后不回退到手动输入。
   state.switches[2] = 1;
   submit();
   assert(chassis().x == .7f && gimbal().yaw == .8f);
-  LibXR::Timebase::now = 1100;
+  // PC 发射许可独立于遥控开火拨杆；退出许可组合立即恢复 RC 开火来源。
+  assert(command.GetChannelMode(CMD::Channel::LAUNCHER) == CMD::Mode::CMD_AUTO_CTRL);
+  assert(fire());
+  state.switches[1] = 0;
   submit();
-  assert(chassis().x == 0 && gimbal().yaw == 0);
-  state.switches = {-1, 0, -1, -1};
-  command.FeedAI(ai);
-  submit();
-  assert(chassis().x == 0 && gimbal().yaw == 0 && !fire());
-  state.online = false;
-  submit();
-  assert(!command.Online() && !fire());
-  // 摩擦轮切换按输入边沿计数，保持拨杆时不重复触发。
-  LibXR::UART uart;
-  I6x receiver(uart, command);
-  state.online = true;
-  state.switches[1] = 1;
-  assert(receiver.UpdateIntent(state, true).friction_toggle_sequence == 0);
+  assert(!fire());
   state.switches[1] = -1;
-  receiver.UpdateIntent(state, true);
-  state.switches[1] = 1;
-  assert(receiver.UpdateIntent(state, true).friction_toggle_sequence == 1);
-  assert(receiver.UpdateIntent(state, true).friction_toggle_sequence == 1);
-  state.switches[1] = -1;
-  receiver.UpdateIntent(state, true);
+  submit();
+  assert(fire());
+  // PC 组合切到 RC 组合时，退出事件不会覆盖新选择。
+  state.switches[2] = 0;
+  submit();
+  assert(chassis().x == .5f);
+  state.switches[2] = 1;
+  submit();
+  assert(chassis().x == .7f);
+  assert(command.GetChannelMode(CMD::Channel::CHASSIS) == CMD::Mode::CMD_AUTO_CTRL);
+  // 坏帧不触发事件，但立即撤销输出；不把短暂坏帧变成一次模式切换。
   state.frame_lost = true;
-  state.switches[1] = 1;
-  assert(receiver.UpdateIntent(state, true).friction_toggle_sequence == 1);
-  state.online = false;
-  receiver.UpdateIntent(state, false);
-  state.online = true;
+  submit();
+  assert(chassis_probe.mode == 1 && chassis().x == 0 && gimbal().yaw == 0 && !fire());
   state.frame_lost = false;
-  assert(receiver.UpdateIntent(state, true).friction_toggle_sequence == 1);
-  // 验证摇杆归零时在线、各轴独立停机，以及计时回绕后的上位机数据过期。
+  submit();
+  LibXR::Timebase::now = 1100;
+  submit(false);
+  assert(chassis().x == 0 && gimbal().yaw == 0);
+  // 摩擦轮只提供拨杆进入事件：保持位置、其他拨杆变化及坏帧均不重复开关。
+  state.switches[1] = 1;
+  submit();
+  assert(friction_edges == 1);
+  submit();
+  state.switches[0] = 1;
+  submit();
+  assert(friction_edges == 1);
+  state.switches[1] = -1;
+  state.failsafe = true;
+  submit();
+  state.switches[1] = 1;
+  state.failsafe = false;
+  submit();
+  assert(friction_edges == 1);
+  // 离线后恢复时所有来源保持遥控，首帧不凭当前档位重新使能机构。
+  state.online = false;
+  submit(false);
+  assert(!command.Online() && chassis_probe.mode == 0 && !fire());
+  state.online = true;
+  submit();
+  assert(chassis_probe.mode == 0 && friction_edges == 1);
+  assert(command.GetChannelMode(CMD::Channel::GIMBAL) == CMD::Mode::CMD_OP_CTRL);
+  // 从两个独立事件分别设置来源；上位机数据过期跨计时回绕后仍归零。
+  command.GetEvent().Active(static_cast<uint32_t>(Source::SET_GIMBAL_PC));
   LibXR::Timebase::now = UINT32_MAX - 20;
   command.FeedAI(ai);
-  state.channels.fill(0);
-  state.switches = {-1, -1, 1, -1};
-  submit();
-  assert(chassis().x == 0 && gimbal().yaw == .8f);
-  LibXR::Timebase::now = 50;
-  submit();
-  assert(gimbal().yaw == .8f);
+  submit(false);
+  assert(chassis().x == .5f && gimbal().yaw == .8f);
   LibXR::Timebase::now = 80;
-  submit();
-  assert(gimbal().yaw == 0 && !fire());
+  submit(false);
+  assert(gimbal().yaw == 0);
+  // 原全局AUTO仍需要遥控开火许可，避免改变DR16的双端许可。
+  command.SetCtrlMode(CMD::Mode::CMD_AUTO_CTRL);
+  LibXR::Timebase::now = 2000;
+  command.FeedAI(ai);
+  state.switches[0] = -1;
+  submit(false);
+  assert(!fire());
+  state.switches[0] = 1;
+  submit(false);
+  assert(fire());
   state.online = false;
-  submit();
-  // 验证原 DR16 路径及活动输入源离线后的切换仍可使用。
+  submit(false);
   CMD::Data dr16{};
   dr16.chassis_online = true;
   dr16.chassis.x = -.25f;

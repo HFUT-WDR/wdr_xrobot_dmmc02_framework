@@ -15,6 +15,8 @@ requests:
   ref: same-or-dev
 - id: YunMo-yanyu/DR16
   ref: same-or-dev
+- id: YunMo-yanyu/EventBinder
+  ref: same-or-dev
 - id: YunMo-yanyu/HostData
   ref: same-or-dev
 - id: YunMo-yanyu/I6x
@@ -32,7 +34,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 6b14353cf111c36af152ccf394ffc7f6fe877f14
+    commit: b7aecbf7b4898ca2ceab08d87e1dd2378be74cd0
   YunMo-yanyu/DMMotor:
     repo: https://github.com/YunMo-yanyu/DMMotor.git
     source: ModuleIndex/index.yaml
@@ -47,6 +49,13 @@ modules:
     resolved_ref: dev
     ref_kind: branch
     commit: ff7859789d945cfd74071a9291e1cea8c216385e
+  YunMo-yanyu/EventBinder:
+    repo: https://github.com/YunMo-yanyu/EventBinder.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: 76a029d5664f60e6581a18f0360eed83870292ab
   YunMo-yanyu/HostData:
     repo: https://github.com/YunMo-yanyu/HostData.git
     source: ModuleIndex/index.yaml
@@ -60,7 +69,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 9f114204d3d05ffe7c27c7fc92379231bffc0179
+    commit: 4e7aeeb254167de75394cea81e0f5e77305bd2ac
   YunMo-yanyu/Motor:
     repo: https://github.com/YunMo-yanyu/Motor.git
     source: ModuleIndex/index.yaml

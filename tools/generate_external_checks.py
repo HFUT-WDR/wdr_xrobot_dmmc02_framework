@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MODULES = [f"YunMo-yanyu/{name}" for name in
            ("CMD", "RMMotor", "DMMotor", "DR16", "Referee", "HostData")]
 MODULES += [f"xrobot-org/{name}" for name in ("SharedTopic", "SharedTopicClient")]
-MODULES += ["YunMo-yanyu/I6x"]
+MODULES += ["YunMo-yanyu/I6x", "YunMo-yanyu/EventBinder"]
 
 
 def run(*args, cwd=ROOT):

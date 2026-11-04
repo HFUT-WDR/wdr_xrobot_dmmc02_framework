@@ -2,7 +2,7 @@
 # 检查目标的对象文件不链接进实际运行固件。
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(EXTERNAL_CHECK_DIR "${CMAKE_CURRENT_BINARY_DIR}/external_modules")
-set(EXTERNAL_CHECK_NAMES CMD RMMotor DMMotor DR16 Referee HostData SharedTopic SharedTopicClient I6x external_profile i6x_profile)
+set(EXTERNAL_CHECK_NAMES CMD RMMotor DMMotor DR16 Referee HostData SharedTopic SharedTopicClient I6x EventBinder external_profile i6x_profile)
 set(EXTERNAL_CHECK_SOURCES)
 foreach(name IN LISTS EXTERNAL_CHECK_NAMES)
     list(APPEND EXTERNAL_CHECK_SOURCES "${EXTERNAL_CHECK_DIR}/${name}.cpp")
