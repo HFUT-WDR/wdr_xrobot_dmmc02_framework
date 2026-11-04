@@ -95,3 +95,5 @@ python3 tests/external_modules/run_tests.py --preset Release
 分别生成、编译基础设备组合配置和完整i6x YAML，不替换主工程的已选配置。
 所有检查对象不链接进默认固件。主机测试对照本机26_sentry冻结解码源，并覆盖失控、超时和CMD
 路由；这不替代真实接收机、电机或机构硬件验收。
+
+另已在独立检出中选择 `User/xrobot_i6x.yaml` 并链接出完整ARM固件，未改变默认工作区配置，未烧录。

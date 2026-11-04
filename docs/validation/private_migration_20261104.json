@@ -60,7 +60,8 @@
     "default_elf_isolation": "PASS (Debug and Release)",
     "board_ram_database": "PASS",
     "selected_profile": "User/xrobot.yaml",
-    "flashed": false
+    "flashed": false,
+    "i6x_yaml_full_firmware_link": "PASS：独立检出，选择User/xrobot_i6x.yaml，完整链接ARM固件，未烧录"
   },
   "components": {
     "CMD": {
@@ -105,9 +106,10 @@
     }
   },
   "images": {
-    "Debug": "935d82a26d990b6d782fc7b8bcc5adb0b07f105d639c35597c85db33a00e71cd",
+    "Debug": "7fa20578ad4e22762cdba21b6525eaaa21481ebe1b57dc021aa5d864c9b46578",
     "Release": "0dbd9e3c9baab0c6c60f8c49bf7c185d0f8bddaa1bd5f6f61516a6ed9ff42fd9"
   },
   "base_history_complete": true,
-  "branding": "WDR；第三方来源与原许可集中保留在THIRD_PARTY_NOTICES.md；旧上游远端已移除"
+  "branding": "WDR；第三方来源与原许可集中保留在THIRD_PARTY_NOTICES.md；旧上游远端已移除",
+  "i6x_linkcheck_image_sha256": "a2d7b3a898bd6e1bda876714b4fd534817b9e45a6f455757d3705fae8bfbb143"
 }

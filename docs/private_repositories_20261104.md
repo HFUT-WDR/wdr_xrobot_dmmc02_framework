@@ -42,7 +42,7 @@ XRobot的索引HTTP读取不自动带GitHub登录，因此不使用私有仓库�
 默认产品仍为User/xrobot.yaml，只运行已验收的板级功能。User/xrobot_i6x.yaml是可显式选择的
 独立配置，通过YAML创建CMD和I6x；默认不选择、不启动外接设备。本轮未烧录。
 
-验收包括：冻结／离线setup、标准I6x模块接口发现、模块构造生成、完整i6x YAML生成并编译、
+验收包括：冻结／离线setup、标准I6x模块接口发现、模块构造生成、完整i6x YAML生成并编译、独立检出中i6x固件完整链接、
 Debug/Release构建、原始解码对照与失控/STOP回归、默认ELF隔离检查、板级数据库回归。
 主机I6x冻结源对照依赖本机26_sentry参考目录，若仅构建固件不需要该参考目录。
 精确组件提交、仓库私有状态和检查结果另记于docs/validation/private_migration_20261104.json。
