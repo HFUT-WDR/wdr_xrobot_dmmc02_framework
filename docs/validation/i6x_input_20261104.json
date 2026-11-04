@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-04",
+  "scope": "i6x input decoder, intent mapping and CMD routing; default board configuration preserved; no flash/hardware receiver test",
+  "checks": {
+    "frozen_reference_vectors": 1568,
+    "sanitizers": "ASan+UBSan PASS",
+    "malformed_partial_frames": "PASS",
+    "lost_frames_and_timeout_wrap": "PASS",
+    "friction_edges_and_recovery": "PASS",
+    "cmd_axis_stop_ai_expiry_and_source_fallback": "PASS",
+    "Debug": "PASS",
+    "Release": "PASS",
+    "elf_external_instance_isolation": "PASS (Debug, Release)",
+    "board_support": "PASS"
+  },
+  "reference_sha256": {
+    "i6x.c": "e21ab3f92584d8ef2fe6740d643bbc822c149f2e6561d0710333cb61af00b34a",
+    "i6x.h": "c19ae6d22bc1dbf2eac48e1d8a60ea2ae541fbe329273b148f230c31cd8dbeef"
+  },
+  "source_sha256": {
+    "User/remote/i6x_input.hpp": "3d517a6e4108e8a868e3522a2da73c26f03fce1a488bc54a63282ea2c340ae4e",
+    "User/remote/i6x.hpp": "80c898e8cf15ae2ff64882b5fab13704e74ed404f8e42c20897a5f3c3d020cf8",
+    "patches/cmd_i6x.patch": "c06bd69d517991ef54a80ffe68c27c1856cec147d55b62e991e70985445e1ce4",
+    "User/xrobot.yaml": "24372d35d9c082166c6d4e576008bab777013c6ebbdd95a4d7d663cdd8b804c0"
+  },
+  "images": {
+    "Debug": "e7e4c2adbb2113808e6b91b074330f2bff79e170e3867a3951ed0f9a5dd05315",
+    "Release": "0dbd9e3c9baab0c6c60f8c49bf7c185d0f8bddaa1bd5f6f61516a6ed9ff42fd9"
+  }
+}

@@ -1,3 +1,14 @@
 xrobot: 1.0.1
 modules:
 - xrobot-org/BuzzerAlarm@same-or-dev
+- xrobot-org/BMI088@e4e64d705f5b61685e629a91e123ad2febe75fc7
+- xrobot-org/SharedTopic@same-or-dev
+- xrobot-org/SharedTopicClient@same-or-dev
+- YunMo-yanyu/CMD@same-or-dev
+- YunMo-yanyu/Motor@same-or-dev
+- YunMo-yanyu/RMMotor@same-or-dev
+- YunMo-yanyu/DMMotor@same-or-dev
+- YunMo-yanyu/DR16@same-or-dev
+- YunMo-yanyu/Referee@same-or-dev
+- YunMo-yanyu/HostData@same-or-dev
+- YunMo-yanyu/I6x@same-or-dev

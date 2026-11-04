@@ -1,0 +1,110 @@
+[
+  [
+    "",
+    "\r\nXRobot:/$ "
+  ],
+  [
+    "ls",
+    "ls\r\nd bin\r\nx echo\r\nx status\r\nXRobot:/$ "
+  ],
+  [
+    "status",
+    "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=1498 heap_free=71336 tasks=3\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_LOG_731",
+    "echo WDR_LOG_731\r\nWDR_LOG_731\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_000",
+    "echo WDR_000\r\nWDR_000\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_001",
+    "echo WDR_001\r\nWDR_001\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_002",
+    "echo WDR_002\r\nWDR_002\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_003",
+    "echo WDR_003\r\nWDR_003\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_004",
+    "echo WDR_004\r\nWDR_004\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_005",
+    "echo WDR_005\r\nWDR_005\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_006",
+    "echo WDR_006\r\nWDR_006\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_007",
+    "echo WDR_007\r\nWDR_007\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_008",
+    "echo WDR_008\r\nWDR_008\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_009",
+    "echo WDR_009\r\nWDR_009\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_010",
+    "echo WDR_010\r\nWDR_010\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_011",
+    "echo WDR_011\r\nWDR_011\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_012",
+    "echo WDR_012\r\nWDR_012\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_013",
+    "echo WDR_013\r\nWDR_013\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_014",
+    "echo WDR_014\r\nWDR_014\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_015",
+    "echo WDR_015\r\nWDR_015\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_016",
+    "echo WDR_016\r\nWDR_016\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_017",
+    "echo WDR_017\r\nWDR_017\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_018",
+    "echo WDR_018\r\nWDR_018\r\nXRobot:/$ "
+  ],
+  [
+    "echo WDR_019",
+    "echo WDR_019\r\nWDR_019\r\nXRobot:/$ "
+  ],
+  [
+    "status",
+    "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=4805 heap_free=71336 tasks=3\r\nXRobot:/$ "
+  ],
+  [
+    "status",
+    "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=4955 heap_free=71336 tasks=3\r\nXRobot:/$ "
+  ],
+  [
+    "status",
+    "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=5105 heap_free=71336 tasks=3\r\nXRobot:/$ "
+  ]
+]

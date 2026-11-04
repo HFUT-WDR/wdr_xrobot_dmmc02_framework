@@ -1,0 +1,17 @@
+{
+  "upstream_commit": "8c9ee21ace9f7c454a30b81e4edcada857ebd7cd",
+  "libxr_commit": "5161373dbe6d9d9fb1904d90e0ebd4344a44047a",
+  "cpu_hz": 550000000,
+  "artifacts": {
+    "Debug": {
+      "sha256": "0946932056f7bb5d51a71e2b0cb632d1808031e8a23c9588bf12ce99b3e6d931",
+      "bytes": 5546788,
+      "board_tested": true
+    },
+    "Release": {
+      "sha256": "d1fd54e1d86878da533431bbdc9d35473431bfe0da1ef47053542f1dee8e55b0",
+      "bytes": 241436,
+      "board_tested": false
+    }
+  }
+}

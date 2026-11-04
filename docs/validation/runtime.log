@@ -1,0 +1,40 @@
+0x0800c408 in prvCheckTasksWaitingTermination () at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/FreeRTOS/Source/tasks.c:3755
+3755	        while( uxDeletedTasksWaitingCleanUp > ( UBaseType_t ) 0U )
+$1 = 550000000
+$2 = 1
+$3 = 3
+$4 = 71336
+0x52002070:	0x00000004
+0xe000ed14:	0x00070200
+0xe000ed28:	0x00000000	0x00000000	0x00000000	0x00000000
+0x2001b480 <_ZGVZL10XRobotMainRN5LibXR3PWMEE6buzzer>:	1
+$5 = 0x0
+$6 = 768
+$7 = 768
+$8 = 0
+$9 = 0
+$10 = (void *) 0x5802541c
+$11 = HAL_FDCAN_STATE_BUSY
+$12 = HAL_FDCAN_STATE_BUSY
+$13 = HAL_FDCAN_STATE_BUSY
+$14 = 0
+$15 = 0
+$16 = 0
+$17 = 0x0
+$18 = 0x0
+$19 = 0x0
+$20 = 34
+$21 = 34
+$22 = 0
+$23 = 0
+$24 = 47829
+$25 = 47818
+0x38000040 <_ZL8adc3_buf>:	808	1502	807	1500	809	1501	807	1500
+0x38000050 <_ZL8adc3_buf+16>:	808	1502	808	1502	808	1501	808	1502
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread 
+xPSR: 0x61000000 pc: 0x0800c462 psp: 0x20000ab8
+$26 = 49837
+$27 = 49825
+0x38000040 <_ZL8adc3_buf>:	817	1502	817	1502	816	1501	816	1500
+0x38000050 <_ZL8adc3_buf+16>:	816	1502	816	1500	816	1500	816	1500
+defaultTask observed unused stack bytes: 15548

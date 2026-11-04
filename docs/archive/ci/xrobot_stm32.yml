@@ -15,5 +15,5 @@ jobs:
       contents: write
     uses: xrobot-org/XRobot/.github/workflows/bsp-stm32-ci.yml@v1
     with:
-      project: CtrBoard-H7_ALL
+      project: wdr_xrobot_dmmc02_framework
       build-type: Debug

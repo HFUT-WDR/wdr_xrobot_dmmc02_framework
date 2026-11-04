@@ -1,0 +1,302 @@
+[
+  {
+    "cycle": 0,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 0,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=75881 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 0,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 0,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 0,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 0,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=792 gyro_rad_s=[0.004,-0.009,0.004] accel_g=[0.039,-0.031,1.001]\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 1,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 1,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=76602 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 1,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 1,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 1,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 1,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=397 gyro_rad_s=[0.002,-0.003,0.000] accel_g=[0.045,-0.032,0.997]\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 2,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 2,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=77323 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 2,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 2,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 2,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 2,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=957 gyro_rad_s=[0.005,-0.004,-0.005] accel_g=[0.043,-0.025,1.001]\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 3,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 3,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=78044 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 3,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 3,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 3,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 3,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=517 gyro_rad_s=[0.011,-0.003,-0.009] accel_g=[0.040,-0.031,0.996]\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 4,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 4,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=78766 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 4,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 4,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 4,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 4,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=1077 gyro_rad_s=[0.006,0.003,-0.004] accel_g=[0.042,-0.029,1.001]\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 5,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 5,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=79487 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 5,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 5,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 5,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 5,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=636 gyro_rad_s=[0.010,0.005,-0.001] accel_g=[0.038,-0.029,0.996]\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 6,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 6,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=80208 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 6,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 6,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 6,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 6,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=150 gyro_rad_s=[0.003,-0.005,-0.001] accel_g=[0.040,-0.030,1.000]\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 7,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 7,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=80929 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 7,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 7,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 7,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 7,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=709 gyro_rad_s=[-0.003,0.000,-0.005] accel_g=[0.037,-0.030,1.001]\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 8,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 8,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=81651 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 8,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 8,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 8,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 8,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=313 gyro_rad_s=[0.013,0.002,0.000] accel_g=[0.035,-0.033,0.997]\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 9,
+    "command": "ls",
+    "output": "ls\r\nd bin\r\nx bmi088\r\nx echo\r\nx health\r\nx imu\r\nx key\r\nx led\r\nx status\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 9,
+    "command": "status",
+    "output": "status\r\nWDR MC02 clock_hz=550000000 uptime_ms=82372 heap_free=65056 tasks=6\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 9,
+    "command": "health",
+    "output": "health\r\nhealth heap_min=65056 spi2_err=0 spi6_err=0 adc3_err=0 cfsr=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 9,
+    "command": "key",
+    "output": "key\r\nkey pressed=0 presses=0 raw=1\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 9,
+    "command": "led",
+    "output": "led\r\nled auto=0 r=0 g=16 b=0 errors=0\r\nXRobot:/$ "
+  },
+  {
+    "cycle": 9,
+    "command": "imu",
+    "output": "imu\r\nimu age_us=871 gyro_rad_s=[0.000,0.002,0.000] accel_g=[0.039,-0.029,0.996]\r\nXRobot:/$ "
+  }
+]

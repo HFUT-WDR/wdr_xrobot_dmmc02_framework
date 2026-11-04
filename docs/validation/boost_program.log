@@ -1,0 +1,16 @@
+warning: No executable has been specified and target does not support
+determining executable automatically.  Try using the "file" command.
+0x0800c70c in ?? ()
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x0800f72c msp: 0x20020000
+BEFORE {'0x5200201c': 50768592, '0x52002028': 255, '0x52002030': 255, '0x52002038': 255, '0x52002040': 535824384, '0x52002070': 0}
+Device: STM32H72x/73x
+flash size probed value 1024k
+STM32H7 flash has a single bank
+Bank (0) size is 1024 kb, base address is 0x08000000
+flash 'stm32h7x' found at 0x08000000
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x0800f72c msp: 0x20020000
+AFTER {'0x5200201c': 50768592, '0x52002028': 255, '0x52002030': 255, '0x52002038': 255, '0x52002040': 535824384, '0x52002070': 4}
+PASS: BOOST set; other sampled option registers unchanged
+[Inferior 1 (Remote target) detached]

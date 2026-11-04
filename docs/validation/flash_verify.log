@@ -1,0 +1,3 @@
+0x0800c462 in prvIdleTask (pvParameters=<optimized out>) at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/FreeRTOS/Source/tasks.c:3529
+3529	            if( listCURRENT_LIST_LENGTH( &( pxReadyTasksLists[ tskIDLE_PRIORITY ] ) ) > ( UBaseType_t ) 1 )
+PASS: all Flash load segments match ELF [{'address': '0x8000000', 'bytes': 716, 'matched': True}, {'address': '0x8000300', 'bytes': 115500, 'matched': True}, {'address': '0x801c630', 'bytes': 5468, 'matched': True}, {'address': '0x801db8c', 'bytes': 8, 'matched': True}, {'address': '0x801db94', 'bytes': 108, 'matched': True}, {'address': '0x801dc00', 'bytes': 4, 'matched': True}, {'address': '0x801dc04', 'bytes': 144, 'matched': True}]

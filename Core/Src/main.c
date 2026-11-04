@@ -33,6 +33,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <string.h>
 
 /* USER CODE END Includes */
 
@@ -54,6 +55,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+extern unsigned char __axi_ram_start__[];
+extern unsigned char __axi_ram_end__[];
+extern unsigned char __ram_d3_start__[];
+extern unsigned char __ram_d3_end__[];
 
 /* USER CODE END PV */
 
@@ -130,7 +135,15 @@ int main(void)
   MX_DAC1_Init();
   MX_USB_OTG_HS_PCD_Init();
   MX_UART5_Init();
+  MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
+  /* DMA scratch sections are NOLOAD; prepare them before constructing drivers. */
+  const size_t axi_size = (size_t)((uintptr_t)__axi_ram_end__ - (uintptr_t)__axi_ram_start__);
+  memset(__axi_ram_start__, 0, axi_size);
+  SCB_CleanInvalidateDCache_by_Addr((uint32_t *)__axi_ram_start__, (int32_t)axi_size);
+  const size_t d3_size = (size_t)((uintptr_t)__ram_d3_end__ - (uintptr_t)__ram_d3_start__);
+  memset(__ram_d3_start__, 0, d3_size);
+  SCB_CleanInvalidateDCache_by_Addr((uint32_t *)__ram_d3_start__, (int32_t)d3_size);
   /* USER CODE END 2 */
 
   /* Init scheduler */

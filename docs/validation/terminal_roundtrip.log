@@ -1,0 +1,5 @@
+'\r\nXRobot:/$ '
+'ls\r\nd bin\r\nx echo\r\nx status\r\nXRobot:/$ '
+'status\r\nWDR MC02 clock_hz=550000000 uptime_ms=1498 heap_free=71336 tasks=3\r\nXRobot:/$ '
+'echo WDR_LOG_731\r\nWDR_LOG_731\r\nXRobot:/$ '
+PASS: command list, board status, 21 echo round trips, repeated status

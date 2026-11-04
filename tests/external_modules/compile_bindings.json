@@ -1,0 +1,22 @@
+{
+    "rmmotor": {
+        "can_bus": "can1",
+        "param": {
+            "model": "RMMotor::Model::MOTOR_M3508",
+            "reverse": false,
+            "feedback_id": 513
+        }
+    },
+    "dmmotor": {
+        "can_bus": "can2",
+        "param": {
+            "model": "DMMotor::Model::MOTOR_DM4310",
+            "reverse": false,
+            "can_id": 1
+        }
+    },
+    "dr16": {"uart": "usart1"},
+    "referee": {"uart": "usart10"},
+    "host_rx": {"uart": "usb_otg_hs_cdc2"},
+    "host_tx": {"uart": "usb_otg_hs_cdc2"}
+}

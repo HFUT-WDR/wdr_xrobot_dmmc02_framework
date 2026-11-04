@@ -1,0 +1,111 @@
+{
+  "date": "2026-11-04",
+  "repositories": {
+    "CMD": {
+      "url": "https://github.com/YunMo-yanyu/CMD",
+      "private": true,
+      "fork": false
+    },
+    "Motor": {
+      "url": "https://github.com/YunMo-yanyu/Motor",
+      "private": true,
+      "fork": false
+    },
+    "RMMotor": {
+      "url": "https://github.com/YunMo-yanyu/RMMotor",
+      "private": true,
+      "fork": false
+    },
+    "DMMotor": {
+      "url": "https://github.com/YunMo-yanyu/DMMotor",
+      "private": true,
+      "fork": false
+    },
+    "DR16": {
+      "url": "https://github.com/YunMo-yanyu/DR16",
+      "private": true,
+      "fork": false
+    },
+    "Referee": {
+      "url": "https://github.com/YunMo-yanyu/Referee",
+      "private": true,
+      "fork": false
+    },
+    "HostData": {
+      "url": "https://github.com/YunMo-yanyu/HostData",
+      "private": true,
+      "fork": false
+    },
+    "I6x": {
+      "url": "https://github.com/YunMo-yanyu/I6x",
+      "private": true,
+      "fork": false
+    },
+    "xrobot-modules": {
+      "url": "https://github.com/YunMo-yanyu/xrobot-modules",
+      "private": true,
+      "fork": false
+    },
+    "wdr_xrobot_dmmc02_framework": {
+      "url": "https://github.com/YunMo-yanyu/wdr_xrobot_dmmc02_framework",
+      "private": true,
+      "fork": false
+    }
+  },
+  "checks": {
+    "frozen_offline_setup": "PASS (12 modules, 2 profiles)",
+    "Debug": "PASS",
+    "Release": "PASS",
+    "i6x_frozen_reference_and_sanitizers": "PASS (1568 vectors)",
+    "default_elf_isolation": "PASS (Debug and Release)",
+    "board_ram_database": "PASS",
+    "selected_profile": "User/xrobot.yaml",
+    "flashed": false
+  },
+  "components": {
+    "CMD": {
+      "commit": "167a9fc08d20b45a991d3f50ddb16f225a9854f4",
+      "upstream_baseline": "37b7700e9cce3ee74601d9fdcb67961792a21359",
+      "history_preserved": true
+    },
+    "Motor": {
+      "commit": "073937529aec060467102e131da0415583085434",
+      "upstream_baseline": "b78274996f93eec611efab2ba7ecc51fbd5672b9",
+      "history_preserved": true
+    },
+    "RMMotor": {
+      "commit": "9b33a19a27d385ed53ff8f595b496d7dd45f18c2",
+      "upstream_baseline": "e9d5fa3748cd984777a9fabdce40062d610660b2",
+      "history_preserved": true
+    },
+    "DMMotor": {
+      "commit": "f168ba0a2ec98dc2a870591a6a16e6b20b15d5f4",
+      "upstream_baseline": "7f1dc12abc8b05993671befcb8f1bba694755f5b",
+      "history_preserved": true
+    },
+    "DR16": {
+      "commit": "aa710bea163b71b1233ec4e14793d800739b6956",
+      "upstream_baseline": "79c22deb4187f5af4225077fe19434bd81835171",
+      "history_preserved": true
+    },
+    "Referee": {
+      "commit": "92dc83bd4b5a666e4a89efd0f63e49e15bbfd163",
+      "upstream_baseline": "79f8e5ca0afb56eaf2554d760eef67d067bca504",
+      "history_preserved": true
+    },
+    "HostData": {
+      "commit": "298beb7bc6f364121f23ca66bc5ea116b8f9f85d",
+      "upstream_baseline": "7fb5d7836383e48e97993216fff158977fe85a58",
+      "history_preserved": true
+    },
+    "I6x": {
+      "commit": "867156b1199a21460e8314514cac7681b6101dfa",
+      "upstream_baseline": "d138668d0b5f499cd39d9bd71bcfaffd67a25e79",
+      "history_preserved": true
+    }
+  },
+  "images": {
+    "Debug": "935d82a26d990b6d782fc7b8bcc5adb0b07f105d639c35597c85db33a00e71cd",
+    "Release": "0dbd9e3c9baab0c6c60f8c49bf7c185d0f8bddaa1bd5f6f61516a6ed9ff42fd9"
+  }
+}

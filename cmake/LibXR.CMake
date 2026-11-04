@@ -9,7 +9,7 @@ set(LIBXR_USER_SOURCES_GLOB "${CMAKE_CURRENT_SOURCE_DIR}/User/*.cpp")
 # Optimization level of the application in Debug builds and of everything in Release builds;
 # "" keeps the level of the toolchain file.
 set(LIBXR_OPT_DEBUG "-Og")
-set(LIBXR_OPT_RELEASE "-Os")
+set(LIBXR_OPT_RELEASE "-O2")
 
 # ---- LibXR -------------------------------------------------------------------
 set(CMAKE_CXX_STANDARD 20)

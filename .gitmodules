@@ -1,3 +1,6 @@
 [submodule "Middlewares/Third_Party/LibXR"]
 	path = Middlewares/Third_Party/LibXR
 	url = https://github.com/xrobot-org/libxr.git
+[submodule "ModuleIndex"]
+	path = ModuleIndex
+	url = https://github.com/YunMo-yanyu/xrobot-modules.git

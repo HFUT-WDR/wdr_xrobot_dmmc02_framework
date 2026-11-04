@@ -1,0 +1,33 @@
+LibXR::USB::CDCBase::OnClassData (this=0x0, in_isr=false, bRequest=0 '\000', data=...) at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/src/driver/usb/device/cdc/cdc_base.hpp:580
+580	            break;
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x0800f72c msp: 0x20020000
+Loading section .isr_vector, size 0x2cc lma 0x8000000
+Loading section .text, size 0x1c32c lma 0x8000300
+Loading section .rodata, size 0x155c lma 0x801c630
+Loading section .ARM, size 0x8 lma 0x801db8c
+Loading section .init_array, size 0x6c lma 0x801db94
+Loading section .fini_array, size 0x4 lma 0x801dc00
+Loading section .data, size 0x90 lma 0x801dc04
+Start address 0x0800f5f0, load size 121948
+Transfer rate: 46 KB/sec, 8710 bytes/write.
+Section .text, range 0x8000300 -- 0x801c62c: matched.
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x0800f5f0 msp: 0x20020000
+Breakpoint 1 at 0x8016f68: file /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/src/libxr.cpp, line 7.
+Note: automatically using hardware breakpoints for read-only addresses.
+Breakpoint 2 at 0x80115ce: file /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/User/app_main.cpp, line 226.
+
+Breakpoint 2, app_main () at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/User/app_main.cpp:226
+226	  register_board_commands(ramfs);
+#0  app_main () at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/User/app_main.cpp:226
+#1  0x0800d9fe in StartDefaultTask (argument=<optimized out>) at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Core/Src/freertos.c:138
+#2  0x0800d288 in vPortEnableVFP () at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c:786
+Backtrace stopped: previous frame identical to this frame (corrupt stack?)
+$1 = 550000000
+$2 = HAL_FDCAN_STATE_BUSY
+$3 = HAL_FDCAN_STATE_BUSY
+$4 = HAL_FDCAN_STATE_BUSY
+No symbol "file" in current context.
+No symbol "line" in current context.
+[Inferior 1 (Remote target) detached]

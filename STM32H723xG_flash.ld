@@ -208,22 +208,23 @@ SECTIONS
     . = ALIGN(4);
     PROVIDE( __tbss_end = . );
   } >DTCMRAM
-
   .ram_d3 (NOLOAD) :
-{
-  . = ALIGN(4);
-  *(.ram_d3)
-  *(.ram_d3*)
-  . = ALIGN(4);
-} >RAM_D3
+  {
+    . = ALIGN(32);
+    __ram_d3_start__ = .;
+    *(.ram_d3 .ram_d3.*)
+    . = ALIGN(32);
+    __ram_d3_end__ = .;
+  } >RAM_D3
 
 .axi_ram (NOLOAD) :
-{
-  . = ALIGN(4);
-  *(.axi_ram)
-  *(.axi_ram*)
-  . = ALIGN(4);
-} >RAM_D1
+  {
+    . = ALIGN(32);
+    __axi_ram_start__ = .;
+    *(.axi_ram .axi_ram.*)
+    . = ALIGN(32);
+    __axi_ram_end__ = .;
+  } >RAM_D1
 
   PROVIDE( __tbss_start = ADDR(.tbss) );
   PROVIDE( __tbss_size = __tbss_end - __tbss_start );
@@ -264,20 +265,12 @@ SECTIONS
     . = ALIGN(8);
   } >DTCMRAM
 
-  .ram_d3 (NOLOAD) :
-  {
-    . = ALIGN(4);
-    *(.ram_d3)
-    *(.ram_d3*)
-    . = ALIGN(4);
-  } >RAM_D3
-
   .ram_d1 (NOLOAD) :
   {
-    . = ALIGN(4);
+    . = ALIGN(32);
     *(.ram_d1)
     *(.ram_d1*)
-    . = ALIGN(4);
+    . = ALIGN(32);
   } >RAM_D1
 
   /* Remove information from the standard libraries */

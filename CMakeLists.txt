@@ -19,7 +19,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # Set the project name
-set(CMAKE_PROJECT_NAME CtrBoard-H7_ALL)
+set(CMAKE_PROJECT_NAME wdr_xrobot_dmmc02_framework)
 
 # Enable compile command to ease indexing with e.g. clangd
 set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
@@ -80,3 +80,6 @@ function(print_section_sizes TARGET)
 endfunction()
 
 print_section_sizes(${PROJECT_NAME})
+
+# Verify external-device dependencies without starting or linking their instances.
+include(cmake/ExternalModules.cmake)

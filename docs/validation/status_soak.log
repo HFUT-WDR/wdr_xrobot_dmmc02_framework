@@ -1,0 +1,1 @@
+PASS: 12 status samples over about 24 seconds, monotonic uptime and stable heap {'clock_hz': 550000000, 'uptime_ms': 152417, 'heap_free': 71336, 'tasks': 3}

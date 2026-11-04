@@ -1,0 +1,19 @@
+prvCheckTasksWaitingTermination () at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/FreeRTOS/Source/tasks.c:3755
+3755	        while( uxDeletedTasksWaitingCleanUp > ( UBaseType_t ) 0U )
+$1 = 550000000
+$2 = 31714
+$3 = 6
+$4 = 65200
+$5 = 65200
+$6 = 0x0
+$7 = 0
+$8 = 0
+$9 = 0
+$10 = {<std::__atomic_base<unsigned long>> = {static _S_alignment = 4, _M_i = 0}, static is_always_lock_free = true}
+$11 = {<std::__atomic_base<unsigned long>> = {static _S_alignment = 4, _M_i = 16777216}, static is_always_lock_free = true}
+$12 = {<Eigen::PlainObjectBase<Eigen::Matrix<float, 3, 1, 0, 3, 1> >> = {<Eigen::MatrixBase<Eigen::Matrix<float, 3, 1, 0, 3, 1> >> = {<Eigen::DenseBase<Eigen::Matrix<float, 3, 1, 0, 3, 1> >> = {<Eigen::DenseCoeffsBase<Eigen::Matrix<float, 3, 1, 0, 3, 1>, 3>> = {<Eigen::DenseCoeffsBase<Eigen::Matrix<float, 3, 1, 0, 3, 1>, 1>> = {<Eigen::DenseCoeffsBase<Eigen::Matrix<float, 3, 1, 0, 3, 1>, 0>> = {<Eigen::EigenBase<Eigen::Matrix<float, 3, 1, 0, 3, 1> >> = {<No data fields>}, <No data fields>}, <No data fields>}, <No data fields>}, <No data fields>}, <No data fields>}, m_storage = {<Eigen::internal::DenseStorage_impl<float, 3, 3, 1, 0>> = {m_data = {array = {0, -0.00639158674, -0.00532632228}}}, <No data fields>}}, <No data fields>}
+$13 = {<Eigen::PlainObjectBase<Eigen::Matrix<float, 3, 1, 0, 3, 1> >> = {<Eigen::MatrixBase<Eigen::Matrix<float, 3, 1, 0, 3, 1> >> = {<Eigen::DenseBase<Eigen::Matrix<float, 3, 1, 0, 3, 1> >> = {<Eigen::DenseCoeffsBase<Eigen::Matrix<float, 3, 1, 0, 3, 1>, 3>> = {<Eigen::DenseCoeffsBase<Eigen::Matrix<float, 3, 1, 0, 3, 1>, 1>> = {<Eigen::DenseCoeffsBase<Eigen::Matrix<float, 3, 1, 0, 3, 1>, 0>> = {<Eigen::EigenBase<Eigen::Matrix<float, 3, 1, 0, 3, 1> >> = {<No data fields>}, <No data fields>}, <No data fields>}, <No data fields>}, <No data fields>}, <No data fields>}, m_storage = {<Eigen::internal::DenseStorage_impl<float, 3, 3, 1, 0>> = {m_data = {array = {0.088827841, -0.148168504, 0.989560485}}}, <No data fields>}}, <No data fields>}
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread 
+xPSR: 0x61000000 pc: 0x0800e73e psp: 0x20000b40
+$14 = 33722
+$15 = 65200

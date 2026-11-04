@@ -1,0 +1,11 @@
+{
+  "Debug": {
+    "elf": "build/Debug/wdr_xrobot_dmmc02_framework.elf",
+    "sha256": "e7e4c2adbb2113808e6b91b074330f2bff79e170e3867a3951ed0f9a5dd05315"
+  },
+  "Release": {
+    "elf": "build/Release/wdr_xrobot_dmmc02_framework.elf",
+    "sha256": "0dbd9e3c9baab0c6c60f8c49bf7c185d0f8bddaa1bd5f6f61516a6ed9ff42fd9"
+  },
+  "flashed": "Debug"
+}
