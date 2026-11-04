@@ -1,7 +1,7 @@
 # 基础设备与 i6x 模块
 
 主工程使用 YunMo-yanyu 名下的私有组件仓库。CMD、Motor、RMMotor、DMMotor、DR16、Referee、
-HostData、I6x 均通过 XRobot 管理；不再从 QDU 仓库解析构建依赖。LibXR、BMI088、BuzzerAlarm、
+HostData、I6x 均通过 XRobot 管理；组件由 WDR 独立维护。LibXR、BMI088、BuzzerAlarm、
 SharedTopic、SharedTopicClient 继续使用官方来源。
 
 模块索引由 `ModuleIndex` Git 子模块提供，依赖请求在 `Modules/modules.yaml`，实际提交固定在

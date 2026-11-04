@@ -32,56 +32,56 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 167a9fc08d20b45a991d3f50ddb16f225a9854f4
+    commit: 6b14353cf111c36af152ccf394ffc7f6fe877f14
   YunMo-yanyu/DMMotor:
     repo: https://github.com/YunMo-yanyu/DMMotor.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: f168ba0a2ec98dc2a870591a6a16e6b20b15d5f4
+    commit: 7c1973abc37bca458dff81a2e87b4ba8c11056bb
   YunMo-yanyu/DR16:
     repo: https://github.com/YunMo-yanyu/DR16.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: aa710bea163b71b1233ec4e14793d800739b6956
+    commit: ff7859789d945cfd74071a9291e1cea8c216385e
   YunMo-yanyu/HostData:
     repo: https://github.com/YunMo-yanyu/HostData.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 298beb7bc6f364121f23ca66bc5ea116b8f9f85d
+    commit: 5f03b52a3baa423aca74b2f114842cb6fec4988e
   YunMo-yanyu/I6x:
     repo: https://github.com/YunMo-yanyu/I6x.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 867156b1199a21460e8314514cac7681b6101dfa
+    commit: 9f114204d3d05ffe7c27c7fc92379231bffc0179
   YunMo-yanyu/Motor:
     repo: https://github.com/YunMo-yanyu/Motor.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 073937529aec060467102e131da0415583085434
+    commit: 6f87c763909f78469d2c7f809d95ed89d266719b
   YunMo-yanyu/RMMotor:
     repo: https://github.com/YunMo-yanyu/RMMotor.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 9b33a19a27d385ed53ff8f595b496d7dd45f18c2
+    commit: c6ef27ac66dec11d9347e8aad0a7be363553259d
   YunMo-yanyu/Referee:
     repo: https://github.com/YunMo-yanyu/Referee.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 92dc83bd4b5a666e4a89efd0f63e49e15bbfd163
+    commit: ef0ffc41ca7f2f4045f8fb4b4120620c4e250a7d
   xrobot-org/BMI088:
     repo: https://github.com/xrobot-org/BMI088.git
     source: https://xrobot.work/xrobot-modules/index.yaml

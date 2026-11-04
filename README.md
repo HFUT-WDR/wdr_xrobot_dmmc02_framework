@@ -1,6 +1,6 @@
 # WDR XRobot DM-MC02 Framework
 
-以 [QDU-Robomaster/bsp-dev-mc02](https://github.com/QDU-Robomaster/bsp-dev-mc02) 的 `8c9ee21` 为基础，保留上游 Git 历史、板级资源组织、许可和 XRobot 模块机制。旧 `wdr_xrobot_framework` 仅作对照，本工程不是它的目录复制。
+WDR MC02 机器人固件基座，使用 LibXR 与 XRobot 管理板级资源和功能模块。第三方来源与许可证见 [声明文件](THIRD_PARTY_NOTICES.md)。
 
 当前：STM32H723VGT6，CPU **550 MHz**，I/D Cache；TIM4 时基；双 USB CDC（Log / Host）；ADC3 温度和参考电压 BDMA 采集；XRobot 模块接入 `BuzzerAlarm` 和 `BMI088`，另有板级 RGB 灯、按键及状态诊断。板级模块已烧录并通过终端和 IMU 采样初测；用户已目视确认 RGB 红/绿/蓝及绿色心跳正常，实体按键按下/松开及边沿计数验证通过。
 
@@ -58,7 +58,7 @@ python3 tools/check_terminal.py --port /dev/serial/by-id/实际设备的-if00
 | BMI088 | SPI2、PC0/PC3 片选、PE12 数据就绪；TIM3_CH4 加热输出为零 | `imu`：等待新采样，角速度 rad/s、加速度 g；`bmi088 show 1000 100`：上游温度/数据查看 |
 | 运行诊断 | 主频、运行时间、堆、任务数、SPI/ADC 错误和 CFSR | `status`、`health` |
 
-BMI088 采用 XRobot 官方模块的固定提交，由 `xrobot.lock` 记录；QDU 旧版 BMI088 仍依赖旧 Application 接口，本轮不移入。参数和硬件绑定集中在 `User/xrobot.yaml`：陀螺仪 1000 Hz、±2000 dps，加速度 1600 Hz、±6 g，坐标旋转为单位四元数；本轮只接原始六轴数据，不含姿态融合。温控 PID 系数为零，因此不加热。
+BMI088 采用 XRobot 官方模块的固定提交，由 `xrobot.lock` 记录；参数和硬件绑定集中在 `User/xrobot.yaml`：陀螺仪 1000 Hz、±2000 dps，加速度 1600 Hz、±6 g，坐标旋转为单位四元数；本轮只接原始六轴数据，不含姿态融合。温控 PID 系数为零，因此不加热。
 
 `ImuRamDatabase` 只保存当前上电周期的零偏，复位即清除；没有开启 Flash 数据库。上游 `bmi088 cali` 为约 3 分钟的阻塞命令，本轮未执行或验证。`imu` 的新 Topic 消息不等价于有效姿态或控制系统在线判断。
 
@@ -72,13 +72,13 @@ SPI6 目前仅有 TX DMA；LibXR 生成器按其规则选择轮询发送。单�
 
 内部 Flash 数据库暂时关闭；上游生成的默认 Flash 映射覆盖整个芯片，需先划分独立数据库区域才能启用。
 
-配置变化、首次模块闭环与板测证据见 [迁移与验收记录](docs/qdu_base_bringup.md)。命名与格式遵循 [AGENTS.md](AGENTS.md)。
+配置变化、首次模块闭环与板测证据见 [迁移与验收记录](docs/wdr_base_bringup.md)。命名与格式遵循 [AGENTS.md](AGENTS.md)。
 
 保留上游 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)。当前改动未提交、未推送。
 
 ## 外接基础模块（已接依赖，默认不启动）
 
-已引入 QDU 的 DJI／达妙电机、DR16、裁判系统、HostData，以及 CMD／Motor 和
+已引入 WDR 维护的 DJI／达妙电机、DR16、裁判系统、HostData，以及 CMD／Motor 和
 SharedTopic 双向通信依赖。型号、ID 和接线未确认的实例不加入默认启动配置。
 配置模板、参数含义、驱动差异和后续启用步骤见 [基础设备模块接入](docs/external_modules.md)。
 
@@ -90,7 +90,7 @@ VS Code 新增“检查外接模块（仅编译）”，原编译和 J-Link 烧�
 
 主工程发布到 `YunMo-yanyu/wdr_xrobot_dmmc02_framework`，组件索引在
 `YunMo-yanyu/xrobot-modules`，CMD、Motor、RMMotor、DMMotor、DR16、Referee、HostData、I6x
-均由同账号的私有仓库独立维护。保留原 QDU 历史和许可证，不再从 QDU 解析构建依赖。
+均由同账号的私有仓库独立维护。采用独立组件仓库，保留历史和第三方许可证。
 LibXR 和 xrobot-org 官方模块继续使用上游。
 
 ```sh

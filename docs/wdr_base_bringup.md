@@ -1,30 +1,30 @@
-# QDU MC02 基底迁移与验收
+# WDR MC02 基座与验收
 
 日期：2026-11-03。工程目录为 `wdr_xrobot_dmmc02_framework`。
 
 ## 基底与版本
 
-- 基于 QDU `bsp-dev-mc02` 提交 `8c9ee21` 克隆，保留历史；远端 `upstream` 指向其官方仓库。
+- MC02 基座保留提交 `8c9ee21` 起的历史，第三方来源见根目录声明文件。
 - 工作分支 `codex/wdr-mc02-base`，未提交或推送本轮改动。
 - LibXR 子模块 `5161373dbe6d9d9fb1904d90e0ebd4344a44047a`，保持上游基线。
 - 生成器 6.0.1，XRobot 1.0.1。
 - `xrobot.lock` 锁定首个模块 BuzzerAlarm：`a7c17cf7b1d10409848c32bd420cb393515e7f27`。
-- 旧 WDR 工程没有被覆盖。本工程直接继承 QDU 的引脚和板级资源组织，包括 USART2/3 RS485、更多 PWM 和 SPI6 BDMA；这些外设的接线和实际功能仍需逐项验收。
+- 旧 WDR 工程没有被覆盖。本工程直接继承 MC02 基座的引脚和板级资源组织，包括 USART2/3 RS485、更多 PWM 和 SPI6 BDMA；这些外设的接线和实际功能仍需逐项验收。
 
 ## 必要适配
 
 1. 工程和 IOC 改名为 `wdr_xrobot_dmmc02_framework`，同步 CI、Ozone 工程路径。
 2. 用官方工具切换到本机可用的 ARM GCC。Debug 应用 -Og、库 -O2，Release -O2。
-3. 保留 QDU 的 550/275/137.5 MHz 时钟树、TIM4 时基和 98 KB RTOS heap；修正 CAN SJW，使其不超过 TimeSeg2，保持 1 Mbps 仲裁、5 Mbps 数据相位。未测试 CAN 总线收发。
+3. 保留 MC02 基座的 550/275/137.5 MHz 时钟树、TIM4 时基和 98 KB RTOS heap；修正 CAN SJW，使其不超过 TimeSeg2，保持 1 Mbps 仲裁、5 Mbps 数据相位。未测试 CAN 总线收发。
 4. USB 从一路 CDC 扩为 Log / Host 两路，采用 WDR 设备字符串。Log 由生成器绑定 STDIO 和独立 2048 字节终端线程，Host 供以后协议使用。
 5. 增加 ADC3 温度/VREFINT 两路连续扫描，用 BDMA_Channel1（Channel0 保留给上游 SPI6_TX），缓冲位于 SRAM4 的 `.ram_d3`。
-6. 沿用 QDU 的 `.axi_ram`、`.ram_d3`、`.ram_d1` 分段，去掉重复 `.ram_d3` 定义，增加 32 字节对齐和 DMA scratch 边界符号。NOLOAD scratch 在 main 的 USER CODE 区清零并清理 Cache；USB 句柄保持上游位于 `.ram_d1` 的实现，不在 scratch 清零时覆盖它。
+6. 沿用 MC02 基座的 `.axi_ram`、`.ram_d3`、`.ram_d1` 分段，去掉重复 `.ram_d3` 定义，增加 32 字节对齐和 DMA scratch 边界符号。NOLOAD scratch 在 main 的 USER CODE 区清零并清理 Cache；USB 句柄保持上游位于 `.ram_d1` 的实现，不在 scratch 清零时覆盖它。
 7. 默认 Flash 数据库关闭：上游 `DatabaseRaw` 构造会初始化存储，而当前生成的 Flash 区域覆盖整个芯片，未划分独立数据区。没有迁入数据库写入或校准存储功能。
-8. 引入 QDU 的命名/格式规范，增加 `status` 和 `echo token` 诊断命令；没有自研 USB 驱动或终端解析。
+8. 引入 MC02 基座的命名/格式规范，增加 `status` 和 `echo token` 诊断命令；没有自研 USB 驱动或终端解析。
 
 ## CPU_FREQ_BOOST
 
-初次读取 `FLASH_OPTSR2_CUR=0`，先构建了未刷入的 520 MHz 适配版本。用户明确授权后，通过 OpenOCD 的带掩码选项写入开启 bit2，再恢复 QDU 的 550 MHz PLL 参数。
+初次读取 `FLASH_OPTSR2_CUR=0`，先构建了未刷入的 520 MHz 适配版本。用户明确授权后，通过 OpenOCD 的带掩码选项写入开启 bit2，再恢复 MC02 基座的 550 MHz PLL 参数。
 
 - 当前寄存器 `0x52002070 = 0x00000004`。
 - 写入仅对 `0x52002074` 的 bit2 使用 mask `0x4`。

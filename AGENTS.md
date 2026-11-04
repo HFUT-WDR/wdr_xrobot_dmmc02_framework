@@ -1,7 +1,6 @@
 # WDR MC02 开发约定
 
-本工程采用 QDU-Robomaster 的 C++20 代码规范：
-https://qdu-robomaster.github.io/电控组/code-standard
+本工程采用 WDR C++20 代码规范，具体规则如下：
 
 - 普通变量、全局变量、自由函数采用 lower_case。
 - 类成员采用 lower_case_，类、结构体和枚举类型采用 CamelCase。

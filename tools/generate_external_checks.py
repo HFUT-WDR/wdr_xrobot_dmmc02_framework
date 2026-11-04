@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate constructor checks and type-check an inactive YAML profile; never flash/run."""
+"""生成模块构造和未启用 YAML 配置的编译检查，不执行烧录或运行。"""
 import argparse
 import json
 from pathlib import Path
@@ -26,7 +26,7 @@ def generate(output):
         run("xrobot", "check-module", "--offline", module, "-o",
             str(output / (module.split("/")[1] + ".cpp")))
 
-    # Sample bindings ONLY for the compiler. They do not describe actual wiring.
+    # 这些示例绑定仅用于编译检查，不代表实际外接接线。
     bindings = json.loads((ROOT / "tests/external_modules/compile_bindings.json").read_text())
     template = yaml.safe_load((ROOT / "config/templates/external_devices.yaml.in").read_text())
     for instance in template["modules"]:
@@ -36,7 +36,7 @@ def generate(output):
                     arg[key] = bindings[instance["id"]][key]
                 elif value is None:
                     raise ValueError(f"Unbound compile fixture: {instance['id']}.{key}")
-    # Stage another BSP so gen cannot change the selected production configuration.
+    # 在临时基座中生成代码，避免改变主工程选中的配置。
     with tempfile.TemporaryDirectory(prefix="wdr-module-check-") as temp:
         stage = Path(temp)
         shutil.copyfile(ROOT / "xrobot.lock", stage / "xrobot.lock")
@@ -44,7 +44,7 @@ def generate(output):
         shutil.copytree(ROOT / "User", stage / "User",
                         ignore=shutil.ignore_patterns("xrobot_main.hpp"))
         board = yaml.safe_load((ROOT / "User/xrobot.yaml").read_text())
-        # PyYAML drops quote style, while xrobot uses it for C++ string literals.
+        # PyYAML 不保留引号样式，而 XRobot 用该样式识别 C++ 字符串字面量。
         def preserve_topic_strings(value):
             if isinstance(value, dict):
                 for key, item in value.items():
@@ -68,7 +68,7 @@ def generate(output):
         '// 仅编译验证 i6x 的 YAML 配置，不链接进默认固件。\n'
         '#include "i6x_profile.hpp"\n')
     (output / "external_profile.cpp").write_text(
-        '// Generated inactive profile. Compile only; never include in firmware.\n'
+        '// 生成的未启用配置，仅编译检查，不接入固件。\n'
         '#include "external_profile.hpp"\n')
 
 

@@ -2,10 +2,10 @@
 
 ## 来源与边界
 
-- 工程继续以 QDU `bsp-dev-mc02` 为基础，LibXR 提交不变。
-- BMI088 复用 `xrobot-org/BMI088`，提交 `e4e64d705f5b61685e629a91e123ad2febe75fc7`，通过 `xrobot module add`、`instance add`、`setup` 接入，锁文件纳入版本管理。没有修改第三方模块。QDU 调研目录中的旧 BMI088 使用已弃用的 Application/HardwareContainer 接口，不能直接用于现有生成器。
+- 工程采用 WDR MC02 基座，LibXR 提交不变。
+- BMI088 复用 `xrobot-org/BMI088`，提交 `e4e64d705f5b61685e629a91e123ad2febe75fc7`，通过 `xrobot module add`、`instance add`、`setup` 接入，锁文件纳入版本管理。没有修改第三方模块。
 - 用户按键及 RGB 硬件接法、WS2812 字节编码核对了达妙官方仓库 [dmBots/DM-MC02](https://github.com/dmBots/DM-MC02) 的 `examples/CtrBoard-H7_ALL/Bsp/bsp_user_key.c`、`ws2812.c` 及 `App/imu_task.c`。本工程用 LibXR GPIO/SPI 接口实现板级逻辑，没有引入另一套 HAL 驱动。
-- 自研文件采用当前工程 QDU 风格。`BoardIO` 只负责 RGB 与按键，`ImuRamDatabase` 只负责 BMI088 临时零偏，设备资源仍来自 QDU BSP 和 LibXR 生成代码。
+- 自研文件采用当前工程 WDR 代码规范。`BoardIO` 只负责 RGB 与按键，`ImuRamDatabase` 只负责 BMI088 临时零偏，设备资源仍来自 WDR BSP 和 LibXR 生成代码。
 
 ## 硬件与行为
 
