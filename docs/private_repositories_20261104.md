@@ -47,3 +47,5 @@ XRobot的索引HTTP读取不自动带GitHub登录，因此不使用私有仓库�
 Debug/Release构建、原始解码对照与失控/STOP回归、默认ELF隔离检查、板级数据库回归。
 主机I6x冻结源对照依赖本机26_sentry参考目录，若仅构建固件不需要该参考目录。
 精确组件提交、仓库私有状态和检查结果另记于docs/validation/private_migration_20261104.json。
+
+2026-11-05 新增私有模块 ImuFusion、BoardAttitude、DmImu，当前版本与验收见 [IMU接入记录](imu_modules_20261105.md)。

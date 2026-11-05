@@ -2,7 +2,7 @@
 
 WDR MC02 机器人固件基座，使用 LibXR 与 XRobot 管理板级资源和功能模块。第三方来源与许可证见 [声明文件](THIRD_PARTY_NOTICES.md)。
 
-当前：STM32H723VGT6，CPU **550 MHz**，I/D Cache；TIM4 时基；双 USB CDC（Log / Host）；ADC3 温度和参考电压 BDMA 采集；XRobot 模块接入 `BuzzerAlarm` 和 `BMI088`，另有板级 RGB 灯、按键及状态诊断。板级模块已烧录并通过终端和 IMU 采样初测；用户已目视确认 RGB 红/绿/蓝及绿色心跳正常，实体按键按下/松开及边沿计数验证通过。
+当前：STM32H723VGT6，CPU **550 MHz**，I/D Cache；TIM4 时基；双 USB CDC（Log / Host）；ADC3 温度和参考电压 BDMA 采集；XRobot 模块接入 `BuzzerAlarm`、`BMI088` 和 `BoardAttitude`，另有板级 RGB 灯、按键及状态诊断。原有板级模块已烧录并通过终端和 IMU 采样初测，新姿态模块尚未板测；用户已目视确认 RGB 红/绿/蓝及绿色心跳正常，实体按键按下/松开及边沿计数验证通过。
 
 ## 生成和构建
 
@@ -58,7 +58,7 @@ python3 tools/check_terminal.py --port /dev/serial/by-id/实际设备的-if00
 | BMI088 | SPI2、PC0/PC3 片选、PE12 数据就绪；TIM3_CH4 加热输出为零 | `imu`：等待新采样，角速度 rad/s、加速度 g；`bmi088 show 1000 100`：上游温度/数据查看 |
 | 运行诊断 | 主频、运行时间、堆、任务数、SPI/ADC 错误和 CFSR | `status`、`health` |
 
-BMI088 采用 XRobot 官方模块的固定提交，由 `xrobot.lock` 记录；参数和硬件绑定集中在 `User/xrobot.yaml`：陀螺仪 1000 Hz、±2000 dps，加速度 1600 Hz、±6 g，坐标旋转为单位四元数；本轮只接原始六轴数据，不含姿态融合。温控 PID 系数为零，因此不加热。
+BMI088 采用 XRobot 官方模块的固定提交，由 `xrobot.lock` 记录；参数和硬件绑定集中在 `User/xrobot.yaml`：陀螺仪 1000 Hz、±2000 dps，加速度 1600 Hz、±6 g，坐标旋转为单位四元数；原始六轴数据交给 `BoardAttitude` 做原26_sentry姿态融合。新姿态模块尚未板测。温控 PID 系数为零，因此不加热。
 
 `ImuRamDatabase` 只保存当前上电周期的零偏，复位即清除；没有开启 Flash 数据库。上游 `bmi088 cali` 为约 3 分钟的阻塞命令，本轮未执行或验证。`imu` 的新 Topic 消息不等价于有效姿态或控制系统在线判断。
 
@@ -110,3 +110,11 @@ cmake --build --preset Debug -j 4
 I6x现为正式XRobot模块，配置为`YunMo-yanyu/I6x`。`User/xrobot_i6x.yaml`展示完整实例；
 默认仍选择不含外接接收实例的`User/xrobot.yaml`。确认接线后才显式切换配置、构建并烧录。
 详见[模块接入说明](docs/external_modules.md)与[私有仓库迁移记录](docs/private_repositories_20261104.md)。
+
+## 姿态模块（2026-11-05）
+
+默认 `User/xrobot.yaml` 增加板载姿态解算，单颗外置 DM 配置为 `User/xrobot_imu.yaml`。
+默认安装矩阵为单位阵；外置 DM 不默认启动。新增终端命令 `attitude` 与 `dm_attitude`。
+设计、单位、配置、验证和未验证项见 [IMU接入记录](docs/imu_modules_20261105.md)。
+VS Code 的“测试 IMU（主机）”执行冻结算法和协议回归；普通编译仍同时检查未启用模块。
+本次未烧录，Flash 中仍为此前板级固件；原硬件验收不能代替新姿态模块验收。

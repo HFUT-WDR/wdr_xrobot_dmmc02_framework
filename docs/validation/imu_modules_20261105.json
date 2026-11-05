@@ -1,0 +1,87 @@
+{
+  "date": "2026-11-05",
+  "scope": "BoardAttitude default; single DmImu in independent YAML; no motor/flash actions",
+  "modules": {
+    "ImuFusion": {
+      "repo": "https://github.com/YunMo-yanyu/ImuFusion.git",
+      "source": "ModuleIndex/index.yaml",
+      "requested": "same-or-dev",
+      "resolved_ref": "dev",
+      "ref_kind": "branch",
+      "commit": "a7bb7c147adfa5a6a8e419a3e2b6ddc026ca0af5"
+    },
+    "BoardAttitude": {
+      "repo": "https://github.com/YunMo-yanyu/BoardAttitude.git",
+      "source": "ModuleIndex/index.yaml",
+      "requested": "same-or-dev",
+      "resolved_ref": "dev",
+      "ref_kind": "branch",
+      "commit": "a53c1e64d84e9e263f543788e04217b2d3f7b7b8"
+    },
+    "DmImu": {
+      "repo": "https://github.com/YunMo-yanyu/DmImu.git",
+      "source": "ModuleIndex/index.yaml",
+      "requested": "same-or-dev",
+      "resolved_ref": "dev",
+      "ref_kind": "branch",
+      "commit": "e1e71b22698662f4cddf0bacde8545de114a0396"
+    }
+  },
+  "repositories_private": true,
+  "module_index": "b37d1b588fd488c25abbe3ffc791d803d17ea31e",
+  "checks": {
+    "frozen_offline": "PASS 16 modules, 3 profiles",
+    "Debug": "PASS",
+    "Release": "PASS",
+    "constructors": 12,
+    "generated_profiles": 3,
+    "full_firmware_links": [
+      "default Debug/Release",
+      "I6x Debug",
+      "single DM Debug"
+    ],
+    "board_frozen_comparisons": 5000,
+    "dm_frozen_comparisons": 8100,
+    "sanitizers": "ASan+UBSan",
+    "stream_matrix_pipeline": "PASS",
+    "i6x_regression": "PASS 1568 reference vectors and CMD/HostData routing",
+    "board_storage": "PASS",
+    "inactive_external_elf_isolation": "PASS Debug/Release",
+    "whitespace": "PASS"
+  },
+  "images": {
+    "Debug": {
+      "sha256": "fb1905fba5561d11516c1b80b2d2c5fd31932cafc43b5b4a619aad4afc8336a4",
+      "size": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 174912\t    592\t 124968\t 300472\t  495b8\t/home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/build/Debug/wdr_xrobot_dmmc02_framework.elf"
+    },
+    "Release": {
+      "sha256": "597dd33a784c3f28612707b8774f215d3848933d755efed9b54fbb442e6bb9b0",
+      "size": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 159664\t    596\t 124984\t 285244\t  45a3c\t/home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/build/Release/wdr_xrobot_dmmc02_framework.elf"
+    },
+    "DM_Debug": {
+      "sha256": "89be12ccb79b1a53b65eb876cbae3fdd95b8f009fd2f0d548f4b320687af0e49",
+      "size": "text\t   data\t    bss\t    dec\t    hex\tfilename\n 180748\t    592\t 127528\t 308868\t  4b684\t/home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/.cache/i6x-linkcheck-source/build/Debug/wdr_xrobot_dmmc02_framework.elf"
+    }
+  },
+  "defaults": {
+    "selected_profile": "User/xrobot.yaml",
+    "installation": "identity 3x3",
+    "dm_instantiated": false,
+    "board_attitude_instantiated": true,
+    "usart2_rx_bytes": 2048
+  },
+  "hardware": {
+    "flashed": false,
+    "board_fusion_runtime_verified": false,
+    "dm_verified": false
+  },
+  "limits": [
+    "DM module first runtime path is RS485 passive 57/80B 1kHz; CAN/request codecs retained only",
+    "DM requires external configuration; no startup commands or Flash writes",
+    "DM timestamps are task-consumption times, not sensor/hardware arrival timestamps",
+    "Board callback pairing relies on current BMI088 accel then gyro same timestamp contract",
+    "Host matrix substitutes do not establish ARM DSP timing or RTOS deadlines",
+    "Stack margin, receive throughput, real axes and calibration persistence are not hardware-verified",
+    "Board sensor zero offsets remain in RAM database; persistent calibration is a later stage"
+  ]
+}

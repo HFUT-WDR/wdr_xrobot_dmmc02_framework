@@ -34,5 +34,12 @@ modules:
           accl_topic_name: "bmi088_accl"
           target_temperature: 45
           task_stack_depth: 2048
+  - module: YunMo-yanyu/BoardAttitude
+    id: board_attitude
+    args:
+      - gyro_topic_name: "bmi088_gyro"
+      - accel_topic_name: "bmi088_accl"
+      - output_topic_name: "board_attitude"
+      - installation: wdr_imu::IDENTITY
 settings:
   monitor_sleep_ms: 1000

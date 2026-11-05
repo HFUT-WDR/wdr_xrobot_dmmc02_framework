@@ -156,6 +156,20 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "测试 IMU（主机）",
+            "type": "process",
+            "command": "python3",
+            "args": [
+                "tests/imu/run_tests.py"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }

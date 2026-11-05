@@ -1,0 +1,18 @@
+{
+  "source_checkout": "/home/yunmo/WorkingSpace/STM32_Project/MC02_Framework_CPP",
+  "git_head": "c95e13881929e55b781524e5ce5b070f7d91aaf7",
+  "sha256": {
+    "User/components/algorithm/AHRS/kalman_filter.c": "51c618d593c3fdeebe3b5c4adc4ff9a5c9cc294a50abbf5f96182d92b6855947",
+    "User/components/algorithm/AHRS/kalman_filter.h": "b29f53a1c703b304e428e572041f9237d1170b272e16e6e65bc8eae96803fdba",
+    "User/components/algorithm/AHRS/quaternion.c": "71f2bce0a6b1fda19c8a46d63071e342437b8c167eaf5d3b9d81cb71f6eb2a2b",
+    "User/components/algorithm/AHRS/quaternion.h": "646c9a55139f04d86c5ad9e10e73d83d1d142b3fcec1403e0db9bd1fd1b34016",
+    "User/application/module/imu/board_attitude.cpp": "8ae4cff68a43bb710658057a9f6069e48b8a67254b358f5003d2e1e19350ab30",
+    "User/application/module/imu/board_attitude.hpp": "c42a3f601e608f234a43a0b33d0c83c08e9d90e431d27efd6457fc9c78112b1c",
+    "User/components/device/IMU/DM_imu_L1/dm_imu_l1_attitude.c": "f2902f32482cac20d747100734a4398511235d8f6d5fb1d7b8787c10ae2cc961",
+    "User/components/device/IMU/DM_imu_L1/dm_imu_l1_attitude.h": "6e0129ebbc32df0406ef99df23faabd74256b899d1b9a6db3e42d01299c8ed0c",
+    "User/components/device/IMU/DM_imu_L1/dm_imu_device.cpp": "0d32fd9daeb92133875075491aa01def02d10a232a18cd8196b3baaee252d2f7",
+    "User/components/device/IMU/DM_imu_L1/dm_imu_device.hpp": "0aadae204e06aac10f7259e87e35b9b411e9b58138e881c023e7ffaaa4c0406f",
+    "User/components/device/IMU/DM_imu_L1/dm_imu_rs485_stream_assembler.cpp": "406d5a2989cefbe78f3fe11f2da4ae1b9d055a04af81db39ce656824498d77b2",
+    "User/components/device/IMU/DM_imu_L1/dm_imu_rs485_stream_assembler.hpp": "49d1160e81f35935410e8d5bf82b489250b13a8c28585efd2bb534aec05d30fb"
+  }
+}

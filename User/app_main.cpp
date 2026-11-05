@@ -58,7 +58,7 @@ alignas(32) static uint8_t uart7_rx_buf[128] __attribute__((section(".axi_ram"))
 alignas(32) static uint8_t uart7_tx_buf[128] __attribute__((section(".axi_ram")));
 alignas(32) static uint8_t usart1_rx_buf[512] __attribute__((section(".axi_ram")));
 alignas(32) static uint8_t usart1_tx_buf[512] __attribute__((section(".axi_ram")));
-alignas(32) static uint8_t usart2_rx_buf[128] __attribute__((section(".axi_ram")));
+alignas(32) static uint8_t usart2_rx_buf[2048] __attribute__((section(".axi_ram")));
 alignas(32) static uint8_t usart2_tx_buf[128] __attribute__((section(".axi_ram")));
 alignas(32) static uint8_t usart3_rx_buf[256] __attribute__((section(".axi_ram")));
 alignas(32) static uint8_t usart3_tx_buf[256] __attribute__((section(".axi_ram")));

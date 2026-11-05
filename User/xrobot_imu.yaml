@@ -1,0 +1,52 @@
+modules:
+  - module: xrobot-org/BuzzerAlarm
+    id: buzzer
+    args:
+      - pwm: pwm_tim12_ch2
+      - alarm_freq: 1500
+      - alarm_duration: 300
+      - alarm_delay: 300
+  - module: xrobot-org/BMI088
+    id: imu
+    args:
+      - accl_cs: ACC_CS
+      - gyro_cs: GYRO_CS
+      - gyro_int: GYRO_INT
+      - spi: spi2
+      - heater_pwm: pwm_tim3_ch4
+      - database: imu_ram_database
+      - ramfs: ramfs
+      - param:
+          gyro_freq: BMI088::GyroFreq::GYRO_1000HZ_BW116HZ
+          accl_freq: BMI088::AcclFreq::ACCL_1600HZ
+          gyro_range: BMI088::GyroRange::DEG_2000DPS
+          accl_range: BMI088::AcclRange::ACCL_6G
+          rotation: '{1.0f, 0.0f, 0.0f, 0.0f}'
+          pid_param:
+            k: 1.0f
+            p: 0.0f
+            i: 0.0f
+            d: 0.0f
+            i_limit: 0.0f
+            out_limit: 0.0f
+            cycle: false
+          gyro_topic_name: "bmi088_gyro"
+          accl_topic_name: "bmi088_accl"
+          target_temperature: 45
+          task_stack_depth: 2048
+  - module: YunMo-yanyu/BoardAttitude
+    id: board_attitude
+    args:
+      - gyro_topic_name: "bmi088_gyro"
+      - accel_topic_name: "bmi088_accl"
+      - output_topic_name: "board_attitude"
+      - installation: wdr_imu::IDENTITY
+  - module: YunMo-yanyu/DmImu
+    id: dm_imu
+    args:
+      - uart: usart2
+      - output_topic_name: "dm_attitude"
+      - installation: '{1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f}'
+      - device_id: 1
+settings:
+  monitor_sleep_ms: 1000

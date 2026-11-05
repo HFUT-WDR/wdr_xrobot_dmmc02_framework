@@ -52,5 +52,12 @@ modules:
     args:
       - modules: '{{"i6x", i6x}, {"cmd", cmd}}'
       - event_binding_groups: '{{{{"i6x", I6x::SwitchPos::SW2_MID, "cmd", CMD::SourceEvent::SET_GIMBAL_RC}, {"i6x", I6x::SwitchPos::SW2_UP, "cmd", CMD::SourceEvent::SET_GIMBAL_PC}, {"i6x", I6x::Chord::SW2_MID_SW3_UP_ENTER, "cmd", CMD::SourceEvent::SET_CHASSIS_RC}, {"i6x", I6x::Chord::SW2_UP_SW3_UP_ENTER, "cmd", CMD::SourceEvent::SET_CHASSIS_PC}, {"i6x", I6x::Chord::SW2_MID_SW3_UP_EXIT, "cmd", CMD::SourceEvent::SET_CHASSIS_RC}, {"i6x", I6x::Chord::SW2_UP_SW3_UP_EXIT, "cmd", CMD::SourceEvent::SET_CHASSIS_RC}, {"i6x", I6x::Chord::SW1_DOWN_SW3_UP_ENTER, "cmd", CMD::SourceEvent::SET_LAUNCHER_PC}, {"i6x", I6x::Chord::SW1_DOWN_SW3_UP_EXIT, "cmd", CMD::SourceEvent::SET_LAUNCHER_RC}}}}'
+  - module: YunMo-yanyu/BoardAttitude
+    id: board_attitude
+    args:
+      - gyro_topic_name: "bmi088_gyro"
+      - accel_topic_name: "bmi088_accl"
+      - output_topic_name: "board_attitude"
+      - installation: wdr_imu::IDENTITY
 settings:
   monitor_sleep_ms: 1000

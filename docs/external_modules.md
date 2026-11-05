@@ -107,8 +107,8 @@ python3 tests/external_modules/run_tests.py --preset Debug
 python3 tests/external_modules/run_tests.py --preset Release
 ```
 
-普通构建自动通过官方`xrobot check-module`编译10个具体模块／依赖的构造接口；还在临时工程
-分别生成、编译基础设备组合配置和完整i6x YAML，不替换主工程的已选配置。
+普通构建自动通过官方`xrobot check-module`编译12个具体模块／依赖的构造接口；还在临时工程
+分别生成、编译基础设备组合配置、完整i6x YAML和单颗DM YAML，不替换主工程的已选配置。
 所有检查对象不链接进默认固件。主机测试对照本机26_sentry冻结解码源，并覆盖失控、超时和CMD
 路由；这不替代真实接收机、电机或机构硬件验收。
 
@@ -122,3 +122,5 @@ HostData 每个 Topic 回调调用 `FeedAI(Channel, Data)`，不再汇总并刷�
 底盘、云台、开火分别记录是否收到过和接收时间；未收到或距离上次接收达到100ms即输出零。
 超时在 CMD 处理输入时重新判断；I6x 会至少每5ms提交状态，这不是独立的100ms硬实时看门狗。
 正常零目标完整传递；云台包含 roll、pitch、yaw 及其导数。遥控失联仍撤销全部命令。
+
+IMU模块新增 BoardAttitude、DmImu 和公共算法依赖 ImuFusion，见 [IMU接入](imu_modules_20261105.md)。默认板级配置现包含 BoardAttitude，外置 DM 仍未默认启动。

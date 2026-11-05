@@ -9,7 +9,11 @@ requests:
   ref: same-or-dev
 - id: xrobot-org/SharedTopicClient
   ref: same-or-dev
+- id: YunMo-yanyu/BoardAttitude
+  ref: same-or-dev
 - id: YunMo-yanyu/CMD
+  ref: same-or-dev
+- id: YunMo-yanyu/DmImu
   ref: same-or-dev
 - id: YunMo-yanyu/DMMotor
   ref: same-or-dev
@@ -28,6 +32,13 @@ requests:
 - id: YunMo-yanyu/RMMotor
   ref: same-or-dev
 modules:
+  YunMo-yanyu/BoardAttitude:
+    repo: https://github.com/YunMo-yanyu/BoardAttitude.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: a53c1e64d84e9e263f543788e04217b2d3f7b7b8
   YunMo-yanyu/CMD:
     repo: https://github.com/YunMo-yanyu/CMD.git
     source: ModuleIndex/index.yaml
@@ -49,6 +60,13 @@ modules:
     resolved_ref: dev
     ref_kind: branch
     commit: 2940ecaafb62f10ce9fe0e20d3ff33e9cd8842d1
+  YunMo-yanyu/DmImu:
+    repo: https://github.com/YunMo-yanyu/DmImu.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: e1e71b22698662f4cddf0bacde8545de114a0396
   YunMo-yanyu/EventBinder:
     repo: https://github.com/YunMo-yanyu/EventBinder.git
     source: ModuleIndex/index.yaml
@@ -70,6 +88,13 @@ modules:
     resolved_ref: dev
     ref_kind: branch
     commit: 450eeef94769820fb6f51cf4fd2f3c718abe7764
+  YunMo-yanyu/ImuFusion:
+    repo: https://github.com/YunMo-yanyu/ImuFusion.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: a7bb7c147adfa5a6a8e419a3e2b6ddc026ca0af5
   YunMo-yanyu/Motor:
     repo: https://github.com/YunMo-yanyu/Motor.git
     source: ModuleIndex/index.yaml
