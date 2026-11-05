@@ -38,3 +38,7 @@ with tempfile.TemporaryDirectory(prefix='wdr-imu-') as directory:
     exe=tmp/'pipeline'
     subprocess.run(['c++','-std=c++20',*flags,*inc,'-I'+str(test),str(test/'test_pipeline.cpp'),*objects,'-lm','-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)
+
+    exe=tmp/'module'
+    subprocess.run(['c++','-std=c++20',*flags,'-I'+str(test/'module_stubs'),*inc,'-I'+str(args.modules_dir.resolve()/'DmImu'),'-I'+str(test),str(test/'test_module.cpp'),*objects,'-lm','-o',str(exe)],check=True)
+    subprocess.run([str(exe)],check=True)

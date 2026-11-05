@@ -66,7 +66,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: e1e71b22698662f4cddf0bacde8545de114a0396
+    commit: 4489e26e2bc42b2b246853142a54c5cda41cbeef
   YunMo-yanyu/EventBinder:
     repo: https://github.com/YunMo-yanyu/EventBinder.git
     source: ModuleIndex/index.yaml
@@ -94,7 +94,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: a7bb7c147adfa5a6a8e419a3e2b6ddc026ca0af5
+    commit: 81ff6c863876832eedd2bc2812f5460659cb4ae5
   YunMo-yanyu/Motor:
     repo: https://github.com/YunMo-yanyu/Motor.git
     source: ModuleIndex/index.yaml

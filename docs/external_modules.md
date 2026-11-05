@@ -124,3 +124,9 @@ HostData 每个 Topic 回调调用 `FeedAI(Channel, Data)`，不再汇总并刷�
 正常零目标完整传递；云台包含 roll、pitch、yaw 及其导数。遥控失联仍撤销全部命令。
 
 IMU模块新增 BoardAttitude、DmImu 和公共算法依赖 ImuFusion，见 [IMU接入](imu_modules_20261105.md)。默认板级配置现包含 BoardAttitude，外置 DM 仍未默认启动。
+
+## DM IMU完整链路
+
+DM模块支持CAN请求/应答、当前24字节RS485请求/应答及显式旧固件连续流；没有CAN主动上报模式。
+正常编译检查12个构造接口和五份完整配置（外接组合、I6x、DM485、DM CAN、DM旧流），均不链接进默认固件。
+参数、单位、配置切换和验证边界见[DM模块补全记录](dm_imu_complete_20261105.md)。

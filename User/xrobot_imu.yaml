@@ -44,9 +44,21 @@ modules:
   - module: YunMo-yanyu/DmImu
     id: dm_imu
     args:
-      - uart: usart2
+      - param:
+          transport: wdr_imu::DmTransport::RS485_REQUEST
+          output: wdr_imu::DmOutput::FUSED
+          device_id: 1
+          feedback_id: 17
+          baudrate: 2000000
+          period_ms: 10
+          timeout_ms: 50
+          retries: 2
+          data_mask: 15
+      - can: nullptr
+      - uart: '&usart2'
       - output_topic_name: "dm_attitude"
-      - installation: '{1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f}'
-      - device_id: 1
+      - raw_topic_name: "dm_measurement"
+      - diagnostics_topic_name: "dm_diagnostics"
+      - installation: wdr_imu::IDENTITY
 settings:
   monitor_sleep_ms: 1000

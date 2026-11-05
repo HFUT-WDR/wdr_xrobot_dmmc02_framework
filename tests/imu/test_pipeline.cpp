@@ -15,6 +15,7 @@ extern "C" void* tracked_malloc(size_t size)
 #include "ImuFusion.hpp"
 #include "dm_imu_rs485_stream_assembler.hpp"
 #include "packets.hpp"
+#include "session_tests.hpp"
 using namespace wdr_imu;
 struct Capture
 {
@@ -36,6 +37,7 @@ static void received(void* ptr, const dm_imu_t::state_t& raw, uint32_t time)
 }
 int main()
 {
+  test_sessions();
   uint8_t bytes[160];
   frame(bytes, .2f);
   frame(bytes + 80, .3f);

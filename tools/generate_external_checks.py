@@ -64,14 +64,14 @@ def generate(output):
         # 在临时工程生成完整 i6x 配置，不改变原工程的默认配置。
         run("xrobot", "gen", "-c", "User/xrobot_i6x.yaml", "--no-line-directives", cwd=stage)
         shutil.copyfile(stage / "User/xrobot_main.hpp", output / "i6x_profile.hpp")
-        run("xrobot", "gen", "-c", "User/xrobot_imu.yaml", "--no-line-directives", cwd=stage)
-        shutil.copyfile(stage / "User/xrobot_main.hpp", output / "imu_profile.hpp")
-    (output / "i6x_profile.cpp").write_text(
-        '// 仅编译验证 i6x 的 YAML 配置，不链接进默认固件。\n'
-        '#include "i6x_profile.hpp"\n')
-    (output / "imu_profile.cpp").write_text(
-        '// 仅编译验证单颗外置DM配置，不链接进默认固件。\n'
-        '#include "imu_profile.hpp"\n')
+        for name in ("imu", "imu_can", "imu_legacy"):
+            run("xrobot", "gen", "-c", f"User/xrobot_{name}.yaml",
+                "--no-line-directives", cwd=stage)
+            shutil.copyfile(stage / "User/xrobot_main.hpp", output / f"{name}_profile.hpp")
+    for name in ("i6x", "imu", "imu_can", "imu_legacy"):
+        (output / f"{name}_profile.cpp").write_text(
+            '// 仅编译验证未启用的 YAML 配置，不链接进默认固件。\n'
+            f'#include "{name}_profile.hpp"\n')
     (output / "external_profile.cpp").write_text(
         '// 生成的未启用配置，仅编译检查，不接入固件。\n'
         '#include "external_profile.hpp"\n')
