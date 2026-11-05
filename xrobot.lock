@@ -54,7 +54,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 998382ae447a6b01a2513ba3a257390ef7e10a1a
+    commit: ff221c118e28995c53e406923d7bfa6e3c100656
   YunMo-yanyu/DMMotor:
     repo: https://github.com/YunMo-yanyu/DMMotor.git
     source: ModuleIndex/index.yaml
