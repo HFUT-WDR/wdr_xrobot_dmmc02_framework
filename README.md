@@ -131,3 +131,5 @@ DM模块已补齐CAN请求/应答、现版24字节RS485请求/应答与显式旧
 配置、保护、验证及功率控制尚未接入的边界见[底盘接入记录](docs/chassis_module_20261105.md)。本轮未烧录。
 
 底盘命令现统一为m/s、rad/s，遥控死区在输入端处理；普通零目标保留闭环制动。接口与本轮验证见[底盘命令契约](docs/chassis_contract_20261105.md)。
+
+DAPLink/CMSIS-DAP已提供“烧录 Debug（DAPLink）”“烧录 Release（DAPLink）”任务及对应调试入口。采用SWD 1MHz，先编译再烧录、校验和复位，不修改选项字节。2026-11-05板级烧录及运行检查见[验证记录](docs/validation/daplink_20261105.json)。

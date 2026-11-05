@@ -1,0 +1,34 @@
+{
+  "date": "2026-11-05",
+  "firmware_commit": "16e6a28",
+  "profile": "User/xrobot.yaml",
+  "preset": "Debug",
+  "probe": "Horco CMSIS-DAPv2",
+  "swd_khz": 1000,
+  "elf_sha256": "69cc525a5176319c60075abf4cf3bc6d9d6ac3918625355af15eb9c92bc681c4",
+  "flash_verify": "passed",
+  "clock_hz": 550000000,
+  "tasks": 7,
+  "heap_free_bytes": 56368,
+  "heap_min_bytes": 56368,
+  "cfsr": 0,
+  "hfsr": 0,
+  "imu_sequence": [
+    36586,
+    37589
+  ],
+  "rtos_ticks": [
+    37868,
+    38871
+  ],
+  "imu_queue_drops": 0,
+  "imu_unpaired": 0,
+  "led_spi_errors": 0,
+  "limitations": [
+    "默认板级配置未实例化底盘和外接电机",
+    "未验证底盘命令链路和车辆闭环",
+    "未通过终端测试USB，当前未枚举板载USB设备",
+    "未目视验证LED或实体按键",
+    "调试暂停采样不代表正式实时性及栈余量验收"
+  ]
+}

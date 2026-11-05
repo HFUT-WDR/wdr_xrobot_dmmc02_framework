@@ -22,6 +22,28 @@
             ],
             "preLaunchTask": "编译 Debug",
             "runToEntryPoint": "main"
+        },
+        {
+            "name": "Debug（DAPLink / OpenOCD）",
+            "type": "cortex-debug",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "executable": "${workspaceFolder}/build/Debug/wdr_xrobot_dmmc02_framework.elf",
+            "servertype": "openocd",
+            "serverpath": "/usr/bin/openocd",
+            "gdbPath": "/usr/bin/gdb-multiarch",
+            "device": "STM32H723VG",
+            "configFiles": [
+                "interface/cmsis-dap.cfg",
+                "target/stm32h7x.cfg"
+            ],
+            "searchDir": [],
+            "openOCDLaunchCommands": [
+                "transport select swd",
+                "adapter speed 1000"
+            ],
+            "preLaunchTask": "编译 Debug",
+            "runToEntryPoint": "main"
         }
     ]
 }

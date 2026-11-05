@@ -184,6 +184,52 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "烧录 Debug（DAPLink）",
+            "type": "process",
+            "command": "openocd",
+            "args": [
+                "-f",
+                "interface/cmsis-dap.cfg",
+                "-c",
+                "transport select swd",
+                "-f",
+                "target/stm32h7x.cfg",
+                "-c",
+                "adapter speed 1000",
+                "-c",
+                "program \"build/Debug/wdr_xrobot_dmmc02_framework.elf\" verify reset exit"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "编译 Debug",
+            "dependsOrder": "sequence",
+            "problemMatcher": []
+        },
+        {
+            "label": "烧录 Release（DAPLink）",
+            "type": "process",
+            "command": "openocd",
+            "args": [
+                "-f",
+                "interface/cmsis-dap.cfg",
+                "-c",
+                "transport select swd",
+                "-f",
+                "target/stm32h7x.cfg",
+                "-c",
+                "adapter speed 1000",
+                "-c",
+                "program \"build/Release/wdr_xrobot_dmmc02_framework.elf\" verify reset exit"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "dependsOn": "编译 Release",
+            "dependsOrder": "sequence",
+            "problemMatcher": []
         }
     ]
 }

@@ -1,0 +1,24 @@
+prvCheckTasksWaitingTermination () at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/FreeRTOS/Source/tasks.c:3755
+3755	        while( uxDeletedTasksWaitingCleanUp > ( UBaseType_t ) 0U )
+$1 = 550000000
+$2 = 37880
+$3 = 37868
+$4 = 7
+$5 = 56368
+$6 = 56368
+$7 = 0x0
+$8 = 0x0
+pc             0x800ef3e           0x800ef3e <prvIdleTask+10>
+$9 = {<std::__atomic_base<unsigned long>> = {static _S_alignment = 4, _M_i = 0}, static is_always_lock_free = true}
+$10 = {<std::__atomic_base<unsigned long>> = {static _S_alignment = 4, _M_i = 0}, static is_always_lock_free = true}
+$11 = 36586
+$12 = {pitch_angle = -3.22237015, yaw_angle = -0.253401488, yaw_tol_angle = -0.253401488, roll_angle = -3.94800854, pitch_gyro = 0.183105469, yaw_gyro = 0.391719043, roll_gyro = -0.0610351562, atan_xz = -86.7154541, atan_yz = -49.6941109, motion_accel_b = {1.10500693, -1.35416555, 0.0291894898}, motion_accel_n = {1.11088324, -1.34370947, -0.126650497}, angle = {-0.00442269025, -0.0562409684, -0.0689057484}, gyro = {-0.00106526446, 0.00319579337, 0.00683678687}, accel = {0.562176108, -0.662757158, 9.79587364}, last_yaw_angle = -0.253401488, yaw_round_count = 0}
+$13 = {<std::__atomic_base<unsigned long>> = {static _S_alignment = 4, _M_i = 0}, static is_always_lock_free = true}
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread 
+xPSR: 0x61000000 pc: 0x0800ef40 psp: 0x20000c80
+$14 = 38884
+$15 = 38871
+$16 = 37589
+$17 = {pitch_angle = -3.2340126, yaw_angle = -0.255640388, yaw_tol_angle = -0.255640388, roll_angle = -3.93288136, pitch_gyro = -0.305175781, yaw_gyro = -0.15709506, roll_gyro = 0.305175781, atan_xz = -86.6440353, atan_yz = -49.6885872, motion_accel_b = {1.11225927, -1.37676585, 0.0259568207}, motion_accel_n = {1.11808777, -1.36594701, -0.131708637}, angle = {-0.00446176622, -0.0564441681, -0.0686417297}, gyro = {0.00532632228, -0.00532632228, -0.002741826}, accel = {0.572952628, -0.675329804, 9.77072811}, last_yaw_angle = -0.255640388, yaw_round_count = 0}
+$18 = 0x0
+[Inferior 1 (Remote target) detached]
