@@ -47,6 +47,11 @@ modules:
       - uart: uart5
       - cmd: cmd
       - topic_name: "i6x_input"
+      - chassis_param:
+          speed_x: 2.64
+          speed_y: 2.64
+          spin: 12.0
+          deadband: 0.01515151515
   - module: YunMo-yanyu/EventBinder
     id: input_events
     args:

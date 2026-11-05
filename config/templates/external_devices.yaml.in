@@ -31,6 +31,11 @@ modules:
   - param:
       task_stack_depth_uart: 2048
       thread_priority_uart: LibXR::Thread::Priority::HIGH
+      chassis:
+        speed_x: 2.64
+        speed_y: 2.64
+        spin: 12.0
+        deadband: 0.01515151515
 - module: YunMo-yanyu/Referee
   id: referee
   args:
@@ -44,6 +49,11 @@ modules:
       referee_robot_game_tp_name: '"robot_game_ref"'
       referee_radar_tp_name: '"radar_ref"'
       thread_priority_uart: LibXR::Thread::Priority::MEDIUM
+      chassis:
+        speed_x: 2.64
+        speed_y: 2.64
+        spin: 12.0
+        deadband: 0.01515151515
 - module: YunMo-yanyu/HostData
   id: hostdata
   args:

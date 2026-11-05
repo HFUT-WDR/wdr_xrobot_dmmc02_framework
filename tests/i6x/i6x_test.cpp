@@ -93,6 +93,16 @@ int main()
   for (size_t i = 0; i < 24; ++i) { half.Receive(valid[i], 0); }
   assert(!half.Update(0).online);
 
+  // 输入端死区与量程，PC的小目标不经过此映射。
+  I6xInput::State mapping{};
+  mapping.channels[1] = 10;
+  assert(I6x::MakeCommand(mapping).chassis.x == 0);
+  mapping.channels[1] = 11;
+  assert(I6x::MakeCommand(mapping).chassis.x > 0);
+  mapping.channels[1] = 660;
+  mapping.channels[4] = 660;
+  const auto mapped = I6x::MakeCommand(mapping, {3, 4, 5, .02f});
+  assert(mapped.chassis.x == 3 && mapped.chassis.z == 5);
   CMD command;
   LibXR::UART uart;
   I6x receiver(uart, command);
@@ -102,6 +112,7 @@ int main()
     int mode = 0;
     LibXR::Event& GetEvent() { return event; }
   } chassis_probe;
+  chassis_probe.event.Register(0, [&](bool, uint32_t) { chassis_probe.mode = 0; });
   chassis_probe.event.Register(1, [&](bool, uint32_t) { chassis_probe.mode = 1; });
   // 测试替身仅观察事件，生产代码中不创建虚假机构任务。
   command.GetEvent().Register(CMD::CMD_EVENT_LOST_CTRL,
@@ -121,7 +132,9 @@ int main()
        {"i6x", Chord::SW1_DOWN_SW3_UP_ENTER, "cmd", Source::SET_LAUNCHER_PC},
        {"i6x", Chord::SW1_DOWN_SW3_UP_EXIT, "cmd", Source::SET_LAUNCHER_RC},
        {"i6x", Chord::SW2_MID_SW3_UP_ENTER, "chassis", 1},
-       {"i6x", Chord::SW2_UP_SW3_UP_ENTER, "chassis", 1}}}});
+       {"i6x", Chord::SW2_UP_SW3_UP_ENTER, "chassis", 1},
+       {"i6x", Chord::SW2_UP_SW3_UP_EXIT, "chassis", 0},
+       {"i6x", Chord::SW2_MID_SW3_UP_EXIT, "chassis", 0}}}});
   unsigned friction_edges = 0;
   receiver.GetEvent().Register(static_cast<uint32_t>(Pos::SW1_UP),
                               [&](bool, uint32_t) { ++friction_edges; });
@@ -142,7 +155,7 @@ int main()
   state.switches[2] = 0;
   state.switches[3] = 1;
   submit();
-  assert(chassis_probe.mode == 1 && chassis().x == .5f && gimbal().yaw == -.5f);
+  assert(chassis_probe.mode == 1 && chassis().x == .5f * 2.64f && gimbal().yaw == -.5f);
   assert(command.GetChannelMode(CMD::Channel::GIMBAL) == CMD::Mode::CMD_OP_CTRL);
   CMD::Data ai{};
   ai.chassis.x = .7f;
@@ -167,7 +180,7 @@ int main()
   // PC 组合切到 RC 组合时，退出事件不会覆盖新选择。
   state.switches[2] = 0;
   submit();
-  assert(chassis().x == .5f);
+  assert(chassis().x == .5f * 2.64f && chassis_probe.mode == 1);
   state.switches[2] = 1;
   submit();
   assert(chassis().x == .7f);
@@ -211,7 +224,7 @@ int main()
   command.FeedAI(CMD::Channel::GIMBAL, ai);
   command.FeedAI(CMD::Channel::LAUNCHER, ai);
   submit(false);
-  assert(chassis().x == .5f && gimbal().yaw == .8f);
+  assert(chassis().x == .5f * 2.64f && gimbal().yaw == .8f);
   LibXR::Timebase::now = 80;
   submit(false);
   assert(gimbal().yaw == 0);
@@ -250,6 +263,9 @@ int main()
   auto fire_topic = LibXR::Topic::CreateTopic<HostData::LauncherCMD>("host_fire_notify");
   chassis_topic.Publish(target);
   assert(chassis().x == .6f && gimbal().yaw_dot == 0 && !fire());
+  target.vx = .01f;
+  chassis_topic.Publish(target);
+  assert(chassis().x == .01f);  // PC低速透传，不套遥控死区。
   LibXR::Timebase::now = 3050;
   HostData::HostGimbalTarget aim{};
   aim.yaw_dot = 2.0f; aim.rol = .3f; aim.rol_ddot = .4f;

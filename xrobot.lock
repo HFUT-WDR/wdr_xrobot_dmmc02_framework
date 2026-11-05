@@ -47,14 +47,14 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 78e2d92303ee5d810b7bc550e0cf3962a99f6606
+    commit: 8730af28402828f56eec6e7b300439505d35eda3
   YunMo-yanyu/Chassis:
     repo: https://github.com/YunMo-yanyu/Chassis.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 66f6de2f9418d95909ed0fcd91d03017642e0fb0
+    commit: 998382ae447a6b01a2513ba3a257390ef7e10a1a
   YunMo-yanyu/DMMotor:
     repo: https://github.com/YunMo-yanyu/DMMotor.git
     source: ModuleIndex/index.yaml
@@ -68,7 +68,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 2940ecaafb62f10ce9fe0e20d3ff33e9cd8842d1
+    commit: 134a3b5d6a6927e5294cb2acbc19c31e8aa8d799
   YunMo-yanyu/DmImu:
     repo: https://github.com/YunMo-yanyu/DmImu.git
     source: ModuleIndex/index.yaml
@@ -96,7 +96,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 450eeef94769820fb6f51cf4fd2f3c718abe7764
+    commit: 75e7ae8a2351cdf028434c40537d320bb298209c
   YunMo-yanyu/ImuFusion:
     repo: https://github.com/YunMo-yanyu/ImuFusion.git
     source: ModuleIndex/index.yaml
@@ -124,7 +124,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 1e084b1fb30f3a65a260f5a43878f286c3702524
+    commit: 530a9697cc95b2506384ca45e5eb48b1222f1e75
   xrobot-org/BMI088:
     repo: https://github.com/xrobot-org/BMI088.git
     source: https://xrobot.work/xrobot-modules/index.yaml

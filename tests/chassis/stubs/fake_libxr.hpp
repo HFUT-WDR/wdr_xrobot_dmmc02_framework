@@ -92,6 +92,31 @@ struct Topic
       return Make(+f, p);
     }
   };
+  template <typename T>
+  struct ASyncSubscriber
+  {
+    T data{};
+    bool waiting = false, ready = false;
+    MicrosecondTimestamp timestamp{};
+    ASyncSubscriber(Topic topic)
+    {
+      topic.RegisterCallback(Callback::Create(
+        [](bool, ASyncSubscriber* self, const T& value)
+        {
+          if (self->waiting)
+          {
+            self->data = value;
+            self->timestamp = Timebase::GetMicroseconds();
+            self->waiting = false;
+            self->ready = true;
+          }
+        }, this));
+    }
+    void StartWaiting() { if (!ready) { waiting = true; } }
+    bool Available() { return ready; }
+    T& GetData() { ready = false; return data; }
+    MicrosecondTimestamp GetTimestamp() { return timestamp; }
+  };
   static inline std::map<std::string, std::vector<Callback>> callbacks;
   template <typename T>
   static Topic CreateTopic(const char* n, void* = nullptr, bool = false)

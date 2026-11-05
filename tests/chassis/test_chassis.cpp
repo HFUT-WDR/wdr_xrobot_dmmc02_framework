@@ -33,7 +33,7 @@ static void control_tests()
     ctrl.ModeTransition();
     Command cmd{float(int(i % 17) - 8) * 100, float(int(i % 23) - 11) * 100,
                 float(int(i % 29) - 14) * 50, Frame::BODY};
-    ctrl.SetControl(cmd, false);
+    ctrl.SetControl(cmd);
     ctrl.ControlLoop();
     float expected[4];
     reference_wheel(cmd.x * p.translation_comp, cmd.y * p.translation_comp, cmd.z,
@@ -47,27 +47,50 @@ static void control_tests()
   ctrl.FeedbackUpdate(f);
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
-  ctrl.SetControl({1, 0, 0, Frame::BODY}, false);
+  ctrl.SetControl({1, 0, 0, Frame::BODY});
   near(ctrl.GetState().vx_set, .002f / (p.filter_tau + .002f));
   float before = ctrl.GetState().vx_set;
-  ctrl.SetControl({1, 0, 0, Frame::BODY}, true);
+  ctrl.SetControl({1, 0, 0, Frame::BODY});
   near(ctrl.GetState().vx_set,
        p.filter_tau / (p.filter_tau + .002f) * before + .002f / (p.filter_tau + .002f));
+  // 零目标立即清历史；随后低于旧PC死区的目标仍能产生运动给定。
+  ctrl.SetControl({0, 0, 0, Frame::BODY});
+  near(ctrl.GetState().vx_set, 0);
+  ctrl.SetControl({.01f, 0, 0, Frame::BODY});
+  near(ctrl.GetState().vx_set, .01f * .002f / (p.filter_tau + .002f));
+  // 普通零目标对仍在转动的轮子保留闭环制动，RELAX才清零输出。
+  Control braking(p);
+  Feedback rolling{};
+  rolling.rpm.fill(100);
+  braking.FeedbackUpdate(rolling);
+  braking.SetMode(Mode::NO_FOLLOW_YAW);
+  braking.ModeTransition();
+  braking.SetControl({0, 0, 0, Frame::BODY});
+  braking.ControlLoop();
+  for (auto current : braking.GetState().current)
+  {
+    assert(current < 0);
+  }
+  braking.Reset();
+  for (auto current : braking.GetState().current)
+  {
+    assert(current == 0);
+  }
   // 故障清历史，恢复首拍与新对象一致；NO_MOVE保持闭环制动但目标立即清零。
   ctrl.Reset();
   ctrl.FeedbackUpdate(f);
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
-  ctrl.SetControl({1, 0, 0, Frame::BODY}, false);
+  ctrl.SetControl({1, 0, 0, Frame::BODY});
   near(ctrl.GetState().vx_set, .002f / (p.filter_tau + .002f));
   ctrl.SetMode(Mode::NO_MOVE);
   ctrl.ModeTransition();
-  ctrl.SetControl({}, false);
+  ctrl.SetControl({});
   ctrl.ControlLoop();
   near(ctrl.GetState().vx_set, 0);
   ctrl.SetMode(Mode::RAW);
   ctrl.ModeTransition();
-  ctrl.SetControl({std::numeric_limits<float>::quiet_NaN(), 0, 0}, false);
+  ctrl.SetControl({std::numeric_limits<float>::quiet_NaN(), 0, 0});
   ctrl.ControlLoop();
   assert(ctrl.GetState().mode == Mode::RELAX);
   for (auto v : ctrl.GetState().current)
@@ -79,14 +102,14 @@ static void control_tests()
   ctrl.FeedbackUpdate(f);
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
-  ctrl.SetControl({1, 0, 0, Frame::GIMBAL}, false);
+  ctrl.SetControl({1, 0, 0, Frame::GIMBAL});
   near(ctrl.GetState().vx_set, 0);
   near(ctrl.GetState().vy_set, .002f / (p.filter_tau + .002f));
   ctrl.Reset();
   ctrl.FeedbackUpdate(f);
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
-  ctrl.SetControl({0, 0, 100, Frame::BODY}, true);
+  ctrl.SetControl({0, 0, 100, Frame::BODY});
   ctrl.ControlLoop();
   for (auto speed : ctrl.GetState().speed_set)
   {
@@ -100,13 +123,13 @@ static void control_tests()
   ctrl.FeedbackUpdate(f);
   ctrl.SetMode(Mode::FOLLOW_GIMBAL_YAW);
   ctrl.ModeTransition();
-  ctrl.SetControl({0, 0, 0}, false);
+  ctrl.SetControl({0, 0, 0});
   near(ctrl.GetState().wz_set, 12);
   ctrl.SetMode(Mode::RELAX);
   ctrl.ModeTransition();
   ctrl.SetMode(Mode::FOLLOW_GIMBAL_YAW);
   ctrl.ModeTransition();
-  ctrl.SetControl({0, 0, 0}, false);
+  ctrl.SetControl({0, 0, 0});
   near(ctrl.GetState().wz_set, 12);
   f.imu_yaw = std::numeric_limits<float>::infinity();
   ctrl.FeedbackUpdate(f);
@@ -125,17 +148,17 @@ static void control_tests()
   ctrl.FeedbackUpdate(f);
   ctrl.SetMode(Mode::FOLLOW_GIMBAL_YAW);
   ctrl.ModeTransition();
-  ctrl.SetControl({0, 0, 0}, false);
+  ctrl.SetControl({0, 0, 0});
   near(ctrl.GetState().wz_set, .16f);
   f.yaw_relative = .03f;
   ctrl.FeedbackUpdate(f);
-  ctrl.SetControl({0, 0, 0}, false);
+  ctrl.SetControl({0, 0, 0});
   near(ctrl.GetState().wz_set, .4f);
   ctrl.Reset();
   ctrl.FeedbackUpdate(f);
   ctrl.SetMode(Mode::FOLLOW_GIMBAL_YAW);
   ctrl.ModeTransition();
-  ctrl.SetControl({0, 0, 0}, false);
+  ctrl.SetControl({0, 0, 0});
   near(ctrl.GetState().wz_set, .48f);
   near(RadFormat(PI), PI);
   near(RadFormat(-PI), -PI);
@@ -179,7 +202,7 @@ int main()
   near(rf.GetFeedback().velocity, 123);
   assert(!rf.FeedbackFresh(11, 10));
   CMD cmd;
-  Chassis chassis(rf, lf, lr, rr, cmd, Param{});
+  Chassis chassis(lr, rf, rr, lf, cmd);
   assert(can.sent.empty());  // 构造不发送。
   auto* task = Thread::threads.back();
   chassis.GetEvent().Active(uint32_t(Mode::NO_FOLLOW_YAW));
@@ -220,7 +243,27 @@ int main()
   assert(status.mode == Mode::NO_FOLLOW_YAW && status.faults == 0);
   assert(status.current[0] != 0);
   const auto first_current = status.current;
+  // YAML逻辑轮序为ID203、201、204、202，发送槽必须仍按物理ID排列。
+  const unsigned logical_slot[]{2, 0, 3, 1};
+  for (unsigned i = 0; i < 4; ++i)
+  {
+    const unsigned slot = logical_slot[i];
+    const int16_t sent = int16_t((uint16_t(can.sent.back().data[2 * slot]) << 8) |
+                                 can.sent.back().data[2 * slot + 1]);
+    assert(std::abs(int(sent) - int(status.current[i])) <= 1);
+  }
+
   near(status.chassis_yaw, .3);
+  // 等待槽已有正常反馈时发布STOP，STOP不能因ASync忽略第二帧而漏掉。
+  refresh();
+  GimbalFeedback urgent{};
+  urgent.time_us = Timebase::now;
+  urgent.yaw_valid = true;
+  urgent.stop_chassis = true;
+  Topic::CreateTopic<GimbalFeedback>("gimbal_chassis_feedback").Publish(urgent);
+  task->Run(1);
+  assert_zero(can.sent.back());
+  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults & GIMBAL_STOP);
   refresh(false);
   task->Run(1);
   assert_zero(can.sent.back());
