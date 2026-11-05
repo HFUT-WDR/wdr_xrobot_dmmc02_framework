@@ -130,3 +130,9 @@ IMU模块新增 BoardAttitude、DmImu 和公共算法依赖 ImuFusion，见 [IMU
 DM模块支持CAN请求/应答、当前24字节RS485请求/应答及显式旧固件连续流；没有CAN主动上报模式。
 正常编译检查12个构造接口和五份完整配置（外接组合、I6x、DM485、DM CAN、DM旧流），均不链接进默认固件。
 参数、单位、配置切换和验证边界见[DM模块补全记录](dm_imu_complete_20261105.md)。
+
+## 四轮底盘
+
+`YunMo-yanyu/Chassis`已加入私有索引及依赖锁定。正常编译现检查13个模块构造和六份完整配置；默认ELF不含底盘控制器。
+可选 `User/xrobot_chassis.yaml`复用CAN1四颗M3508（0x201..0x204），缺少云台反馈时保持无力。
+命令单位、模式事件及未完成的功率/实车验证见[底盘记录](chassis_module_20261105.md)。

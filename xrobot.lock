@@ -11,6 +11,8 @@ requests:
   ref: same-or-dev
 - id: YunMo-yanyu/BoardAttitude
   ref: same-or-dev
+- id: YunMo-yanyu/Chassis
+  ref: same-or-dev
 - id: YunMo-yanyu/CMD
   ref: same-or-dev
 - id: YunMo-yanyu/DmImu
@@ -45,7 +47,14 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 052d1271a62c1296b6a83bcada6b3a089f2ac4a7
+    commit: 78e2d92303ee5d810b7bc550e0cf3962a99f6606
+  YunMo-yanyu/Chassis:
+    repo: https://github.com/YunMo-yanyu/Chassis.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: 66f6de2f9418d95909ed0fcd91d03017642e0fb0
   YunMo-yanyu/DMMotor:
     repo: https://github.com/YunMo-yanyu/DMMotor.git
     source: ModuleIndex/index.yaml
@@ -108,7 +117,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: c6ef27ac66dec11d9347e8aad0a7be363553259d
+    commit: f6654264bbc623b81568c3ea7dfa76773f76ceef
   YunMo-yanyu/Referee:
     repo: https://github.com/YunMo-yanyu/Referee.git
     source: ModuleIndex/index.yaml

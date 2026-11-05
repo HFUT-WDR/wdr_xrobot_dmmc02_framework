@@ -170,6 +170,20 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "测试底盘（主机）",
+            "type": "process",
+            "command": "python3",
+            "args": [
+                "tests/chassis/run_tests.py"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }

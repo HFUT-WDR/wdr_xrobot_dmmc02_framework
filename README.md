@@ -74,7 +74,7 @@ SPI6 目前仅有 TX DMA；LibXR 生成器按其规则选择轮询发送。单�
 
 配置变化、首次模块闭环与板测证据见 [迁移与验收记录](docs/wdr_base_bringup.md)。命名与格式遵循 [AGENTS.md](AGENTS.md)。
 
-保留上游 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)。当前改动未提交、未推送。
+保留上游 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)。
 
 ## 外接基础模块（已接依赖，默认不启动）
 
@@ -122,3 +122,10 @@ VS Code 的“测试 IMU（主机）”执行冻结算法和协议回归；普�
 DM模块已补齐CAN请求/应答、现版24字节RS485请求/应答与显式旧流兼容，支持原始测量、设备姿态/本地融合及诊断输出。
 可选配置分别为 `User/xrobot_imu_can.yaml`、`User/xrobot_imu.yaml`、`User/xrobot_imu_legacy.yaml`，默认不启用外置设备。
 不含CAN主动上报模式；协议范围、配置与硬件未验证项见[DM模块补全记录](docs/dm_imu_complete_20261105.md)。
+
+## 底盘模块（2026-11-05）
+
+已引入 `YunMo-yanyu/Chassis`，可选完整配置为 `User/xrobot_chassis.yaml`；默认配置不启动底盘。
+功能与参数沿用26_sentry，模块使用Topic、事件和YAML组装。云台反馈接口已定义，缺失或停更时保持无力。
+终端 `chassis` 只读状态，VS Code“测试底盘（主机）”执行离线回归。
+配置、保护、验证及功率控制尚未接入的边界见[底盘接入记录](docs/chassis_module_20261105.md)。本轮未烧录。
