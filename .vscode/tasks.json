@@ -244,6 +244,20 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "测试底盘功率控制（主机）",
+            "type": "process",
+            "command": "python3",
+            "args": [
+                "tests/power/run_tests.py"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }

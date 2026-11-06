@@ -54,14 +54,14 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 5f15d8184f09a22f71b4014378c9fa201c8d49cf
+    commit: e62a19597647e489f08234de0be1a0a0ccd0047d
   YunMo-yanyu/ControlAlgorithms:
     repo: https://github.com/YunMo-yanyu/ControlAlgorithms.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: d739b6fe63f1fe7cd2ccd4bb88b1c83b89131ac4
+    commit: 3ff538aa41bbec2135afc40cdc9d4516a8be1f2f
   YunMo-yanyu/DMMotor:
     repo: https://github.com/YunMo-yanyu/DMMotor.git
     source: ModuleIndex/index.yaml
@@ -124,14 +124,14 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: f6654264bbc623b81568c3ea7dfa76773f76ceef
+    commit: 326c24cb76c0a2ca862362d7361d1d429cf7dd7f
   YunMo-yanyu/Referee:
     repo: https://github.com/YunMo-yanyu/Referee.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 530a9697cc95b2506384ca45e5eb48b1222f1e75
+    commit: 3dd6974cba8efa58f7246cff48e3f1a89681ff83
   xrobot-org/BMI088:
     repo: https://github.com/xrobot-org/BMI088.git
     source: https://xrobot.work/xrobot-modules/index.yaml

@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-06T13:58:07.238720",
+  "reference_sha256": {
+    "/home/yunmo/WorkingSpace/STM32_Project/Xrobot/RM2024-PowerModule/PowerModule/PowerController.cpp": "d5d113c394c800ef133455f0840e98e159604e3a46e231061c6a1cc4eb5fc4d5",
+    "/home/yunmo/WorkingSpace/STM32_Project/Xrobot/RM2024-PowerModule/PowerModule/PowerController.hpp": "bc260298929cc0898625af95cae2c5b2cd7fc1f111119574c26e4641897cf2a0",
+    "/home/yunmo/WorkingSpace/STM32_Project/Xrobot/RM2024-PowerModule/PowerModule/RLS.hpp": "b5bf249048604f3a49cb03a8f44b7068de36fa2bf1bdf24d240aa613306814a2",
+    "/home/yunmo/WorkingSpace/STM32_Project/rm_26_sentry/26-sentry_-dm/User/application/task/chassis/chassis_power_control.c": "04accacb8bce8b7eb7c9e4b9ef57bd6bc06a08e6c55bd5b1c560a7ca7da51a9b",
+    "/home/yunmo/WorkingSpace/STM32_Project/rm_26_sentry/26-sentry_-dm/User/application/task/chassis/chassis_power_control.h": "b5a312a578f52cf2b8883244fc4d45cae08d551e27daff50ab24b5bd9cff4d18"
+  },
+  "modules": {
+    "Chassis": "e62a19597647e489f08234de0be1a0a0ccd0047d",
+    "ControlAlgorithms": "3ff538aa41bbec2135afc40cdc9d4516a8be1f2f",
+    "Referee": "3dd6974cba8efa58f7246cff48e3f1a89681ff83",
+    "RMMotor": "326c24cb76c0a2ca862362d7361d1d429cf7dd7f"
+  },
+  "checks": {
+    "Debug": "passed",
+    "Release": "passed",
+    "power_host_asan_ubsan": "passed",
+    "chassis_host_asan_ubsan": "passed",
+    "control_algorithms": "passed",
+    "i6x": "passed",
+    "board_support": "passed",
+    "default_elf_isolation_Debug_Release": "passed",
+    "frozen_offline": "passed",
+    "independent_complete_powered_profile_link": "passed"
+  },
+  "independent_profile_memory": {
+    "dtcm_used_bytes": 123376,
+    "dtcm_total_bytes": 131072,
+    "flash_used_bytes": 208780
+  },
+  "hardware": {
+    "flashed": false,
+    "motors_run": false,
+    "actual_power_compliance": "not tested",
+    "rtos_stack_heap_deadline": "not tested"
+  }
+}

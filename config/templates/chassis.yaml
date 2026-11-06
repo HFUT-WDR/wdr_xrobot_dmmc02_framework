@@ -7,6 +7,22 @@ modules:
       - chassis_cmd_topic_name: "chassis_cmd"
       - gimbal_cmd_topic_name: "gimbal_cmd"
       - launcher_cmd_topic_name: "launcher_cmd"
+  # 沿用26_sentry裁判串口USART1，仅作未启用组合的编译模板。
+  - module: YunMo-yanyu/Referee
+    id: referee
+    args:
+      - uart: usart1
+      - cmd: nullptr
+      - param:
+          task_stack_depth_uart: 2048
+          baudrate: 115200
+          referee_chassis_tp_name: "chassis_ref"
+          referee_launcher_tp_name: "launcher_ref"
+          referee_robot_game_tp_name: "robot_game_ref"
+          referee_radar_tp_name: "radar_ref"
+          thread_priority_uart: LibXR::Thread::Priority::MEDIUM
+          chassis: '{}'
+          referee_power_tp_name: "chassis_power_ref"
   - module: YunMo-yanyu/I6x
     id: i6x
     args:
@@ -59,6 +75,34 @@ modules:
       - right_rear: right_rear_motor
       - cmd: cmd
       - param:
+          power:
+            enabled: true
+            rls_enabled: true
+            torque_coefficient: 0.0000190484
+            k1: 0.01470
+            k2: 476.3
+            k3: 3.77
+            rls_covariance: 0.1
+            rls_lambda: 0.99999
+            k1_min: 0.00011
+            k1_max: 0.03
+            k2_min: 440.0
+            k2_max: 600.0
+            rls_min_power: 15.0
+            energy_kp: 20.0
+            energy_kd_step: 0.05
+            energy_max_output: 100.0
+            cap_full: 40.0
+            cap_base: 20.0
+            referee_full: 60.0
+            referee_base: 50.0
+            minimum_power: 30.0
+            fallback_power: 100.0
+            both_offline_ratio: 0.85
+            error_full: 20.0
+            error_proportional: 15.0
+            cap_timeout_ms: 100
+            referee_timeout_ms: 500
           rpm_to_speed: 0.000299
           wheel_to_center: 0.18951
           translation_comp: 0.625
@@ -96,6 +140,12 @@ modules:
       - output_topic_name: "chassis_status"
       - task_stack_depth: 4096
       - thread_priority: LibXR::Thread::Priority::MEDIUM
+      - cap_can: '&can1'
+      - cap_param:
+          feedback_id: 809
+          command_id: 816
+          normal_state: 0
+      - referee_power_topic_name: "chassis_power_ref"
   - module: YunMo-yanyu/EventBinder
     id: input_events
     args:

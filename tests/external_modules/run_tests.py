@@ -33,6 +33,8 @@ for name in ("RMMotor", "DMMotor", "DR16", "Referee", "HostData", "CMD",
              "SharedTopic", "SharedTopicClient", "I6x", "EventBinder", "DmImu", "Chassis"):
     assert name + "::" not in symbols, f"Inactive module linked into firmware: {name}"
 assert "wdr_chassis::Control::" not in symbols, "Inactive chassis controller linked into firmware"
+assert "wdr_chassis::PowerControl::" not in symbols, "Inactive power controller linked into firmware"
+assert "wdr_chassis::SuperCap::" not in symbols, "Inactive supercap linked into firmware"
 assert "wdr_control::PID::" not in symbols, "Inactive control PID linked into firmware"
 assert "XRobotCompileCheck" not in symbols, "Compile check linked into firmware"
 print(f"PASS: upstream referee layout; {args.preset} board-only config and ELF isolation")

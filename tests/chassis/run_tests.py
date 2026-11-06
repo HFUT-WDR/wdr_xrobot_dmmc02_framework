@@ -17,7 +17,7 @@ with tempfile.TemporaryDirectory(prefix='wdr-chassis-') as temp:
     flags=['-DLIBXR_DEFAULT_SCALAR=float','-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer']
     for i,source in enumerate([algorithms/'algorithm/translation_filter.c',test/'reference/wheel.c']):
         obj=temp/f'{i}.o';subprocess.run(['cc','-std=gnu11',*flags,'-c',str(source),'-o',str(obj)],check=True);objects.append(str(obj))
-    inc=[test/'stubs',chassis,algorithms,algorithms/'algorithm',modules/'CMD',modules/'RMMotor',modules/'Motor',ROOT/'Middlewares/Third_Party/LibXR/src/structure',ROOT/'Middlewares/Third_Party/LibXR/src/utils']
+    inc=[test/'stubs',chassis,algorithms,algorithms/'algorithm',modules/'CMD',modules/'RMMotor',modules/'Referee',modules/'Motor',ROOT/'Middlewares/Third_Party/LibXR/src/structure',ROOT/'Middlewares/Third_Party/LibXR/src/utils']
     exe=temp/'chassis'
-    subprocess.run(['c++','-std=c++20',*flags,*['-I'+str(i) for i in inc],str(test/'test_chassis.cpp'),str(chassis/'chassis_control.cpp'),*objects,'-o',str(exe)],check=True)
+    subprocess.run(['c++','-std=c++20',*flags,*['-I'+str(i) for i in inc],str(test/'test_chassis.cpp'),str(chassis/'chassis_control.cpp'),str(chassis/'chassis_power.cpp'),*objects,'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)

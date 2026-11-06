@@ -140,3 +140,5 @@ PID与LPF已提取到公共ControlAlgorithms依赖，底盘改用LibXR PID基座
 `config/templates/` 是未启用设备的增量参数，供编译回归使用，不能直接作为完整机器人配置生成。
 
 底盘故障现为可在调试器展开的具名布尔字段，见[故障快照说明](docs/chassis_faults_20261106.md)。
+
+底盘功率控制已补齐RLS、能量环、逐轮功率分配与26_sentry超电协议；默认固件不启用。参数、离线回退及硬件未验证项见[功率控制接入](docs/chassis_power_20261106.md)。

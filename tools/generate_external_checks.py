@@ -48,7 +48,7 @@ def generate(output):
         def preserve_topic_strings(value):
             if isinstance(value, dict):
                 for key, item in value.items():
-                    if isinstance(item, str) and (key.endswith("_topic_name") or key == "topic_name"):
+                    if isinstance(item, str) and (key.endswith(("_topic_name", "_tp_name")) or key == "topic_name"):
                         value[key] = '"' + item.strip('"') + '"'
                     else:
                         preserve_topic_strings(item)

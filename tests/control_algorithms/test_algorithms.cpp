@@ -115,6 +115,14 @@ int main(int argc, char**)
   near(filtered.Calculate(1,0,-.002f),0);
   near(filtered.Calculate(std::numeric_limits<float>::max(),-std::numeric_limits<float>::max(),.002f),0);
 
+  wdr_control::PID tracked({.kp=2, .ki=10, .kd=0, .i_limit=20, .out_limit=100});
+  tracked.Calculate(1, 0, .1f);
+  tracked.TrackIntegral(.5f);
+  near(tracked.GetIntegralOutput(), -1.5f);
+  near(tracked.Calculate(1, 0, .1f), 1.5f);
+  tracked.Reset();
+  near(tracked.GetIntegralOutput(), 0);
+
   // 二阶Butterworth：单位DC增益、截止频率约-3dB、两倍截止明显衰减，复位确定。
   constexpr float PI=3.14159265358979323846f;
   for (float frequency:{50.f,100.f,200.f})

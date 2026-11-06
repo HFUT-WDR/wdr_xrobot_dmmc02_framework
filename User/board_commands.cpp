@@ -128,6 +128,13 @@ int chassis_command(void*, int, char**)
           unsigned(faults.yaw_lost), unsigned(faults.motor_lost),
           unsigned(faults.gimbal_stop), unsigned(faults.invalid_target),
           unsigned(faults.invalid_feedback));
+      const auto& power = state.power;
+      LibXR::STDIO::Print<
+          "power enabled={} cap_online={} referee_online={} budget_w={:.2f} "
+          "estimated_w={:.2f} limited={} unreachable={} k1={:.5f} k2={:.2f}\r\n">(
+          unsigned(power.enabled), unsigned(power.cap_online), unsigned(power.referee_online),
+          power.budget_w, power.estimated_w, unsigned(power.limited),
+          unsigned(power.budget_unreachable), power.k1, power.k2);
       return 0;
     }
     LibXR::Thread::Sleep(1);

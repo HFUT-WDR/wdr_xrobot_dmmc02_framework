@@ -344,6 +344,54 @@ int main()
   task->Run(1);
   assert(can.sent.size() == count + 1);
   assert_zero(can.sent.back());
+  // 实际任务接入功率控制：RAW也不能绕过预算，电容帧与四轮帧分别发送。
+  CAN powered_bus;
+  RMMotor prf(powered_bus, {RMMotor::Model::MOTOR_M3508, false, 0x201});
+  RMMotor plf(powered_bus, {RMMotor::Model::MOTOR_M3508, false, 0x202});
+  RMMotor plr(powered_bus, {RMMotor::Model::MOTOR_M3508, false, 0x203});
+  RMMotor prr(powered_bus, {RMMotor::Model::MOTOR_M3508, false, 0x204});
+  CMD power_cmd(CMD::Mode::CMD_OP_CTRL, "power_cmd", "power_gimbal", "power_fire");
+  Param power_param;
+  power_param.power.enabled = true;
+  Chassis powered(prf, plf, plr, prr, power_cmd, power_param, "power_cmd",
+                  "power_attitude", "power_yaw", "power_status", 4096,
+                  Thread::Priority::MEDIUM, &powered_bus);
+  auto* power_task = Thread::threads.back();
+  powered.GetEvent().Active(uint32_t(Mode::RAW));
+  for (unsigned i = 0; i < 4; ++i)
+  {
+    feed_can(powered_bus, 0x201 + i);
+  }
+  wdr_imu::BoardState power_attitude{};
+  power_attitude.time_us = Timebase::now;
+  Topic::CreateTopic<wdr_imu::BoardState>("power_attitude").Publish(power_attitude);
+  GimbalFeedback power_yaw{};
+  power_yaw.time_us = Timebase::now;
+  power_yaw.yaw_valid = true;
+  Topic::CreateTopic<GimbalFeedback>("power_yaw").Publish(power_yaw);
+  CMD::Data power_data{};
+  power_data.input_online = true;
+  power_data.chassis.x = 30000;
+  power_data.chassis.frame = CMD::ChassisFrame::BODY;
+  power_cmd.FeedRC(CMD::RCInputSource::RC_INPUT_I6X, power_data);
+  power_task->Run(1);
+  auto powered_state = std::any_cast<State>(Topic::values.at("power_status"));
+  assert(powered_state.power.enabled && powered_state.power.limited);
+  assert(powered_state.power.limited_positive_w <= 85.02f);
+  assert(powered_bus.sent.size() == 2 && powered_bus.sent.front().id == 0x330);
+  powered.GetEvent().Active(uint32_t(Mode::RELAX));
+  power_task->Run(1);
+  assert_zero(powered_bus.sent.back());
+  // 反向电机的原始电流与逻辑轮速同向，INT16_MIN取反不能溢出。
+  CAN reversed_bus;
+  RMMotor reversed(reversed_bus, {RMMotor::Model::MOTOR_M3508, true, 0x201});
+  CAN::ClassicPack reversed_frame{};
+  reversed_frame.id = 0x201;
+  reversed_frame.dlc = 8;
+  reversed_frame.data[4] = 0x80;
+  reversed_bus.Emit(reversed_frame);
+  reversed.Update();
+  assert(reversed.GetFeedbackCurrent() == 32768);
   puts(
       "PASS: real Chassis/CMD/RMMotor integration, no constructor TX, missing/stale yaw, "
       "motor expiry, RC loss, RAW guard, four-slot zero output");
