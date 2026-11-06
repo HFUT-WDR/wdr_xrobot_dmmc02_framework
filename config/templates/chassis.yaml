@@ -1,39 +1,5 @@
+# 模块增量模板：编译检查时与 User/xrobot.yaml 合并，不是独立机器人配置。
 modules:
-  - module: xrobot-org/BuzzerAlarm
-    id: buzzer
-    args:
-      - pwm: pwm_tim12_ch2
-      - alarm_freq: 1500
-      - alarm_duration: 300
-      - alarm_delay: 300
-  - module: xrobot-org/BMI088
-    id: imu
-    args:
-      - accl_cs: ACC_CS
-      - gyro_cs: GYRO_CS
-      - gyro_int: GYRO_INT
-      - spi: spi2
-      - heater_pwm: pwm_tim3_ch4
-      - database: imu_ram_database
-      - ramfs: ramfs
-      - param:
-          gyro_freq: BMI088::GyroFreq::GYRO_1000HZ_BW116HZ
-          accl_freq: BMI088::AcclFreq::ACCL_1600HZ
-          gyro_range: BMI088::GyroRange::DEG_2000DPS
-          accl_range: BMI088::AcclRange::ACCL_6G
-          rotation: '{1.0f, 0.0f, 0.0f, 0.0f}'
-          pid_param:
-            k: 1.0f
-            p: 0.0f
-            i: 0.0f
-            d: 0.0f
-            i_limit: 0.0f
-            out_limit: 0.0f
-            cycle: false
-          gyro_topic_name: "bmi088_gyro"
-          accl_topic_name: "bmi088_accl"
-          target_temperature: 45
-          task_stack_depth: 2048
   - module: YunMo-yanyu/CMD
     id: cmd
     args:
@@ -52,13 +18,6 @@ modules:
           speed_y: 2.64
           spin: 12.0
           deadband: 0.01515151515
-  - module: YunMo-yanyu/BoardAttitude
-    id: board_attitude
-    args:
-      - gyro_topic_name: "bmi088_gyro"
-      - accel_topic_name: "bmi088_accl"
-      - output_topic_name: "board_attitude"
-      - installation: wdr_imu::IDENTITY
   - module: YunMo-yanyu/RMMotor
     id: right_front_motor
     args:
@@ -142,5 +101,3 @@ modules:
     args:
       - modules: '{{"i6x", i6x}, {"cmd", cmd}, {"chassis", chassis}}'
       - event_binding_groups: '{{{{"i6x", I6x::SwitchPos::SW2_MID, "cmd", CMD::SourceEvent::SET_GIMBAL_RC}, {"i6x", I6x::SwitchPos::SW2_UP, "cmd", CMD::SourceEvent::SET_GIMBAL_PC}, {"i6x", I6x::Chord::SW2_MID_SW3_UP_ENTER, "cmd", CMD::SourceEvent::SET_CHASSIS_RC}, {"i6x", I6x::Chord::SW2_UP_SW3_UP_ENTER, "cmd", CMD::SourceEvent::SET_CHASSIS_PC}, {"i6x", I6x::Chord::SW2_MID_SW3_UP_EXIT, "cmd", CMD::SourceEvent::SET_CHASSIS_RC}, {"i6x", I6x::Chord::SW2_UP_SW3_UP_EXIT, "cmd", CMD::SourceEvent::SET_CHASSIS_RC}, {"i6x", I6x::Chord::SW1_DOWN_SW3_UP_ENTER, "cmd", CMD::SourceEvent::SET_LAUNCHER_PC}, {"i6x", I6x::Chord::SW1_DOWN_SW3_UP_EXIT, "cmd", CMD::SourceEvent::SET_LAUNCHER_RC}, {"i6x", I6x::Chord::SW2_MID_SW3_UP_ENTER, "chassis", Chassis::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::Chord::SW2_UP_SW3_UP_ENTER, "chassis", Chassis::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::Chord::SW2_MID_SW3_UP_EXIT, "chassis", Chassis::Mode::RELAX}, {"i6x", I6x::Chord::SW2_UP_SW3_UP_EXIT, "chassis", Chassis::Mode::RELAX}, {"cmd", CMD::CMD_EVENT_LOST_CTRL, "chassis", Chassis::Mode::RELAX}}}}'
-settings:
-  monitor_sleep_ms: 1000

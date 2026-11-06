@@ -49,3 +49,5 @@ Debug/Release构建、原始解码对照与失控/STOP回归、默认ELF隔离�
 精确组件提交、仓库私有状态和检查结果另记于docs/validation/private_migration_20261104.json。
 
 2026-11-05 新增私有模块 ImuFusion、BoardAttitude、DmImu，当前版本与验收见 [IMU接入记录](imu_modules_20261105.md)。
+
+> 2026-11-06 清理更新：本文中的多份独立 YAML 为当时验证入口，现已删除。当前机器人入口统一为 `User/xrobot.yaml`；底盘、DM IMU 增量参数位于 `config/templates/chassis.yaml`、`config/templates/dm_imu.yaml`，由 `tools/generate_external_checks.py` 合并并生成回归组合，不直接运行旧生成命令。历史验证结果保留原样。

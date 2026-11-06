@@ -107,25 +107,25 @@ cmake --build --preset Debug -j 4
 私有索引通过 `ModuleIndex` Git 子模块读取；新机器需要具备各私有仓库读取权限。
 继承的 Actions 工作流归档于 `docs/archive/ci`，尚未配置私有跨仓库 CI 凭据，本地构建入口不变。
 
-I6x现为正式XRobot模块，配置为`YunMo-yanyu/I6x`。`User/xrobot_i6x.yaml`展示完整实例；
+I6x现为正式XRobot模块，配置为`YunMo-yanyu/I6x`。`config/templates/chassis.yaml`包含 I6x 接入参数；
 默认仍选择不含外接接收实例的`User/xrobot.yaml`。确认接线后才显式切换配置、构建并烧录。
 详见[模块接入说明](docs/external_modules.md)与[私有仓库迁移记录](docs/private_repositories_20261104.md)。
 
 ## 姿态模块（2026-11-05）
 
-默认 `User/xrobot.yaml` 增加板载姿态解算，单颗外置 DM 配置为 `User/xrobot_imu.yaml`。
+默认 `User/xrobot.yaml` 增加板载姿态解算，单颗外置 DM 配置为 `config/templates/dm_imu.yaml`。
 默认安装矩阵为单位阵；外置 DM 不默认启动。新增终端命令 `attitude` 与 `dm_attitude`。
 设计、单位、配置、验证和未验证项见 [IMU接入记录](docs/imu_modules_20261105.md)。
 VS Code 的“测试 IMU（主机）”执行冻结算法和协议回归；普通编译仍同时检查未启用模块。
 本次未烧录，Flash 中仍为此前板级固件；原硬件验收不能代替新姿态模块验收。
 
 DM模块已补齐CAN请求/应答、现版24字节RS485请求/应答与显式旧流兼容，支持原始测量、设备姿态/本地融合及诊断输出。
-可选配置分别为 `User/xrobot_imu_can.yaml`、`User/xrobot_imu.yaml`、`User/xrobot_imu_rs485_stream.yaml`，默认不启用外置设备。
+CAN 请求、RS485 请求和流式组合由编译检查工具从同一增量模板生成，默认不启用外置设备。
 不含CAN主动上报模式；协议范围、配置与硬件未验证项见[DM模块补全记录](docs/dm_imu_complete_20261105.md)。
 
 ## 底盘模块（2026-11-05）
 
-已引入 `YunMo-yanyu/Chassis`，可选完整配置为 `User/xrobot_chassis.yaml`；默认配置不启动底盘。
+已引入 `YunMo-yanyu/Chassis`，增量模板为 `config/templates/chassis.yaml`；默认配置不启动底盘。
 功能与参数沿用26_sentry，模块使用Topic、事件和YAML组装。云台反馈接口已定义，缺失或停更时保持无力。
 终端 `chassis` 只读状态，VS Code“测试底盘（主机）”执行离线回归。
 配置、保护、验证及功率控制尚未接入的边界见[底盘接入记录](docs/chassis_module_20261105.md)。本轮未烧录。
@@ -135,3 +135,6 @@ DM模块已补齐CAN请求/应答、现版24字节RS485请求/应答与显式旧
 DAPLink/CMSIS-DAP已提供“烧录 Debug（DAPLink）”“烧录 Release（DAPLink）”任务及对应调试入口。采用SWD 1MHz，先编译再烧录、校验和复位，不修改选项字节。2026-11-05板级烧录及运行检查见[验证记录](docs/validation/daplink_20261105.json)。
 
 PID与LPF已提取到公共ControlAlgorithms依赖，底盘改用LibXR PID基座并补齐导数滤波/首拍处理。选型、旧实现问题、增益换算及验证见[公共控制算法记录](docs/control_algorithms_20261106.md)。VS Code新增“测试公共控制算法（主机）”任务。
+
+当前只使用 `User/xrobot.yaml` 作为机器人配置；`User/libxr_config.yaml` 配置底层外设。
+`config/templates/` 是未启用设备的增量参数，供编译回归使用，不能直接作为完整机器人配置生成。

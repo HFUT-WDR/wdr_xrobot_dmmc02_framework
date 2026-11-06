@@ -1,0 +1,21 @@
+# 模块增量模板：编译检查时与 User/xrobot.yaml 合并，不是独立机器人配置。
+modules:
+  - module: YunMo-yanyu/DmImu
+    id: dm_imu
+    args:
+      - param:
+          transport: wdr_imu::DmTransport::RS485_REQUEST
+          output: wdr_imu::DmOutput::FUSED
+          device_id: 1
+          feedback_id: 17
+          baudrate: 2000000
+          period_ms: 10
+          timeout_ms: 50
+          retries: 2
+          data_mask: 15
+      - can: nullptr
+      - uart: '&usart2'
+      - output_topic_name: "dm_attitude"
+      - raw_topic_name: "dm_measurement"
+      - diagnostics_topic_name: "dm_diagnostics"
+      - installation: wdr_imu::IDENTITY

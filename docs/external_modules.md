@@ -136,3 +136,5 @@ DM模块支持CAN请求/应答、当前24字节RS485请求/应答及显式旧固
 `YunMo-yanyu/Chassis`已加入私有索引及依赖锁定。正常编译现检查13个模块构造和六份完整配置；默认ELF不含底盘控制器。
 可选 `User/xrobot_chassis.yaml`复用CAN1四颗M3508（0x201..0x204），缺少云台反馈时保持无力。
 命令单位、模式事件及未完成的功率/实车验证见[底盘记录](chassis_module_20261105.md)。
+
+> 2026-11-06 清理更新：本文中的多份独立 YAML 为当时验证入口，现已删除。当前机器人入口统一为 `User/xrobot.yaml`；底盘、DM IMU 增量参数位于 `config/templates/chassis.yaml`、`config/templates/dm_imu.yaml`，由 `tools/generate_external_checks.py` 合并并生成回归组合，不直接运行旧生成命令。历史验证结果保留原样。

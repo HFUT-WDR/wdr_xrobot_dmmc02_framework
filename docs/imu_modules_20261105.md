@@ -78,3 +78,5 @@ User/xrobot_imu.yaml只实例化一颗DM，启用需执行 `xrobot gen -c User/x
 未启用外置DM时dm_attitude会提示没有新样本。status/health/imu原命令保持。
 本次未烧录，新模块启动、线程栈余量、4Mbps连续接收、姿态实际轴向与温控/零偏标定均未板测。
 当前BMI088零偏仍使用RAM数据库，持久校准与恢复在后续校准阶段接入，不宣称已完成。
+
+> 2026-11-06 清理更新：本文中的多份独立 YAML 为当时验证入口，现已删除。当前机器人入口统一为 `User/xrobot.yaml`；底盘、DM IMU 增量参数位于 `config/templates/chassis.yaml`、`config/templates/dm_imu.yaml`，由 `tools/generate_external_checks.py` 合并并生成回归组合，不直接运行旧生成命令。历史验证结果保留原样。

@@ -69,3 +69,5 @@ Debug/Release还检查12个模块构造和五份完整YAML配置，检查对象�
 代码/编译完成不能替代上述硬件验收，也不表示后续底盘、云台、机械校准或功率控制已接入。
 
 2026-11-06：配置文件由xrobot_imu_legacy.yaml更名为xrobot_imu_rs485_stream.yaml，仅明确RS485连续流用途；RS485_STREAM_LEGACY协议枚举、4Mbps和1ms参数保持不变。历史验证记录中的旧产品名不回写。
+
+> 2026-11-06 清理更新：本文中的多份独立 YAML 为当时验证入口，现已删除。当前机器人入口统一为 `User/xrobot.yaml`；底盘、DM IMU 增量参数位于 `config/templates/chassis.yaml`、`config/templates/dm_imu.yaml`，由 `tools/generate_external_checks.py` 合并并生成回归组合，不直接运行旧生成命令。历史验证结果保留原样。

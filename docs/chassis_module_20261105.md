@@ -104,3 +104,5 @@ VS Code增加“测试底盘（主机）”；原构建/烧录任务使用当前
 主机替身与编译不证明真实CAN收发、车轮方向、RTOS时延、栈余量、底盘闭环、云台角度链或功率安全；上述均未板测。
 
 2026-11-06更新：通用算法已迁出，PID选型和首拍/饱和语义见[公共控制算法记录](control_algorithms_20261106.md)；上述旧PID等价结论不适用于新实现。
+
+> 2026-11-06 清理更新：本文中的多份独立 YAML 为当时验证入口，现已删除。当前机器人入口统一为 `User/xrobot.yaml`；底盘、DM IMU 增量参数位于 `config/templates/chassis.yaml`、`config/templates/dm_imu.yaml`，由 `tools/generate_external_checks.py` 合并并生成回归组合，不直接运行旧生成命令。历史验证结果保留原样。

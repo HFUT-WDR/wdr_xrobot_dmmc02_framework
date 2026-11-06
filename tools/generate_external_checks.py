@@ -48,7 +48,7 @@ def generate(output):
         def preserve_topic_strings(value):
             if isinstance(value, dict):
                 for key, item in value.items():
-                    if isinstance(item, str) and key.endswith("_topic_name"):
+                    if isinstance(item, str) and (key.endswith("_topic_name") or key == "topic_name"):
                         value[key] = '"' + item.strip('"') + '"'
                     else:
                         preserve_topic_strings(item)
@@ -61,16 +61,31 @@ def generate(output):
             yaml.safe_dump(board, sort_keys=False, allow_unicode=True))
         run("xrobot", "gen", "-c", "User/external_compile.yaml", "--no-line-directives", cwd=stage)
         shutil.copyfile(stage / "User/xrobot_main.hpp", output / "external_profile.hpp")
-        # 在临时工程生成完整 i6x 配置，不改变原工程的默认配置。
-        run("xrobot", "gen", "-c", "User/xrobot_i6x.yaml", "--no-line-directives", cwd=stage)
-        shutil.copyfile(stage / "User/xrobot_main.hpp", output / "i6x_profile.hpp")
+        # 共享当前板级配置，只保存底盘和外置 IMU 的增量参数。
         for name in ("imu", "imu_can", "imu_rs485_stream", "chassis"):
-            run("xrobot", "gen", "-c", f"User/xrobot_{name}.yaml",
-                "--no-line-directives", cwd=stage)
+            profile = yaml.safe_load((ROOT / "User/xrobot.yaml").read_text())
+            preserve_topic_strings(profile)
+            template_name = "chassis" if name == "chassis" else "dm_imu"
+            extra = yaml.safe_load((ROOT / f"config/templates/{template_name}.yaml").read_text())
+            preserve_topic_strings(extra)
+            if name.startswith("imu"):
+                args = {key: value for arg in extra["modules"][0]["args"]
+                        for key, value in arg.items()}
+                if name == "imu_can":
+                    args["param"]["transport"] = "wdr_imu::DmTransport::CAN_REQUEST"
+                    args["can"], args["uart"] = "&can1", "nullptr"
+                elif name == "imu_rs485_stream":
+                    args["param"].update(transport="wdr_imu::DmTransport::RS485_STREAM_LEGACY",
+                                          baudrate=4000000, period_ms=1)
+                extra["modules"][0]["args"] = [{key: value} for key, value in args.items()]
+            profile["modules"].extend(extra["modules"])
+            (stage / "User/check.yaml").write_text(
+                yaml.safe_dump(profile, sort_keys=False, allow_unicode=True))
+            run("xrobot", "gen", "-c", "User/check.yaml", "--no-line-directives", cwd=stage)
             shutil.copyfile(stage / "User/xrobot_main.hpp", output / f"{name}_profile.hpp")
-    for name in ("i6x", "imu", "imu_can", "imu_rs485_stream", "chassis"):
+    for name in ("imu", "imu_can", "imu_rs485_stream", "chassis"):
         (output / f"{name}_profile.cpp").write_text(
-            '// 仅编译验证未启用的 YAML 配置，不链接进默认固件。\n'
+            '// 仅编译验证未启用的模块组合，不链接进默认固件。\n'
             f'#include "{name}_profile.hpp"\n')
     (output / "external_profile.cpp").write_text(
         '// 生成的未启用配置，仅编译检查，不接入固件。\n'
