@@ -54,7 +54,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: d175e92259f0d69e7053c33d475ff6d5a5c166f6
+    commit: 5f15d8184f09a22f71b4014378c9fa201c8d49cf
   YunMo-yanyu/ControlAlgorithms:
     repo: https://github.com/YunMo-yanyu/ControlAlgorithms.git
     source: ModuleIndex/index.yaml

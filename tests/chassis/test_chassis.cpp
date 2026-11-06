@@ -205,6 +205,26 @@ static void assert_zero(const LibXR::CAN::ClassicPack& p)
 }
 int main()
 {
+  // 每项故障可单独触发总判据；发送前合并不能清掉本拍已有故障。
+  bool Faults::* fields[]{&Faults::input_lost, &Faults::command_stale,
+                               &Faults::yaw_lost, &Faults::motor_lost,
+                               &Faults::gimbal_stop, &Faults::invalid_target,
+                               &Faults::invalid_feedback};
+  Faults combined{};
+  assert(!combined.Any());
+  for (auto field : fields)
+  {
+    Faults single{};
+    single.*field = true;
+    assert(single.Any());
+    combined.Merge(single);
+    assert(combined.*field);
+  }
+  combined.Merge(Faults{});
+  for (auto field : fields)
+  {
+    assert(combined.*field);
+  }
   control_tests();
   using namespace LibXR;
   CAN can;
@@ -230,7 +250,7 @@ int main()
   assert(can.sent.size() == 1);
   assert_zero(can.sent.back());
   auto status = std::any_cast<State>(Topic::values.at("chassis_status"));
-  assert(status.mode == Mode::RELAX && (status.faults & YAW_LOST));
+  assert(status.mode == Mode::RELAX && status.faults.yaw_lost);
   auto refresh = [&](bool yaw = true, unsigned missing = 4)
   {
     for (unsigned i = 0; i < 4; ++i)
@@ -260,7 +280,7 @@ int main()
   task->Run(1);
   assert(can.sent.size() == 2);
   status = std::any_cast<State>(Topic::values.at("chassis_status"));
-  assert(status.mode == Mode::NO_FOLLOW_YAW && status.faults == 0);
+  assert(status.mode == Mode::NO_FOLLOW_YAW && !status.faults.Any());
   assert(status.current[0] != 0);
   const auto first_current = status.current;
   // YAML逻辑轮序为ID203、201、204、202，发送槽必须仍按物理ID排列。
@@ -283,7 +303,7 @@ int main()
   Topic::CreateTopic<GimbalFeedback>("gimbal_chassis_feedback").Publish(urgent);
   task->Run(1);
   assert_zero(can.sent.back());
-  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults & GIMBAL_STOP);
+  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults.gimbal_stop);
   refresh(false);
   task->Run(1);
   assert_zero(can.sent.back());
@@ -296,7 +316,7 @@ int main()
   refresh(true, 2);
   task->Run(1);
   assert_zero(can.sent.back());
-  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults & MOTOR_LOST);
+  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults.motor_lost);
   refresh();
   task->Run(1);
   GimbalFeedback stop{};
@@ -306,7 +326,7 @@ int main()
   Topic::CreateTopic<GimbalFeedback>("gimbal_chassis_feedback").Publish(stop);
   task->Run(1);
   assert_zero(can.sent.back());
-  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults & GIMBAL_STOP);
+  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults.gimbal_stop);
   // 遥控失联即整组无力；RAW和BODY也不能绕过yaw运行条件。
   CMD::Data lost{};
   cmd.FeedRC(CMD::RCInputSource::RC_INPUT_I6X, lost);

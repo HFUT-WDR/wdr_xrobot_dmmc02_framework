@@ -138,3 +138,5 @@ PID与LPF已提取到公共ControlAlgorithms依赖，底盘改用LibXR PID基座
 
 当前只使用 `User/xrobot.yaml` 作为机器人配置；`User/libxr_config.yaml` 配置底层外设。
 `config/templates/` 是未启用设备的增量参数，供编译回归使用，不能直接作为完整机器人配置生成。
+
+底盘故障现为可在调试器展开的具名布尔字段，见[故障快照说明](docs/chassis_faults_20261106.md)。

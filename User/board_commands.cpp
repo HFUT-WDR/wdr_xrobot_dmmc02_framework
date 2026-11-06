@@ -115,11 +115,19 @@ int chassis_command(void*, int, char**)
     {
       const auto state = subscriber.GetData();
       LibXR::STDIO::Print<
-          "chassis seq={} requested={} mode={} faults={} yaw_rad={:.3f} "
+          "chassis seq={} requested={} mode={} yaw_rad={:.3f} "
           "current=[{},{},{},{}]\r\n">(
           state.sequence, static_cast<unsigned>(state.requested),
-          static_cast<unsigned>(state.mode), state.faults, state.chassis_yaw,
+          static_cast<unsigned>(state.mode), state.chassis_yaw,
           state.current[0], state.current[1], state.current[2], state.current[3]);
+      const auto& faults = state.faults;
+      LibXR::STDIO::Print<
+          "faults: input_lost={} command_stale={} yaw_lost={} motor_lost={} "
+          "gimbal_stop={} invalid_target={} invalid_feedback={}\r\n">(
+          unsigned(faults.input_lost), unsigned(faults.command_stale),
+          unsigned(faults.yaw_lost), unsigned(faults.motor_lost),
+          unsigned(faults.gimbal_stop), unsigned(faults.invalid_target),
+          unsigned(faults.invalid_feedback));
       return 0;
     }
     LibXR::Thread::Sleep(1);
