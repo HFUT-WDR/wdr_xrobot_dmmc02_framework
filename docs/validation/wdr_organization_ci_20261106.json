@@ -1,0 +1,31 @@
+{
+  "date": "2026-11-06",
+  "organization": "HFUT-WDR",
+  "private_repositories": 20,
+  "modules": 18,
+  "default_branch": "dev",
+  "personal_repositories": "preserved",
+  "local_checks": {
+    "host_regressions": [
+      "imu",
+      "gimbal",
+      "chassis",
+      "i6x",
+      "control_algorithms",
+      "power"
+    ],
+    "snapshots": "18 bundles, 22 module frozen offline setup passed",
+    "bsp_presets": [
+      "Debug",
+      "Release"
+    ],
+    "gimbal_firmware_link": "passed; not flashed"
+  },
+  "cloud_ci": {
+    "shared_ci_self_check": "passed",
+    "module_and_bsp": "blocked before build: private dependency token rejected HTTP 401",
+    "evidence": "https://github.com/HFUT-WDR/Gimbal/actions/runs/42246416373"
+  },
+  "hardware_validation": "not performed in this migration",
+  "remaining": "Reconfigure a valid read-only token, then rerun and inspect all module/BSP CI builds."
+}
