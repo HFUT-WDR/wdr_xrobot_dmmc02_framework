@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-06",
+  "profile": "User/xrobot.yaml",
+  "preset": "Debug",
+  "probe": "Horco CMSIS-DAP",
+  "swd_khz": 1000,
+  "firmware_commit": "389602d15eff717d9df4bb2eaeae5850243b5339",
+  "working_tree_modified": true,
+  "elf_sha256": "ddcaacdd4dc1e531a8fdd7c66244df15f126ad59b98ac3d0f99ff006f9e40325",
+  "lock_sha256": "f33a54b0d2396c3736343f94b13011e260d98b5fdb72527cca122fd07a589de0",
+  "flash_verify": "passed",
+  "option_bytes_modified": false,
+  "runtime": {
+    "clock_hz": 550000000,
+    "tasks": 7,
+    "heap_free": 56368,
+    "heap_min": 56368,
+    "tick_1": 34148,
+    "sequence_1": 32857,
+    "spi2_errors": 0,
+    "spi6_errors": 0,
+    "adc3_errors": 0,
+    "cfsr_1": 0,
+    "hfsr_1": 0,
+    "tick_2": 35154,
+    "sequence_2": 33863,
+    "cfsr_2": 0,
+    "hfsr_2": 0
+  },
+  "imu_queue_drops": [
+    0,
+    0
+  ],
+  "imu_unpaired": [
+    0,
+    0
+  ],
+  "target_resumed": true,
+  "probe_server_closed": true,
+  "limitations": [
+    "只烧录默认板级配置；未实例化底盘、接收机、外接电机、裁判和超电",
+    "未验证底盘或功率闭环、制动与电气功率合规",
+    "未验证姿态安装方向及动态精度",
+    "板载USB终端、实体按键及LED目视未验证",
+    "调试暂停采样不代表RTOS截止时间和栈余量验收"
+  ]
+}

@@ -83,31 +83,36 @@ SharedTopic 双向通信依赖。型号、ID 和接线未确认的实例不加�
 配置模板、参数含义、驱动差异和后续启用步骤见 [基础设备模块接入](docs/external_modules.md)。
 
 正常 Debug／Release 编译会同时检查外接模块和组合 YAML；检查对象不链接进板级固件。
-VS Code 新增“检查外接模块（仅编译）”，原编译和 J-Link 烧录入口继续使用板级配置。
+VS Code 日常菜单仅显示编译和烧录；配置、模块检查及主机测试任务隐藏，仍可作为内部依赖或开发脚本使用，测试由维护修改的一方运行。
 
 
 ## 当前私有仓库与首次准备
 
-主工程发布到 `YunMo-yanyu/wdr_xrobot_dmmc02_framework`，组件索引在
-`YunMo-yanyu/xrobot-modules`，CMD、Motor、RMMotor、DMMotor、DR16、Referee、HostData、I6x
-均由同账号的私有仓库独立维护。采用独立组件仓库，保留历史和第三方许可证。
-LibXR 和 xrobot-org 官方模块继续使用上游。
+主工程和全部18个自维护模块存放于 `HFUT-WDR` 私有仓库，组织成员可读。
+共享索引、Module CI 和 BSP CI 在 [`HFUT-WDR/xrobot-ci`](https://github.com/HFUT-WDR/xrobot-ci)。
+个人仓库保留；LibXR 和 xrobot-org 官方模块继续使用上游。
 
 ```sh
 gh auth login
 gh auth setup-git
-git clone --recurse-submodules https://github.com/YunMo-yanyu/wdr_xrobot_dmmc02_framework.git
+git clone --recurse-submodules https://github.com/HFUT-WDR/wdr_xrobot_dmmc02_framework.git
 cd wdr_xrobot_dmmc02_framework
 python3 -m pip install -r requirements-tools.txt
 xrobot setup --frozen
 cmake --preset Debug
-cmake --build --preset Debug -j 4
+cmake --build --preset Debug -j4
 ```
 
-私有索引通过 `ModuleIndex` Git 子模块读取；新机器需要具备各私有仓库读取权限。
-继承的 Actions 工作流归档于 `docs/archive/ci`，尚未配置私有跨仓库 CI 凭据，本地构建入口不变。
+私有索引通过 `ModuleIndex` Git 子模块读取；新机器需要各私有仓库的读取权限。
+开发分支为 `dev`。提交和PR自动调用组织共享CI，运行在GitHub提供的Ubuntu临时服务器及XRobot Docker镜像内。
+模块CI解析私有依赖、生成构造调用并进行编译，不执行构造函数；BSP CI检查生成文件、锁文件和配置，再交叉编译Debug/Release固件。
+CI不连接板子，不烧录、不驱动电机，也不能代替通信和机构闭环验收。
 
-I6x现为正式XRobot模块，配置为`YunMo-yanyu/I6x`。`config/templates/chassis.yaml`包含 I6x 接入参数；
+CI跨仓库读取使用专用 `WDR_MODULES_READ_TOKEN`（仅本次20个仓库Contents Read-only），普通 `GITHUB_TOKEN` 负责当前仓库操作。
+维护者更换Token时运行 `python3 tools/configure_wdr_ci.py` 隐藏输入；`--check`检查19个调用仓库是否已配置Secret。
+配置方式、触发条件与验证范围见[组织仓库与CI说明](docs/wdr_organization_ci.md)。
+
+I6x现为正式XRobot模块，配置为`HFUT-WDR/I6x`。`config/templates/chassis.yaml`包含 I6x 接入参数；
 默认仍选择不含外接接收实例的`User/xrobot.yaml`。确认接线后才显式切换配置、构建并烧录。
 详见[模块接入说明](docs/external_modules.md)与[私有仓库迁移记录](docs/private_repositories_20261104.md)。
 
@@ -125,7 +130,7 @@ CAN 请求、RS485 请求和流式组合由编译检查工具从同一增量模�
 
 ## 底盘模块（2026-11-05）
 
-已引入 `YunMo-yanyu/Chassis`，增量模板为 `config/templates/chassis.yaml`；默认配置不启动底盘。
+已引入 `HFUT-WDR/Chassis`，增量模板为 `config/templates/chassis.yaml`；默认配置不启动底盘。
 功能与参数沿用26_sentry，模块使用Topic、事件和YAML组装。云台反馈接口已定义，缺失或停更时保持无力。
 终端 `chassis` 只读状态，VS Code“测试底盘（主机）”执行离线回归。
 配置、保护、验证及功率控制尚未接入的边界见[底盘接入记录](docs/chassis_module_20261105.md)。本轮未烧录。
@@ -134,7 +139,7 @@ CAN 请求、RS485 请求和流式组合由编译检查工具从同一增量模�
 
 DAPLink/CMSIS-DAP已提供“烧录 Debug（DAPLink）”“烧录 Release（DAPLink）”任务及对应调试入口。采用SWD 1MHz，先编译再烧录、校验和复位，不修改选项字节。2026-11-05板级烧录及运行检查见[验证记录](docs/validation/daplink_20261105.json)。
 
-PID与LPF已提取到公共ControlAlgorithms依赖，底盘改用LibXR PID基座并补齐导数滤波/首拍处理。选型、旧实现问题、增益换算及验证见[公共控制算法记录](docs/control_algorithms_20261106.md)。VS Code新增“测试公共控制算法（主机）”任务。
+PID与LPF已提取到公共ControlAlgorithms依赖，底盘改用LibXR PID基座并补齐导数滤波/首拍处理。选型、旧实现问题、增益换算及验证见[公共控制算法记录](docs/control_algorithms_20261106.md)。相关主机测试脚本供开发维护验证使用。
 
 当前只使用 `User/xrobot.yaml` 作为机器人配置；`User/libxr_config.yaml` 配置底层外设。
 `config/templates/` 是未启用设备的增量参数，供编译回归使用，不能直接作为完整机器人配置生成。
@@ -142,3 +147,16 @@ PID与LPF已提取到公共ControlAlgorithms依赖，底盘改用LibXR PID基座
 底盘故障现为可在调试器展开的具名布尔字段，见[故障快照说明](docs/chassis_faults_20261106.md)。
 
 底盘功率控制已补齐RLS、能量环、逐轮功率分配与26_sentry超电协议；默认固件不启用。参数、离线回退及硬件未验证项见[功率控制接入](docs/chassis_power_20261106.md)。
+
+控制组织现为 `Chassis<Omni>` 与独立 `PowerControl` 模块；全局 OP/AUTO、遥控断连保护、实际 dt 及原车功率分配见[对齐记录](docs/control_alignment_20261106.md)。默认固件仍为板级配置。
+
+后续默认Debug已完成DAPLink烧录校验和板级运行检查：RTOS与姿态序号持续增长，SPI/ADC及CPU故障寄存器为零。此固件不含底盘/功率实例，记录见[板级测试](docs/validation/control_alignment_20261106_board.json)。
+
+
+## 双 yaw + pitch 云台
+
+云台已拆为 `DualYaw`、`Pitch`、`Gimbal` 三个 XRobot 模块，由 Gimbal 的一个 1 ms 线程统一调用；默认板级配置不启用。上电保持 RELAX，遥控/AI 失效后需要明确模式操作恢复。GM6020 电压/电流模式显式区分，云台沿用原车电压模式；标定用于确定编码器相对角零点。
+
+AUTO仅保留STOP/AIM/SCAN，遥控Pitch路径命名为REMOTE_CONTROL；删除AUTO_TEST搜寻状态机和AI大yaw导航角度输入。底盘独立在大yaw坐标系执行AI导航速度。Pitch归中使用机械零点，自瞄/扫描统一约束机械可达目标。
+
+增量配置见 [云台模板](config/templates/gimbal.yaml)，模块边界、命令契约、校准存储、原车差异及验证范围见 [云台移植说明](docs/gimbal_modules_20261106.md)。模板零位为编译占位，未绑定持久化数据库，不能直接当作实机标定参数。未进行云台烧录、设备收发或机构闭环验证。

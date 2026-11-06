@@ -3,7 +3,7 @@
 from pathlib import Path
 import argparse,subprocess,tempfile,hashlib,json
 root=Path(__file__).resolve().parents[2];test=Path(__file__).resolve().parent
-parser=argparse.ArgumentParser();parser.add_argument('--modules-dir',type=Path,default=root/'Modules/YunMo-yanyu');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--modules-dir',type=Path,default=root/'Modules/HFUT-WDR');args=parser.parse_args()
 module=args.modules_dir.resolve()/'ControlAlgorithms';frozen=root/'tests/chassis/reference/control_algorithms/algorithm'
 sp=Path('/home/yunmo/WorkingSpace/sp_middleware/sp_middleware')
 for name,digest in json.loads((root/'tests/chassis/reference/algorithm_hashes.json').read_text()).items():

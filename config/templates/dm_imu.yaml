@@ -1,6 +1,6 @@
 # 模块增量模板：编译检查时与 User/xrobot.yaml 合并，不是独立机器人配置。
 modules:
-  - module: YunMo-yanyu/DmImu
+  - module: HFUT-WDR/DmImu
     id: dm_imu
     args:
       - param:

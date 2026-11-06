@@ -2,4 +2,6 @@ sources:
 - url: https://xrobot.work/xrobot-modules/index.yaml
   priority: 0
 - url: ../ModuleIndex/index.yaml
-  priority: 10
+  priority: -20
+- url: ../module_sources/HFUT-WDR/index.yaml
+  priority: -10

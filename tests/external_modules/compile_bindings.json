@@ -4,7 +4,8 @@
         "param": {
             "model": "RMMotor::Model::MOTOR_M3508",
             "reverse": false,
-            "feedback_id": 513
+            "feedback_id": 513,
+            "gm6020_mode": "RMMotor::Gm6020Mode::CURRENT"
         }
     },
     "dmmotor": {
@@ -12,7 +13,8 @@
         "param": {
             "model": "DMMotor::Model::MOTOR_DM4310",
             "reverse": false,
-            "can_id": 1
+            "can_id": 1,
+            "position_max": 0
         }
     },
     "dr16": {"uart": "usart1"},

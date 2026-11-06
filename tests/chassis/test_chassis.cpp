@@ -18,24 +18,51 @@ static void control_tests()
 {
   Param p;
   assert(Control::CheckParam(p));
+  // 轮速正逆解保持一致，覆盖单轴和组合运动，反馈不反除平移补偿。
+  for (const auto& motion : {std::array<float, 3>{1, 0, 0}, {0, 1, 0},
+                             {0, 0, 1}, {.4f, -.3f, .8f}})
+  {
+    float wheel[4];
+    reference_wheel(motion[0], motion[1], motion[2], wheel);
+    Feedback feedback{};
+    for (unsigned i = 0; i < 4; ++i)
+    {
+      feedback.rpm[i] = wheel[i] / p.rpm_to_speed;
+    }
+    Control inverse(p);
+    inverse.UpdateControllerState(feedback);
+    near(inverse.GetState().vx, motion[0]);
+    near(inverse.GetState().vy, motion[1]);
+    near(inverse.GetState().wz, motion[2]);
+  }
+  // 实际dt同时影响滤波、轮缘加速度和PID，标称参数换算保持不变。
+  Control timed(p);
+  Feedback timed_feedback{};
+  timed_feedback.rpm.fill(100);
+  timed.SetDt(.004f);
+  timed.UpdateControllerState(timed_feedback);
+  near(timed.GetState().accel[0], 100 * p.rpm_to_speed / .004f);
+  timed.SetMode(Mode::NO_FOLLOW_YAW);
+  timed.ModeTransition();
+  timed.SetControl({1, 0, 0, Frame::BODY});
+  near(timed.GetState().vx_set, .004f / (p.filter_tau + .004f));
   Control ctrl(p);
   Feedback f{};
   f.imu_yaw = .7f;
   f.yaw_relative = .2f;
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   near(ctrl.GetState().chassis_yaw, .5f);
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
   near(ctrl.GetState().chassis_yaw_set, .5f);
   f.imu_yaw = 1;
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   ctrl.ModeTransition();
   near(ctrl.GetState().chassis_yaw_set, .5f);
-  // 原车运动学独立冻结片段作对照；转动衰减在此关闭，验证1000组混合目标。
-  f.moving_posture = true;
+  // 原车运动学冻结片段对照；使用目标阶段已衰减的旋转给定。
   for (unsigned i = 0; i < 1000; ++i)
   {
-    ctrl.FeedbackUpdate(f);
+    ctrl.UpdateControllerState(f);
     ctrl.SetMode(Mode::RAW);
     ctrl.ModeTransition();
     Command cmd{float(int(i % 17) - 8) * 100, float(int(i % 23) - 11) * 100,
@@ -43,7 +70,7 @@ static void control_tests()
     ctrl.SetControl(cmd);
     ctrl.ControlLoop();
     float expected[4];
-    reference_wheel(cmd.x * p.translation_comp, cmd.y * p.translation_comp, cmd.z,
+    reference_wheel(cmd.x * p.translation_comp, cmd.y * p.translation_comp, ctrl.GetState().wz_set,
                     expected);
     for (unsigned j = 0; j < 4; ++j)
     {
@@ -51,7 +78,7 @@ static void control_tests()
     }
   }
   ctrl.Reset();
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
   ctrl.SetControl({1, 0, 0, Frame::BODY});
@@ -69,7 +96,7 @@ static void control_tests()
   Control braking(p);
   Feedback rolling{};
   rolling.rpm.fill(100);
-  braking.FeedbackUpdate(rolling);
+  braking.UpdateControllerState(rolling);
   braking.SetMode(Mode::NO_FOLLOW_YAW);
   braking.ModeTransition();
   braking.SetControl({0, 0, 0, Frame::BODY});
@@ -85,7 +112,7 @@ static void control_tests()
   }
   // 故障清历史，恢复首拍与新对象一致；NO_MOVE保持闭环制动但目标立即清零。
   ctrl.Reset();
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
   ctrl.SetControl({1, 0, 0, Frame::BODY});
@@ -106,14 +133,14 @@ static void control_tests()
   }
   ctrl.Reset();
   f.yaw_relative = PI / 2;
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
   ctrl.SetControl({1, 0, 0, Frame::GIMBAL});
   near(ctrl.GetState().vx_set, 0);
   near(ctrl.GetState().vy_set, .002f / (p.filter_tau + .002f));
   ctrl.Reset();
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
   ctrl.SetControl({0, 0, 100, Frame::BODY});
@@ -127,7 +154,7 @@ static void control_tests()
     assert(current == 16000);
   }
   ctrl.Reset();
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   ctrl.SetMode(Mode::FOLLOW_GIMBAL_YAW);
   ctrl.ModeTransition();
   ctrl.SetControl({0, 0, 0});
@@ -139,31 +166,31 @@ static void control_tests()
   ctrl.SetControl({0, 0, 0});
   near(ctrl.GetState().wz_set, 12);
   f.imu_yaw = std::numeric_limits<float>::infinity();
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   assert(ctrl.GetState().mode == Mode::RELAX);
   f.imu_yaw = 0;
   f.rpm[1] = std::numeric_limits<float>::quiet_NaN();
   ctrl.SetMode(Mode::NO_FOLLOW_YAW);
   ctrl.ModeTransition();
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   assert(ctrl.GetState().mode == Mode::RELAX);
   // 公共PID使用微分先行：首拍D为零，后续保留低通；故障恢复不带入旧导数。
   f.rpm = {};
   f.imu_yaw = .1f;
   f.yaw_relative = .01f;
   ctrl.Reset();
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   ctrl.SetMode(Mode::FOLLOW_GIMBAL_YAW);
   ctrl.ModeTransition();
   ctrl.SetControl({0, 0, 0});
   near(ctrl.GetState().wz_set, .12f);
   f.yaw_relative = .03f;
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   ctrl.SetControl({0, 0, 0});
   // PID原始目标0.40；保留斜坡每拍最多增加120×0.002=0.24，最终0.36。
   near(ctrl.GetState().wz_set, .36f);
   ctrl.Reset();
-  ctrl.FeedbackUpdate(f);
+  ctrl.UpdateControllerState(f);
   ctrl.SetMode(Mode::FOLLOW_GIMBAL_YAW);
   ctrl.ModeTransition();
   ctrl.SetControl({0, 0, 0});
@@ -172,12 +199,12 @@ static void control_tests()
   Control cyclic_ctrl(p);
   Feedback cyclic_feedback{};
   cyclic_feedback.imu_yaw = 3.13f;
-  cyclic_ctrl.FeedbackUpdate(cyclic_feedback);
+  cyclic_ctrl.UpdateControllerState(cyclic_feedback);
   cyclic_ctrl.SetMode(Mode::FOLLOW_CHASSIS_YAW);
   cyclic_ctrl.ModeTransition();
   cyclic_ctrl.SetControl({});
   cyclic_feedback.imu_yaw = -3.13f;
-  cyclic_ctrl.FeedbackUpdate(cyclic_feedback);
+  cyclic_ctrl.UpdateControllerState(cyclic_feedback);
   cyclic_ctrl.SetControl({});
   assert(cyclic_ctrl.GetState().wz_set > 0 && cyclic_ctrl.GetState().wz_set < 1);
   near(RadFormat(PI), PI);
@@ -206,10 +233,8 @@ static void assert_zero(const LibXR::CAN::ClassicPack& p)
 int main()
 {
   // 每项故障可单独触发总判据；发送前合并不能清掉本拍已有故障。
-  bool Faults::* fields[]{&Faults::input_lost, &Faults::command_stale,
-                               &Faults::yaw_lost, &Faults::motor_lost,
-                               &Faults::gimbal_stop, &Faults::invalid_target,
-                               &Faults::invalid_feedback};
+  bool Faults::* fields[]{&Faults::input_lost, &Faults::motor_lost,
+                          &Faults::invalid_target, &Faults::invalid_feedback};
   Faults combined{};
   assert(!combined.Any());
   for (auto field : fields)
@@ -242,7 +267,8 @@ int main()
   near(rf.GetFeedback().velocity, 123);
   assert(!rf.FeedbackFresh(11, 10));
   CMD cmd;
-  Chassis chassis(lr, rf, rr, lf, cmd);
+  ::PowerControl power;
+  Chassis<Omni> chassis(lr, rf, rr, lf, cmd, power);
   assert(can.sent.empty());  // 构造不发送。
   auto* task = Thread::threads.back();
   chassis.GetEvent().Active(uint32_t(Mode::NO_FOLLOW_YAW));
@@ -250,7 +276,7 @@ int main()
   assert(can.sent.size() == 1);
   assert_zero(can.sent.back());
   auto status = std::any_cast<State>(Topic::values.at("chassis_status"));
-  assert(status.mode == Mode::RELAX && status.faults.yaw_lost);
+  assert(status.mode == Mode::RELAX && status.faults.input_lost);
   auto refresh = [&](bool yaw = true, unsigned missing = 4)
   {
     for (unsigned i = 0; i < 4; ++i)
@@ -267,7 +293,7 @@ int main()
     GimbalFeedback g{};
     g.yaw_relative_rad = .1;
     g.time_us = Timebase::now;
-    g.yaw_valid = yaw;
+    (void)yaw;
     Topic::CreateTopic<GimbalFeedback>("gimbal_chassis_feedback").Publish(g);
     CMD::Data data{};
     data.input_online = true;
@@ -277,12 +303,12 @@ int main()
     cmd.FeedRC(CMD::RCInputSource::RC_INPUT_I6X, data);
   };
   refresh();
+  chassis.GetEvent().Active(uint32_t(Mode::NO_FOLLOW_YAW));
   task->Run(1);
   assert(can.sent.size() == 2);
   status = std::any_cast<State>(Topic::values.at("chassis_status"));
   assert(status.mode == Mode::NO_FOLLOW_YAW && !status.faults.Any());
   assert(status.current[0] != 0);
-  const auto first_current = status.current;
   // YAML逻辑轮序为ID203、201、204、202，发送槽必须仍按物理ID排列。
   const unsigned logical_slot[]{2, 0, 3, 1};
   for (unsigned i = 0; i < 4; ++i)
@@ -294,24 +320,24 @@ int main()
   }
 
   near(status.chassis_yaw, .3);
-  // 等待槽已有正常反馈时发布STOP，STOP不能因ASync忽略第二帧而漏掉。
-  refresh();
-  GimbalFeedback urgent{};
-  urgent.time_us = Timebase::now;
-  urgent.yaw_valid = true;
-  urgent.stop_chassis = true;
-  Topic::CreateTopic<GimbalFeedback>("gimbal_chassis_feedback").Publish(urgent);
-  task->Run(1);
-  assert_zero(can.sent.back());
-  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults.gimbal_stop);
-  refresh(false);
+  // 角度消息停更沿用旧值；停止由模式事件表达。
+  chassis.GetEvent().Active(uint32_t(Mode::RELAX));
   task->Run(1);
   assert_zero(can.sent.back());
   refresh();
+  chassis.GetEvent().Active(uint32_t(Mode::NO_FOLLOW_YAW));
   task->Run(1);
   assert(std::any_cast<State>(Topic::values.at("chassis_status")).current[0] != 0);
-  assert(std::any_cast<State>(Topic::values.at("chassis_status")).current ==
-         first_current);
+  // 算法拒绝非法角度后，模式选择不能覆盖本拍故障重新使能输出。
+  wdr_imu::BoardState invalid_board{};
+  invalid_board.yaw = std::numeric_limits<float>::quiet_NaN();
+  Topic::CreateTopic<wdr_imu::BoardState>("board_attitude").Publish(invalid_board);
+  task->Run(1);
+  assert_zero(can.sent.back());
+  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults.invalid_feedback);
+  refresh();
+  task->Run(1);
+  assert(std::any_cast<State>(Topic::values.at("chassis_status")).mode == Mode::NO_FOLLOW_YAW);
   Timebase::now += 10000;
   refresh(true, 2);
   task->Run(1);
@@ -319,24 +345,18 @@ int main()
   assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults.motor_lost);
   refresh();
   task->Run(1);
-  GimbalFeedback stop{};
-  stop.yaw_valid = true;
-  stop.time_us = Timebase::now;
-  stop.stop_chassis = true;
-  Topic::CreateTopic<GimbalFeedback>("gimbal_chassis_feedback").Publish(stop);
-  task->Run(1);
-  assert_zero(can.sent.back());
-  assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults.gimbal_stop);
   // 遥控失联即整组无力；RAW和BODY也不能绕过yaw运行条件。
   CMD::Data lost{};
   cmd.FeedRC(CMD::RCInputSource::RC_INPUT_I6X, lost);
   task->Run(1);
   assert_zero(can.sent.back());
   refresh();
-  Timebase::now += 21000;
+  task->Run(1);
+  assert_zero(can.sent.back());  // 恢复在线事件不自动启动。
+  for (unsigned i = 0; i < 4; ++i) feed_can(can, 0x201 + i);
   chassis.GetEvent().Active(uint32_t(Mode::RAW));
   task->Run(1);
-  assert_zero(can.sent.back());
+  assert(std::any_cast<State>(Topic::values.at("chassis_status")).mode == Mode::RAW);
   // 显式RELAX停止并保持，不发送上次残留槽位；每周期恰好一帧完整四槽。
   refresh();
   chassis.GetEvent().Active(uint32_t(Mode::RELAX));
@@ -352,10 +372,12 @@ int main()
   RMMotor prr(powered_bus, {RMMotor::Model::MOTOR_M3508, false, 0x204});
   CMD power_cmd(CMD::Mode::CMD_OP_CTRL, "power_cmd", "power_gimbal", "power_fire");
   Param power_param;
-  power_param.power.enabled = true;
-  Chassis powered(prf, plf, plr, prr, power_cmd, power_param, "power_cmd",
+  PowerParam power_settings;
+  power_settings.enabled = true;
+  ::PowerControl power_module(power_settings, &powered_bus);
+  Chassis<Omni> powered(prf, plf, plr, prr, power_cmd, power_module, power_param, "power_cmd",
                   "power_attitude", "power_yaw", "power_status", 4096,
-                  Thread::Priority::MEDIUM, &powered_bus);
+                  Thread::Priority::MEDIUM);
   auto* power_task = Thread::threads.back();
   powered.GetEvent().Active(uint32_t(Mode::RAW));
   for (unsigned i = 0; i < 4; ++i)
@@ -367,13 +389,13 @@ int main()
   Topic::CreateTopic<wdr_imu::BoardState>("power_attitude").Publish(power_attitude);
   GimbalFeedback power_yaw{};
   power_yaw.time_us = Timebase::now;
-  power_yaw.yaw_valid = true;
   Topic::CreateTopic<GimbalFeedback>("power_yaw").Publish(power_yaw);
   CMD::Data power_data{};
   power_data.input_online = true;
   power_data.chassis.x = 30000;
   power_data.chassis.frame = CMD::ChassisFrame::BODY;
   power_cmd.FeedRC(CMD::RCInputSource::RC_INPUT_I6X, power_data);
+  powered.GetEvent().Active(uint32_t(Mode::RAW));
   power_task->Run(1);
   auto powered_state = std::any_cast<State>(Topic::values.at("power_status"));
   assert(powered_state.power.enabled && powered_state.power.limited);
@@ -393,6 +415,6 @@ int main()
   reversed.Update();
   assert(reversed.GetFeedbackCurrent() == 32768);
   puts(
-      "PASS: real Chassis/CMD/RMMotor integration, no constructor TX, missing/stale yaw, "
+      "PASS: real Chassis/CMD/RMMotor integration, no constructor TX, held angle snapshots, "
       "motor expiry, RC loss, RAW guard, four-slot zero output");
 }

@@ -3,7 +3,7 @@
 from pathlib import Path
 import argparse, subprocess, tempfile, re, json, hashlib
 root=Path(__file__).resolve().parents[2]; test=Path(__file__).resolve().parent
-parser=argparse.ArgumentParser();parser.add_argument('--modules-dir',type=Path,default=root/'Modules/YunMo-yanyu');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--modules-dir',type=Path,default=root/'Modules/HFUT-WDR');args=parser.parse_args()
 core=args.modules_dir.resolve()/'ImuFusion'
 for name,digest in json.loads((test/'reference/sha256.json').read_text()).items():
     assert hashlib.sha256((test/'reference'/name).read_bytes()).hexdigest()==digest

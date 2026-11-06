@@ -1,0 +1,97 @@
+{
+  "date": "2026-11-06",
+  "scope": "Gimbal tick refactor to match chassis stage naming and responsibilities; no intended control behavior change",
+  "stages": [
+    "FeedbackUpdate",
+    "SetMode",
+    "ModeTransition",
+    "SetControl",
+    "ControlLoop",
+    "SendOutput",
+    "PublishStatus"
+  ],
+  "results": {
+    "host.log": {
+      "status": "passed",
+      "log": "build/validation/gimbal_structure_host.log",
+      "sha256": "4b7290f61967cfd80424205fa1c6528a0488d1feb80b650e629d2faf21ae88f2",
+      "summary": [
+        "PASS: no constructor TX, single thread, voltage mode, DM unsigned decode, AI expiry latch, RC loss/recovery, complete calibration/persistence, modes; frozen PID/zero calibration 1000 dual-yaw plans and 1000 frozen pitch torque samples",
+        "PASS: gimbal boundary late_stop",
+        "PASS: gimbal boundary mode_loss",
+        "PASS: gimbal boundary source_loss",
+        "PASS: gimbal boundary init",
+        "PASS: gimbal boundary startup",
+        "PASS: gimbal boundary scan_zero",
+        "PASS: gimbal boundary scan_limits",
+        "PASS: gimbal boundary aim_limits",
+        "PASS: gimbal boundary boundary_feedforward",
+        "PASS: gimbal boundary navigation"
+      ]
+    },
+    "compare.log": {
+      "status": "passed",
+      "log": "build/validation/gimbal_structure_compare.log",
+      "sha256": "9f1891d87f1bf930beacf67d9378e4686932d015b722b08509cc75d0aac4c11e",
+      "summary": [
+        "PASS: identical state and CAN trace late_stop",
+        "PASS: identical state and CAN trace mode_loss",
+        "PASS: identical state and CAN trace source_loss",
+        "PASS: identical state and CAN trace init",
+        "PASS: identical state and CAN trace startup",
+        "PASS: identical state and CAN trace scan_zero",
+        "PASS: identical state and CAN trace scan_limits",
+        "PASS: identical state and CAN trace aim_limits",
+        "PASS: identical state and CAN trace boundary_feedforward",
+        "PASS: identical state and CAN trace navigation"
+      ]
+    },
+    "combined.log": {
+      "status": "passed",
+      "log": "build/validation/gimbal_structure_combined.log",
+      "sha256": "928cc4c2fea847a1b39420489b7251f20de3aff586037a021738565f4d6d3a3a",
+      "summary": [
+        "PASS: full gimbal + chassis/power/interlock firmware linked; no flash"
+      ]
+    },
+    "snapshots.log": {
+      "status": "passed",
+      "log": "build/validation/gimbal_structure_snapshots.log",
+      "sha256": "bcb6c7ef9879fd759f22a99fc58220aeca42b66908a952fdfaa1f6c71d251731",
+      "summary": [
+        "PASS: 10 snapshots restored; 22-module frozen offline setup"
+      ]
+    },
+    "debug-config.log": {
+      "status": "passed",
+      "log": "build/validation/gimbal_structure_debug-config.log",
+      "sha256": "98eda29ddb072acb2ba6dff3f7ed1bf004b5ffd4b191dd885fc3e9244e48ea72"
+    },
+    "debug-build.log": {
+      "status": "passed",
+      "log": "build/validation/gimbal_structure_debug-build.log",
+      "sha256": "3e34a5c36730dcf7b82ad35292395c48c2655e12ff61ce64bfba54a3acf40fe2"
+    },
+    "release-config.log": {
+      "status": "passed",
+      "log": "build/validation/gimbal_structure_release-config.log",
+      "sha256": "8918b4539eac6d1ff0095b40f574e740600e36678dc5ed5ad9773f3e40fa3e06"
+    },
+    "release-build.log": {
+      "status": "passed",
+      "log": "build/validation/gimbal_structure_release-build.log",
+      "sha256": "7e6530e1ff062c238a1d51eb5e8449893c8c60bd0e7c95467f59b3cba5985e68"
+    }
+  },
+  "trace_comparison": "Ten scenarios compare every observed state and CAN frame before/after; identical",
+  "module_commit": "eb98732a56e235d32e0dc7a40af9db60c5fe1b27",
+  "hardware": {
+    "flashed": false,
+    "mechanism_closed_loop_tested": false
+  },
+  "preserved_user_edits": [
+    "计算时间 comment retained in Tick",
+    "处理输入 comment moved with ReadInputs to FeedbackUpdate",
+    "existing dt expression layout retained in working tree"
+  ]
+}

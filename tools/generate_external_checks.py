@@ -10,10 +10,10 @@ import tempfile
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULES = [f"YunMo-yanyu/{name}" for name in
+MODULES = [f"HFUT-WDR/{name}" for name in
            ("CMD", "RMMotor", "DMMotor", "DR16", "Referee", "HostData")]
 MODULES += [f"xrobot-org/{name}" for name in ("SharedTopic", "SharedTopicClient")]
-MODULES += ["YunMo-yanyu/I6x", "YunMo-yanyu/EventBinder", "YunMo-yanyu/BoardAttitude", "YunMo-yanyu/DmImu", "YunMo-yanyu/Chassis"]
+MODULES += ["HFUT-WDR/I6x", "HFUT-WDR/EventBinder", "HFUT-WDR/BoardAttitude", "HFUT-WDR/DmImu", "HFUT-WDR/Chassis", "HFUT-WDR/PowerControl", "HFUT-WDR/DualYaw", "HFUT-WDR/Pitch", "HFUT-WDR/Gimbal"]
 
 
 def run(*args, cwd=ROOT):
@@ -24,7 +24,8 @@ def generate(output):
     output.mkdir(parents=True, exist_ok=True)
     for module in MODULES:
         run("xrobot", "check-module", "--offline", module, "-o",
-            str(output / (module.split("/")[1] + ".cpp")))
+            str(output / (module.split("/")[1] + ".cpp")),
+            *(["--template-arg", "Omni"] if module.endswith("/Chassis") else []))
 
     # 这些示例绑定仅用于编译检查，不代表实际外接接线。
     bindings = json.loads((ROOT / "tests/external_modules/compile_bindings.json").read_text())
@@ -62,10 +63,10 @@ def generate(output):
         run("xrobot", "gen", "-c", "User/external_compile.yaml", "--no-line-directives", cwd=stage)
         shutil.copyfile(stage / "User/xrobot_main.hpp", output / "external_profile.hpp")
         # 共享当前板级配置，只保存底盘和外置 IMU 的增量参数。
-        for name in ("imu", "imu_can", "imu_rs485_stream", "chassis"):
+        for name in ("imu", "imu_can", "imu_rs485_stream", "chassis", "gimbal"):
             profile = yaml.safe_load((ROOT / "User/xrobot.yaml").read_text())
             preserve_topic_strings(profile)
-            template_name = "chassis" if name == "chassis" else "dm_imu"
+            template_name = name if name in ("chassis", "gimbal") else "dm_imu"
             extra = yaml.safe_load((ROOT / f"config/templates/{template_name}.yaml").read_text())
             preserve_topic_strings(extra)
             if name.startswith("imu"):
@@ -83,7 +84,7 @@ def generate(output):
                 yaml.safe_dump(profile, sort_keys=False, allow_unicode=True))
             run("xrobot", "gen", "-c", "User/check.yaml", "--no-line-directives", cwd=stage)
             shutil.copyfile(stage / "User/xrobot_main.hpp", output / f"{name}_profile.hpp")
-    for name in ("imu", "imu_can", "imu_rs485_stream", "chassis"):
+    for name in ("imu", "imu_can", "imu_rs485_stream", "chassis", "gimbal"):
         (output / f"{name}_profile.cpp").write_text(
             '// 仅编译验证未启用的模块组合，不链接进默认固件。\n'
             f'#include "{name}_profile.hpp"\n')

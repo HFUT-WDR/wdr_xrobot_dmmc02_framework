@@ -7,7 +7,7 @@ import tempfile
 
 root = Path(__file__).resolve().parents[2]
 parser = argparse.ArgumentParser()
-parser.add_argument('--modules-dir', type=Path, default=root / 'Modules/YunMo-yanyu')
+parser.add_argument('--modules-dir', type=Path, default=root / 'Modules/HFUT-WDR')
 modules = parser.parse_args().modules_dir.resolve()
 reference = Path('/home/yunmo/WorkingSpace/STM32_Project/rm_26_sentry/26-sentry_-dm/User/components/device/control/I6x')
 with tempfile.TemporaryDirectory(prefix='wdr-i6x-test-') as temp:

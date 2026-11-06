@@ -12,7 +12,8 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": []
+            "problemMatcher": [],
+            "hide": true
         },
         {
             "label": "编译 Debug",
@@ -72,7 +73,8 @@
             "options": {
                 "cwd": "${workspaceFolder}"
             },
-            "problemMatcher": []
+            "problemMatcher": [],
+            "hide": true
         },
         {
             "label": "编译 Release",
@@ -141,7 +143,8 @@
             "dependsOrder": "sequence",
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "hide": true
         },
         {
             "label": "测试 i6x 输入（主机）",
@@ -155,7 +158,8 @@
             },
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "hide": true
         },
         {
             "label": "测试 IMU（主机）",
@@ -169,7 +173,8 @@
             },
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "hide": true
         },
         {
             "label": "测试底盘（主机）",
@@ -183,7 +188,8 @@
             },
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "hide": true
         },
         {
             "label": "烧录 Debug（DAPLink）",
@@ -243,7 +249,8 @@
             },
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "hide": true
         },
         {
             "label": "测试底盘功率控制（主机）",
@@ -257,7 +264,8 @@
             },
             "problemMatcher": [
                 "$gcc"
-            ]
+            ],
+            "hide": true
         }
     ]
 }

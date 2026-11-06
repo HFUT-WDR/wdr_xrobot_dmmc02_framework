@@ -122,12 +122,9 @@ int chassis_command(void*, int, char**)
           state.current[0], state.current[1], state.current[2], state.current[3]);
       const auto& faults = state.faults;
       LibXR::STDIO::Print<
-          "faults: input_lost={} command_stale={} yaw_lost={} motor_lost={} "
-          "gimbal_stop={} invalid_target={} invalid_feedback={}\r\n">(
-          unsigned(faults.input_lost), unsigned(faults.command_stale),
-          unsigned(faults.yaw_lost), unsigned(faults.motor_lost),
-          unsigned(faults.gimbal_stop), unsigned(faults.invalid_target),
-          unsigned(faults.invalid_feedback));
+          "faults: input_lost={} motor_lost={} invalid_target={} invalid_feedback={}\r\n">(
+          unsigned(faults.input_lost), unsigned(faults.motor_lost),
+          unsigned(faults.invalid_target), unsigned(faults.invalid_feedback));
       const auto& power = state.power;
       LibXR::STDIO::Print<
           "power enabled={} cap_online={} referee_online={} budget_w={:.2f} "

@@ -1,0 +1,25 @@
+name: BSP CI
+on:
+  push:
+    branches: [dev, master]
+    tags: ['v*']
+  pull_request:
+    branches: [dev, master]
+  release:
+    types: [published]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    permissions:
+      contents: write
+    uses: HFUT-WDR/xrobot-ci/.github/workflows/bsp-stm32-ci.yml@dev
+    with:
+      project: wdr_xrobot_dmmc02_framework
+      configs: default
+      presets: |
+        Debug
+        Release
+    secrets:
+      WDR_MODULES_READ_TOKEN: ${{ secrets.WDR_MODULES_READ_TOKEN }}

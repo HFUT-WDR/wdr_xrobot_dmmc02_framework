@@ -1,5 +1,7 @@
 # 通用控制算法提取与选型
 
+> 后续控制组织与功率行为已更新，以[对齐记录](control_alignment_20261106.md)为准；本文保留此前验证与设计背景。
+
 ## 选择结论
 
 生产代码采用ControlAlgorithms公共依赖，不再将PID、LPF归Chassis所有。模块没有线程、设备或YAML实例。

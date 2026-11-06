@@ -1,0 +1,276 @@
+# 未启用的云台增量编译模板；零位为占位，实际使用前标定。
+# 电机CAN3、yaw 0x205/0x206电压模式、pitch 0x03/0x13且±12.5rad取自原车。
+# database=nullptr不持久化；注入实际持久化Database后保存标定结果。
+modules:
+- module: HFUT-WDR/CMD
+  id: cmd
+  args:
+  - mode: CMD::Mode::CMD_OP_CTRL
+  - chassis_cmd_topic_name: '"chassis_cmd"'
+  - gimbal_cmd_topic_name: '"gimbal_cmd"'
+  - launcher_cmd_topic_name: '"launcher_cmd"'
+- module: HFUT-WDR/I6x
+  id: i6x
+  args:
+  - uart: uart5
+  - cmd: cmd
+  - topic_name: i6x_input
+  - chassis_param:
+      speed_x: 2.64
+      speed_y: 2.64
+      spin: 12
+      deadband: 0.015151515151515152
+- module: HFUT-WDR/HostData
+  id: host_data
+  args:
+  - cmd: cmd
+  - host_gimbal_topic_name: '"target_euler"'
+  - host_chassis_data_topic_name: '"host_chassis_data"'
+  - host_fire_topic_name: '"host_fire_notify"'
+  - host_gimbal_command_topic_name: '"host_gimbal_command"'
+- module: HFUT-WDR/RMMotor
+  id: inner_yaw_motor
+  args:
+  - can_bus: can3
+  - param:
+      model: RMMotor::Model::MOTOR_GM6020
+      reverse: false
+      feedback_id: 517
+      gm6020_mode: RMMotor::Gm6020Mode::VOLTAGE
+- module: HFUT-WDR/RMMotor
+  id: outer_yaw_motor
+  args:
+  - can_bus: can3
+  - param:
+      model: RMMotor::Model::MOTOR_GM6020
+      reverse: false
+      feedback_id: 518
+      gm6020_mode: RMMotor::Gm6020Mode::VOLTAGE
+- module: HFUT-WDR/DMMotor
+  id: pitch_motor
+  args:
+  - can_bus: can3
+  - param:
+      model: DMMotor::Model::MOTOR_DM4310
+      reverse: false
+      can_id: 3
+      position_max: 12.5
+- module: HFUT-WDR/DualYaw
+  id: dual_yaw
+  args:
+  - inner: inner_yaw_motor
+  - outer: outer_yaw_motor
+  - param:
+      inner:
+        offset_ecd: 0
+        minimum: -3
+        maximum: 3
+        angle:
+          kp: 30
+          ki: 0
+          kd: 0
+          kf: 0
+          integral_limit: 0
+          output_limit: 10
+          integral_zone: 0.1
+        auto_angle:
+          kp: 20
+          ki: 0
+          kd: 0
+          kf: 0
+          integral_limit: 0
+          output_limit: 10
+          integral_zone: 0.1
+        relative:
+          kp: 25
+          ki: 0
+          kd: 0
+          kf: 0
+          integral_limit: 0
+          output_limit: 10
+          integral_zone: 0
+        velocity:
+          kp: 22000
+          ki: 500
+          kd: 0
+          kf: 0
+          integral_limit: 10000
+          output_limit: 30000
+          integral_zone: 0
+        soft_velocity:
+          kp: 20000
+          ki: 0
+          kd: 0
+          kf: 0
+          integral_limit: 10000
+          output_limit: 30000
+          integral_zone: 0
+      outer:
+        offset_ecd: 0
+        minimum: -0.785398
+        maximum: 0.785398
+        angle:
+          kp: 40
+          ki: 0
+          kd: 0
+          kf: 0
+          integral_limit: 1
+          output_limit: 10
+          integral_zone: 0.08
+        auto_angle:
+          kp: 30
+          ki: 0.05
+          kd: 0
+          kf: 0
+          integral_limit: 1
+          output_limit: 10
+          integral_zone: 0.08
+        relative:
+          kp: 20
+          ki: 1
+          kd: 0
+          kf: 0
+          integral_limit: 1
+          output_limit: 10
+          integral_zone: 0
+        velocity:
+          kp: 12000
+          ki: 5
+          kd: 0
+          kf: 0
+          integral_limit: 2000
+          output_limit: 30000
+          integral_zone: 0
+        soft_velocity:
+          kp: 7000
+          ki: 0
+          kd: 0
+          kf: 0
+          integral_limit: 0
+          output_limit: 30000
+          integral_zone: 0
+      voltage_limit: 30000
+      align_alpha: 0.001
+      velocity_feedforward: 0.9
+      accel_feedforward: 120
+      outer_min_kp: 10
+      outer_min_velocity_kp: 7000
+      scan_speed: 1.5
+      scan_low_speed: 1
+      motor_timeout_ms: 10
+  - database: nullptr
+  - calibration_key: '"gimbal_yaw_calibration"'
+- module: HFUT-WDR/Pitch
+  id: pitch
+  args:
+  - motor: pitch_motor
+  - param:
+      zero: 0
+      minimum: -0.47
+      maximum: 0.57
+      absolute_minimum: -0.31
+      absolute_maximum: 0.5
+      mit_kp: 15
+      mit_kd: 1.4
+      tracking_kd: 1
+      inertia: 0.01116936
+      damping: 0.02214229
+      gravity: 0.8850881
+      coulomb: 0.14099603
+      coulomb_smooth: 0.5
+      tracking_kp: 3000
+      tracking_ki: 10
+      tracking_kd_feedback: 150
+      torque_limit: 5
+      td_w: 40
+      td_zeta: 1
+      scan_center: 0.1
+      scan_amplitude: 0.35
+      scan_frequency: 1
+      high_scan_center: -0.3
+      high_scan_amplitude: 0.2
+      high_scan_frequency: 1
+      scan_center_speed: 2
+      scan_ramp_speed: 1
+      motor_timeout_ms: 20
+      enable_period_ms: 500
+      relative_pid:
+        kp: 26
+        ki: 0.002
+        kd: 0.0002
+        kf: 0
+        integral_limit: 0
+        output_limit: 10
+        integral_zone: 0
+- module: HFUT-WDR/DmImu
+  id: dm_imu
+  args:
+  - param:
+      transport: wdr_imu::DmTransport::RS485_STREAM_LEGACY
+      output: wdr_imu::DmOutput::FUSED
+      device_id: 1
+      feedback_id: 17
+      baudrate: 4000000
+      period_ms: 1
+      timeout_ms: 50
+      retries: 2
+      data_mask: 15
+  - can: nullptr
+  - uart: '&usart2'
+  - output_topic_name: '"dm_attitude"'
+  - raw_topic_name: '"dm_measurement"'
+  - diagnostics_topic_name: '"dm_diagnostics"'
+  - installation: wdr_imu::IDENTITY
+- module: HFUT-WDR/Referee
+  id: referee
+  args:
+  - uart: usart1
+  - cmd: nullptr
+  - param:
+      task_stack_depth_uart: 2048
+      baudrate: 115200
+      referee_chassis_tp_name: chassis_ref
+      referee_launcher_tp_name: launcher_ref
+      referee_robot_game_tp_name: robot_game_ref
+      referee_radar_tp_name: radar_ref
+      thread_priority_uart: LibXR::Thread::Priority::MEDIUM
+      chassis: '{}'
+      referee_power_tp_name: chassis_power_ref
+- module: HFUT-WDR/Gimbal
+  id: gimbal
+  args:
+  - dual_yaw: dual_yaw
+  - pitch: pitch
+  - cmd: cmd
+  - param:
+      yaw_manual_speed: 3.96
+      pitch_manual_speed: 1.98
+      deadband: 0.015151515151515152
+      init_error: 0.1
+      init_yaw_gain: 5
+      init_pitch_velocity: 0.5
+      calibration_voltage: 8000
+      calibration_gyro_limit: 0.1
+      calibration_margin: 0.1
+      init_timeout_ms: 6000
+      init_hold_ms: 1000
+      enable_timeout_ms: 1000
+      calibration_hold_ms: 2000
+      calibration_step_timeout_ms: 15000
+  - command_topic_name: '"gimbal_cmd"'
+  - board_topic_name: '"board_attitude"'
+  - dm_topic_name: '"dm_attitude"'
+  - context_topic_name: '"gimbal_context"'
+  - referee_topic_name: '"robot_game_ref"'
+  - chassis_topic_name: '"gimbal_chassis_feedback"'
+  - status_topic_name: '"gimbal_status"'
+  - task_stack_depth: 4096
+  - thread_priority: LibXR::Thread::Priority::MEDIUM
+- module: HFUT-WDR/EventBinder
+  id: gimbal_mode_events
+  args:
+  - modules: '{{"i6x", i6x}, {"cmd", cmd}, {"gimbal", gimbal}}'
+  - event_binding_groups: '{{{{"i6x", I6x::SwitchPos::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL},
+      {"i6x", I6x::SwitchPos::SW2_MID, "gimbal", Gimbal::Mode::ABSOLUTE_ANGLE}, {"i6x",
+      I6x::SwitchPos::SW2_UP, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::SwitchPos::SW2_UP,
+      "gimbal", Gimbal::Mode::AUTO}, {"i6x", I6x::SwitchPos::SW2_DOWN, "gimbal", Gimbal::Mode::RELAX}}}}'

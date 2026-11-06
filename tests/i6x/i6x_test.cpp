@@ -121,16 +121,9 @@ int main()
       [&](bool, uint32_t) { chassis_probe.mode = 0; });
   using Pos = I6x::SwitchPos;
   using Chord = I6x::Chord;
-  using Source = CMD::SourceEvent;
   EventBinder binder({{"i6x", receiver}, {"cmd", command}, {"chassis", chassis_probe}},
-    {{{{"i6x", Pos::SW2_MID, "cmd", Source::SET_GIMBAL_RC},
-       {"i6x", Pos::SW2_UP, "cmd", Source::SET_GIMBAL_PC},
-       {"i6x", Chord::SW2_MID_SW3_UP_ENTER, "cmd", Source::SET_CHASSIS_RC},
-       {"i6x", Chord::SW2_UP_SW3_UP_ENTER, "cmd", Source::SET_CHASSIS_PC},
-       {"i6x", Chord::SW2_MID_SW3_UP_EXIT, "cmd", Source::SET_CHASSIS_RC},
-       {"i6x", Chord::SW2_UP_SW3_UP_EXIT, "cmd", Source::SET_CHASSIS_RC},
-       {"i6x", Chord::SW1_DOWN_SW3_UP_ENTER, "cmd", Source::SET_LAUNCHER_PC},
-       {"i6x", Chord::SW1_DOWN_SW3_UP_EXIT, "cmd", Source::SET_LAUNCHER_RC},
+    {{{{"i6x", Pos::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL},
+       {"i6x", Pos::SW2_UP, "cmd", CMD::Mode::CMD_AUTO_CTRL},
        {"i6x", Chord::SW2_MID_SW3_UP_ENTER, "chassis", 1},
        {"i6x", Chord::SW2_UP_SW3_UP_ENTER, "chassis", 1},
        {"i6x", Chord::SW2_UP_SW3_UP_EXIT, "chassis", 0},
@@ -156,7 +149,7 @@ int main()
   state.switches[3] = 1;
   submit();
   assert(chassis_probe.mode == 1 && chassis().x == .5f * 2.64f && gimbal().yaw == -.5f);
-  assert(command.GetChannelMode(CMD::Channel::GIMBAL) == CMD::Mode::CMD_OP_CTRL);
+  assert(command.GetCtrlMode() == CMD::Mode::CMD_OP_CTRL);
   CMD::Data ai{};
   ai.chassis.x = .7f;
   ai.gimbal.yaw = .8f;
@@ -168,12 +161,12 @@ int main()
   state.switches[2] = 1;
   submit();
   assert(chassis().x == .7f && gimbal().yaw == .8f);
-  // PC 发射许可独立于遥控开火拨杆；退出许可组合立即恢复 RC 开火来源。
-  assert(command.GetChannelMode(CMD::Channel::LAUNCHER) == CMD::Mode::CMD_AUTO_CTRL);
+  // AUTO开火不受遥控开火拨杆影响。
+  assert(command.GetCtrlMode() == CMD::Mode::CMD_AUTO_CTRL);
   assert(fire());
   state.switches[1] = 0;
   submit();
-  assert(!fire());
+  assert(fire());
   state.switches[1] = -1;
   submit();
   assert(fire());
@@ -184,7 +177,7 @@ int main()
   state.switches[2] = 1;
   submit();
   assert(chassis().x == .7f);
-  assert(command.GetChannelMode(CMD::Channel::CHASSIS) == CMD::Mode::CMD_AUTO_CTRL);
+  assert(command.GetCtrlMode() == CMD::Mode::CMD_AUTO_CTRL);
   // 单帧坏帧不新增 CMD 有效位判据，沿用链路在线状态。
   state.frame_lost = true;
   submit();
@@ -209,26 +202,26 @@ int main()
   state.failsafe = false;
   submit();
   assert(friction_edges == 1);
-  // 离线后恢复时所有来源保持遥控，首帧不凭当前档位重新使能机构。
+  // 离线后恢复保持来源，首帧不凭当前档位重新使能机构。
   state.online = false;
   submit(false);
   assert(!command.Online() && chassis_probe.mode == 0 && !fire());
   state.online = true;
   submit();
   assert(chassis_probe.mode == 0 && friction_edges == 1);
-  assert(command.GetChannelMode(CMD::Channel::GIMBAL) == CMD::Mode::CMD_OP_CTRL);
+  assert(command.GetCtrlMode() == CMD::Mode::CMD_AUTO_CTRL);
   // 从两个独立事件分别设置来源；上位机数据过期跨计时回绕后仍归零。
-  command.GetEvent().Active(static_cast<uint32_t>(Source::SET_GIMBAL_PC));
+  command.GetEvent().Active(static_cast<uint32_t>(CMD::Mode::CMD_AUTO_CTRL));
   LibXR::Timebase::now = UINT32_MAX - 20;
   command.FeedAI(CMD::Channel::CHASSIS, ai);
   command.FeedAI(CMD::Channel::GIMBAL, ai);
   command.FeedAI(CMD::Channel::LAUNCHER, ai);
   submit(false);
-  assert(chassis().x == .5f * 2.64f && gimbal().yaw == .8f);
+  assert(chassis().x == .7f && gimbal().yaw == .8f);
   LibXR::Timebase::now = 80;
   submit(false);
   assert(gimbal().yaw == 0);
-  // 原全局AUTO仍需要遥控开火许可，避免改变DR16的双端许可。
+  // 全局AUTO独立开火，不要求遥控扳机许可。
   command.SetCtrlMode(CMD::Mode::CMD_AUTO_CTRL);
   LibXR::Timebase::now = 2000;
   command.FeedAI(CMD::Channel::CHASSIS, ai);
@@ -236,7 +229,7 @@ int main()
   command.FeedAI(CMD::Channel::LAUNCHER, ai);
   state.switches[0] = -1;
   submit(false);
-  assert(!fire());
+  assert(fire());
   state.switches[0] = 1;
   submit(false);
   assert(fire());
@@ -245,6 +238,10 @@ int main()
   CMD::Data dr16{};
   dr16.input_online = true;
   dr16.chassis.x = -.25f;
+  command.FeedRC(CMD::RCInputSource::RC_INPUT_DR16, dr16);
+  assert(command.GetCtrlMode() == CMD::Mode::CMD_AUTO_CTRL);
+  assert(chassis().x == .7f);
+  command.SetCtrlMode(CMD::Mode::CMD_OP_CTRL);
   command.FeedRC(CMD::RCInputSource::RC_INPUT_DR16, dr16);
   assert(chassis().x == -.25f);
   // 真实 HostData 回调：零角度保留导数，各通道接收独立刷新时效。

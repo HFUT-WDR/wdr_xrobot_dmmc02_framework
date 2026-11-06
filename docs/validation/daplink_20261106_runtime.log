@@ -1,0 +1,24 @@
+0x0800ef9a in prvIdleTask (pvParameters=<optimized out>) at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/FreeRTOS/Source/tasks.c:3529
+3529	            if( listCURRENT_LIST_LENGTH( &( pxReadyTasksLists[ tskIDLE_PRIORITY ] ) ) > ( UBaseType_t ) 1 )
+$1 = 550000000
+$2 = 165546
+$3 = 165535
+$4 = 7
+$5 = 56368
+$6 = 56368
+$7 = 0x0
+$8 = 0x0
+pc             0x800ef9a           0x800ef9a <prvIdleTask+102>
+$9 = {<std::__atomic_base<unsigned long>> = {static _S_alignment = 4, _M_i = 0}, static is_always_lock_free = true}
+$10 = {<std::__atomic_base<unsigned long>> = {static _S_alignment = 4, _M_i = 0}, static is_always_lock_free = true}
+$11 = 164156
+$12 = {pitch_angle = -3.61819196, yaw_angle = -2.25876617, yaw_tol_angle = -2.25876617, roll_angle = -1.26324987, pitch_gyro = -0.366210938, yaw_gyro = -0.12972337, roll_gyro = 0.427246094, atan_xz = -86.4643326, atan_yz = -19.1988468, motion_accel_b = {1.23474538, -0.46336633, 0.00290287123}, motion_accel_n = {1.24977493, -0.412383348, -0.0855303481}, angle = {-0.0394229069, -0.0631493628, -0.0220478699}, gyro = {0.00745685119, -0.00639158674, -0.00226409989}, accel = {0.60348618, -0.210142508, 9.76713657}, last_yaw_angle = -2.25876617, yaw_round_count = 0}
+$13 = {<std::__atomic_base<unsigned long>> = {static _S_alignment = 4, _M_i = 0}, static is_always_lock_free = true}
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread 
+xPSR: 0x61000000 pc: 0x0800ef40 psp: 0x20000c80
+$14 = 166550
+$15 = 166538
+$16 = 165160
+$17 = {pitch_angle = -3.63512754, yaw_angle = -2.26399612, yaw_tol_angle = -2.26399612, roll_angle = -1.26869571, pitch_gyro = -0.122070312, yaw_gyro = -0.372763991, roll_gyro = 0.183105469, atan_xz = -86.1287384, atan_yz = -16.0273933, motion_accel_b = {1.25531566, -0.452924639, -0.00911879539}, motion_accel_n = {1.26912487, -0.400711179, -0.0989654735}, angle = {-0.0395141877, -0.0634449422, -0.0221429169}, gyro = {0.00319579337, -0.00213052891, -0.00650595874}, accel = {0.662757158, -0.19038552, 9.79407787}, last_yaw_angle = -2.26399612, yaw_round_count = 0}
+$18 = 0x0
+[Inferior 1 (Remote target) detached]

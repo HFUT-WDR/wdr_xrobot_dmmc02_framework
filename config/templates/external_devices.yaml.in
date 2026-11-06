@@ -1,13 +1,13 @@
 # 待填写模板，不参与默认启动。null 按真实型号、ID、方向、接线填写。
 modules:
-- module: YunMo-yanyu/CMD
+- module: HFUT-WDR/CMD
   id: cmd
   args:
   - mode: CMD::Mode::CMD_OP_CTRL
   - chassis_cmd_topic_name: '"chassis_cmd"'
   - gimbal_cmd_topic_name: '"gimbal_cmd"'
   - launcher_cmd_topic_name: '"launcher_cmd"'
-- module: YunMo-yanyu/RMMotor
+- module: HFUT-WDR/RMMotor
   id: rmmotor
   args:
   - can_bus: null
@@ -15,7 +15,8 @@ modules:
       model: null
       reverse: null
       feedback_id: null
-- module: YunMo-yanyu/DMMotor
+      gm6020_mode: RMMotor::Gm6020Mode::CURRENT
+- module: HFUT-WDR/DMMotor
   id: dmmotor
   args:
   - can_bus: null
@@ -23,7 +24,8 @@ modules:
       model: null
       reverse: null
       can_id: null
-- module: YunMo-yanyu/DR16
+      position_max: 0
+- module: HFUT-WDR/DR16
   id: dr16
   args:
   - uart: null
@@ -36,7 +38,7 @@ modules:
         speed_y: 2.64
         spin: 12.0
         deadband: 0.01515151515
-- module: YunMo-yanyu/Referee
+- module: HFUT-WDR/Referee
   id: referee
   args:
   - uart: null
@@ -55,13 +57,14 @@ modules:
         spin: 12.0
         deadband: 0.01515151515
       referee_power_tp_name: '"chassis_power_ref"'
-- module: YunMo-yanyu/HostData
+- module: HFUT-WDR/HostData
   id: hostdata
   args:
   - cmd: cmd
   - host_gimbal_topic_name: '"target_euler"'
   - host_chassis_data_topic_name: '"host_chassis_data"'
   - host_fire_topic_name: '"host_fire_notify"'
+  - host_gimbal_command_topic_name: '"host_gimbal_command"'
 - module: xrobot-org/SharedTopic
   id: host_rx
   args:
