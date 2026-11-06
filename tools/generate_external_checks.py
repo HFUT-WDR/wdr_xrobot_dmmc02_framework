@@ -64,11 +64,11 @@ def generate(output):
         # 在临时工程生成完整 i6x 配置，不改变原工程的默认配置。
         run("xrobot", "gen", "-c", "User/xrobot_i6x.yaml", "--no-line-directives", cwd=stage)
         shutil.copyfile(stage / "User/xrobot_main.hpp", output / "i6x_profile.hpp")
-        for name in ("imu", "imu_can", "imu_legacy", "chassis"):
+        for name in ("imu", "imu_can", "imu_rs485_stream", "chassis"):
             run("xrobot", "gen", "-c", f"User/xrobot_{name}.yaml",
                 "--no-line-directives", cwd=stage)
             shutil.copyfile(stage / "User/xrobot_main.hpp", output / f"{name}_profile.hpp")
-    for name in ("i6x", "imu", "imu_can", "imu_legacy", "chassis"):
+    for name in ("i6x", "imu", "imu_can", "imu_rs485_stream", "chassis"):
         (output / f"{name}_profile.cpp").write_text(
             '// 仅编译验证未启用的 YAML 配置，不链接进默认固件。\n'
             f'#include "{name}_profile.hpp"\n')

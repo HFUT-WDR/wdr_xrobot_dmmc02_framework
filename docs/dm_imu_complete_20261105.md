@@ -19,7 +19,7 @@
 | `User/xrobot.yaml` | 不实例化外置DM | 板载BMI088 | 板载姿态 |
 | `User/xrobot_imu.yaml` | RS485_REQUEST | USART2，2 Mbps | FUSED |
 | `User/xrobot_imu_can.yaml` | CAN_REQUEST | CAN1，slave=1，master=0x11 | FUSED |
-| `User/xrobot_imu_legacy.yaml` | RS485_STREAM_LEGACY | USART2，4 Mbps、1 kHz | FUSED |
+| `User/xrobot_imu_rs485_stream.yaml` | RS485_STREAM_LEGACY | USART2，4 Mbps、1 kHz | FUSED |
 
 这三份外置配置互斥选用，每份仅一颗DM；第二颗不实例化。默认生成配置仍为板载配置。
 CAN1为配置示例，接线、总线速率及ID冲突需按实物核对；模块不擅自重设共享CAN总线速率。
@@ -67,3 +67,5 @@ Debug/Release还检查12个模块构造和五份完整YAML配置，检查对象�
 
 本轮不烧录。CAN实收发、现版485设备响应、DE转向、共享总线带宽、栈余量、实时截止时间、姿态轴向及动态精度均未板测。
 代码/编译完成不能替代上述硬件验收，也不表示后续底盘、云台、机械校准或功率控制已接入。
+
+2026-11-06：配置文件由xrobot_imu_legacy.yaml更名为xrobot_imu_rs485_stream.yaml，仅明确RS485连续流用途；RS485_STREAM_LEGACY协议枚举、4Mbps和1ms参数保持不变。历史验证记录中的旧产品名不回写。
