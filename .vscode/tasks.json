@@ -230,6 +230,20 @@
             "dependsOn": "编译 Release",
             "dependsOrder": "sequence",
             "problemMatcher": []
+        },
+        {
+            "label": "测试公共控制算法（主机）",
+            "type": "process",
+            "command": "python3",
+            "args": [
+                "tests/control_algorithms/run_tests.py"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }

@@ -54,7 +54,14 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 4688f7a8bb2e4ff11e1d55659e5fa7d4f738eb3f
+    commit: d175e92259f0d69e7053c33d475ff6d5a5c166f6
+  YunMo-yanyu/ControlAlgorithms:
+    repo: https://github.com/YunMo-yanyu/ControlAlgorithms.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: d739b6fe63f1fe7cd2ccd4bb88b1c83b89131ac4
   YunMo-yanyu/DMMotor:
     repo: https://github.com/YunMo-yanyu/DMMotor.git
     source: ModuleIndex/index.yaml

@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-06",
+  "modules": {
+    "ControlAlgorithms": "d739b6fe63f1fe7cd2ccd4bb88b1c83b89131ac4",
+    "Chassis": "d175e92259f0d69e7053c33d475ff6d5a5c166f6"
+  },
+  "frozen_hash_manifest_unchanged": true,
+  "tests": [
+    "control_algorithms: 5000 sp LPF and 5000 sp PID differential vectors, frozen defects, isolated Inf hang, dt, integral anti-windup, reset, cyclic error, invalid input, Butterworth response",
+    "chassis: 1000 frozen wheel mixes, time-constant filter hash, mode transitions, PID startup, cyclic yaw crossing, motor mapping, stale/STOP/RC loss",
+    "i6x: 1568 frozen decoder vectors and routing",
+    "board_support: RAM lifecycle",
+    "external_modules: Debug/Release default config and ELF isolation"
+  ],
+  "builds": [
+    "Debug",
+    "Release"
+  ],
+  "full_link_profiles": [
+    "xrobot_i6x",
+    "xrobot_imu",
+    "xrobot_imu_can",
+    "xrobot_imu_legacy",
+    "xrobot_chassis"
+  ],
+  "shared_translation_compilations_per_preset": 1,
+  "installed_module_count": 18,
+  "config_count": 6,
+  "flashed": false,
+  "limitations": [
+    "PID saturation and derivative semantics intentionally differ from old implementation",
+    "Legacy 2ms gains are converted; conversion is not hardware tuning",
+    "RTOS deadlines, stack headroom, CAN direction and chassis closed-loop behavior unverified"
+  ]
+}

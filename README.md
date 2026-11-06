@@ -133,3 +133,5 @@ DM模块已补齐CAN请求/应答、现版24字节RS485请求/应答与显式旧
 底盘命令现统一为m/s、rad/s，遥控死区在输入端处理；普通零目标保留闭环制动。接口与本轮验证见[底盘命令契约](docs/chassis_contract_20261105.md)。
 
 DAPLink/CMSIS-DAP已提供“烧录 Debug（DAPLink）”“烧录 Release（DAPLink）”任务及对应调试入口。采用SWD 1MHz，先编译再烧录、校验和复位，不修改选项字节。2026-11-05板级烧录及运行检查见[验证记录](docs/validation/daplink_20261105.json)。
+
+PID与LPF已提取到公共ControlAlgorithms依赖，底盘改用LibXR PID基座并补齐导数滤波/首拍处理。选型、旧实现问题、增益换算及验证见[公共控制算法记录](docs/control_algorithms_20261106.md)。VS Code新增“测试公共控制算法（主机）”任务。

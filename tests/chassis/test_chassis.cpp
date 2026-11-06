@@ -6,7 +6,14 @@
 #include "Chassis.hpp"
 extern "C" void reference_wheel(float, float, float, float[4]);
 using namespace wdr_chassis;
-static void near(float a, float b, float eps = 1e-5f) { assert(std::fabs(a - b) < eps); }
+static void near(float a, float b, float eps = 1e-5f)
+{
+  if (!(std::fabs(a - b) < eps))
+  {
+    std::fprintf(stderr, "near: actual=%g expected=%g\n", a, b);
+  }
+  assert(std::fabs(a - b) < eps);
+}
 static void control_tests()
 {
   Param p;
@@ -140,7 +147,7 @@ static void control_tests()
   ctrl.ModeTransition();
   ctrl.FeedbackUpdate(f);
   assert(ctrl.GetState().mode == Mode::RELAX);
-  // 非饱和角度验证原离散导数首拍与斜坡；故障恢复不得带入旧导数状态。
+  // 公共PID使用微分先行：首拍D为零，后续保留低通；故障恢复不带入旧导数。
   f.rpm = {};
   f.imu_yaw = .1f;
   f.yaw_relative = .01f;
@@ -149,17 +156,30 @@ static void control_tests()
   ctrl.SetMode(Mode::FOLLOW_GIMBAL_YAW);
   ctrl.ModeTransition();
   ctrl.SetControl({0, 0, 0});
-  near(ctrl.GetState().wz_set, .16f);
+  near(ctrl.GetState().wz_set, .12f);
   f.yaw_relative = .03f;
   ctrl.FeedbackUpdate(f);
   ctrl.SetControl({0, 0, 0});
-  near(ctrl.GetState().wz_set, .4f);
+  // PID原始目标0.40；保留斜坡每拍最多增加120×0.002=0.24，最终0.36。
+  near(ctrl.GetState().wz_set, .36f);
   ctrl.Reset();
   ctrl.FeedbackUpdate(f);
   ctrl.SetMode(Mode::FOLLOW_GIMBAL_YAW);
   ctrl.ModeTransition();
   ctrl.SetControl({0, 0, 0});
-  near(ctrl.GetState().wz_set, .48f);
+  near(ctrl.GetState().wz_set, .36f);
+  // 实际底盘跟随控制跨越正负π时走短角差，不因表示跳变输出反向饱和。
+  Control cyclic_ctrl(p);
+  Feedback cyclic_feedback{};
+  cyclic_feedback.imu_yaw = 3.13f;
+  cyclic_ctrl.FeedbackUpdate(cyclic_feedback);
+  cyclic_ctrl.SetMode(Mode::FOLLOW_CHASSIS_YAW);
+  cyclic_ctrl.ModeTransition();
+  cyclic_ctrl.SetControl({});
+  cyclic_feedback.imu_yaw = -3.13f;
+  cyclic_ctrl.FeedbackUpdate(cyclic_feedback);
+  cyclic_ctrl.SetControl({});
+  assert(cyclic_ctrl.GetState().wz_set > 0 && cyclic_ctrl.GetState().wz_set < 1);
   near(RadFormat(PI), PI);
   near(RadFormat(-PI), -PI);
   puts(

@@ -15,6 +15,7 @@
 #define UNUSED(x) static_cast<void>(x)
 namespace LibXR
 {
+constexpr double PI = 3.14159265358979323846;
 constexpr double TWO_PI = 6.2831853071795864769;
 enum class ErrorCode
 {
@@ -46,12 +47,6 @@ namespace Memory
 {
 inline void FastCopy(void* d, const void* s, size_t n) { std::memcpy(d, s, n); }
 }  // namespace Memory
-template <typename T>
-struct CycleValue
-{
-  T value{};
-  CycleValue(T v = 0) : value(v) {};
-};
 template <typename A>
 struct Callback
 {
@@ -223,3 +218,5 @@ struct Thread
   }
 };
 }  // namespace LibXR
+
+#include "cycle_value.hpp"
