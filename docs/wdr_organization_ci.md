@@ -42,3 +42,8 @@ CI沿用xrobot-org/XRobot v1共享工作流，WDR维护私有索引、认证和�
 [BSP运行及固件产物](https://github.com/HFUT-WDR/wdr_xrobot_dmmc02_framework/actions/runs/42346203050)包含default-Debug-firmware和default-Release-firmware。
 各模块运行链接、提交及验证边界见[完成记录](validation/wdr_organization_ci_20261107.json)。
 2026-11-06记录保留最初凭据失败的历史状态，本记录为最终验收结果；本轮未烧录或运行机构。
+
+## 本地维护入口
+
+仅维护Modules/HFUT-WDR与module_sources/HFUT-WDR；旧个人模块目录及旧索引不再参与构建。
+个人GitHub仓库保留历史，不再同步维护。已有个人检出的默认origin现指向组织框架；个人远端保留为personal-archive，仅用于追溯。
