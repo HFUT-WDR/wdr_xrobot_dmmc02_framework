@@ -46,7 +46,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: a65f9d094c8cf0064adc1b344935624f20abc005
+    commit: 72cb7b0efe84057c16772a7922e8ee171eba80fa
   HFUT-WDR/BoardAttitude:
     repo: https://github.com/HFUT-WDR/BoardAttitude.git
     source: ModuleIndex/index.yaml
@@ -60,7 +60,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 0068ba8a216f8a31d55d210828d8cf4fe50f74bb
+    commit: 7990ff2c23dfc49e939802eb181aea93fd16deb6
   HFUT-WDR/CMD:
     repo: https://github.com/HFUT-WDR/CMD.git
     source: ModuleIndex/index.yaml
