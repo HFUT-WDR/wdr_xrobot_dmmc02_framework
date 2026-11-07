@@ -19,10 +19,7 @@ with tempfile.TemporaryDirectory(prefix='wdr-full-gimbal-') as temp:
  known={m['id'] for m in board['modules']}
  for instance in extras:
   if instance['id'] not in known:board['modules'].append(instance);known.add(instance['id'])
- if args.combined:
-  board['modules'].append({'module':'HFUT-WDR/EventBinder','id':'gimbal_chassis_interlock','args':[
-   {'modules':'{{"gimbal_output", &gimbal.GetOutputEvent()}, {"chassis", chassis}}'},
-   {'event_binding_groups':'{{{{"gimbal_output", Gimbal::STOP_CHASSIS, "chassis", Chassis<Omni>::Mode::RELAX}}}}'}]})
+ # 底盘停止联锁随gimbal_chassis_feedback电平发布，组合工程无需额外事件绑定。
  def quote(value):
   if isinstance(value,dict):
    for key,item in value.items():
@@ -35,5 +32,5 @@ with tempfile.TemporaryDirectory(prefix='wdr-full-gimbal-') as temp:
   for command in [['xrobot','gen','-c','User/full.yaml','--no-line-directives'],['cmake','--preset','Debug'],['cmake','--build','--preset','Debug','-j4','--target','wdr_xrobot_dmmc02_framework']]:
    subprocess.run(command,cwd=stage,stdout=out,stderr=subprocess.STDOUT,check=True)
   symbols=subprocess.check_output(['arm-none-eabi-nm','-C',str(stage/'build/Debug/wdr_xrobot_dmmc02_framework.elf')],text=True)
-  for name in ['Gimbal::ThreadFunc','DualYaw::ControlLoop','Pitch::ControlLoop']+(['Chassis<wdr_chassis::Control>','PowerControl::Calculate'] if args.combined else []):assert name in symbols,name
+  for name in ['Gimbal::ThreadFunc','DualYaw::ControlLoop','Pitch::ControlLoop','Launcher::Update']+(['Chassis<wdr_chassis::Control>','PowerControl::Calculate'] if args.combined else []):assert name in symbols,name
  print('PASS: full gimbal'+(' + chassis/power/interlock' if args.combined else '')+' firmware linked; no flash')

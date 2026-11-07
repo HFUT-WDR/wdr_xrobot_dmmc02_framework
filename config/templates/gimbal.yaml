@@ -243,6 +243,88 @@ modules:
       thread_priority_uart: LibXR::Thread::Priority::MEDIUM
       chassis: '{}'
       referee_power_tp_name: chassis_power_ref
+- module: HFUT-WDR/RMMotor
+  id: fric_right_motor
+  args:
+  - can_bus: can2
+  - param:
+      model: RMMotor::Model::MOTOR_M3508
+      reverse: true
+      feedback_id: 517
+      gm6020_mode: RMMotor::Gm6020Mode::CURRENT
+- module: HFUT-WDR/RMMotor
+  id: fric_left_motor
+  args:
+  - can_bus: can2
+  - param:
+      model: RMMotor::Model::MOTOR_M3508
+      reverse: false
+      feedback_id: 518
+      gm6020_mode: RMMotor::Gm6020Mode::CURRENT
+- module: HFUT-WDR/RMMotor
+  id: trigger_motor
+  args:
+  - can_bus: can3
+  - param:
+      model: RMMotor::Model::MOTOR_M2006
+      reverse: false
+      feedback_id: 519
+      gm6020_mode: RMMotor::Gm6020Mode::CURRENT
+- module: HFUT-WDR/Launcher
+  id: launcher
+  args:
+  - fric_right: fric_right_motor
+  - fric_left: fric_left_motor
+  - trigger: trigger_motor
+  - param:
+      fric_rpm_to_speed: 0.00359375
+      trigger_rpm_to_speed: 0.002908882086657216
+      fric_pid:
+        kp: 8000
+        ki: 5
+        kd: 0
+        i_limit: 1000
+        out_limit: 16000
+      trigger_pid:
+        kp: 1000
+        ki: 2
+        kd: 0
+        i_limit: 7000
+        out_limit: 10000
+      trigger_filter: '{1.725709860247969f, -0.75594777109163436f, 0.030237910843665373f}'
+      spin_up_tolerance: 0.3
+      brake_speed: 0.1
+      fire_speed: 20
+      jam_speed: 1
+      jam_ms: 1000
+      reverse_ms: 500
+      initial_speed: 21
+      reference_speed: 23.5
+      speed_min: 15
+      speed_max: 23.5
+      speed_limit: 25
+      speed_step: 0.2
+      speed_deadband: 0.5
+      urgent_margin: 0.5
+      urgent_step: 0.3
+      speed_ema_alpha: 0.3
+      min_valid_speed: 5
+      speed_adjust_interval_ms: 5000
+      heat_per_shot: 10
+      default_heat_limit: 260
+      default_cooling: 30
+      heat_stop_margin: 80
+      shot_current_a: 3
+      shot_confirm_ms: 10
+      shot_interval_ms: 10
+      cooling_period_ms: 100
+      heat_sync_period_ms: 200
+      heat_sync_max_step: 20
+      motor_timeout_ms: 20
+      referee_timeout_ms: 1000
+  - fire_topic_name: '"launcher_cmd"'
+  - referee_topic_name: '"robot_game_ref"'
+  - status_topic_name: '"launcher_status"'
 - module: HFUT-WDR/Gimbal
   id: gimbal
   args:
@@ -261,7 +343,6 @@ modules:
       calibration_margin: 0.1
       init_timeout_ms: 6000
       init_hold_ms: 1000
-      enable_timeout_ms: 1000
       calibration_hold_ms: 2000
       calibration_step_timeout_ms: 15000
   - command_topic_name: '"gimbal_cmd"'
@@ -273,11 +354,13 @@ modules:
   - status_topic_name: '"gimbal_status"'
   - task_stack_depth: 4096
   - thread_priority: LibXR::Thread::Priority::MEDIUM
+  - launcher: '&launcher'
 - module: HFUT-WDR/EventBinder
   id: gimbal_mode_events
   args:
-  - modules: '{{"i6x", i6x}, {"cmd", cmd}, {"gimbal", gimbal}}'
-  - event_binding_groups: '{{{{"i6x", I6x::SwitchPos::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL},
-      {"i6x", I6x::SwitchPos::SW2_MID, "gimbal", Gimbal::Mode::ABSOLUTE_ANGLE}, {"i6x",
-      I6x::SwitchPos::SW2_UP, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::SwitchPos::SW2_UP,
-      "gimbal", Gimbal::Mode::AUTO}, {"i6x", I6x::SwitchPos::SW2_DOWN, "gimbal", Gimbal::Mode::RELAX}}}}'
+  - modules: '{{"i6x", i6x}, {"cmd", cmd}, {"gimbal", gimbal}, {"launcher", launcher}}'
+  - event_binding_groups: '{{{{"i6x", I6x::SwitchHold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL},
+      {"i6x", I6x::SwitchHold::SW2_MID, "gimbal", Gimbal::Mode::ABSOLUTE_ANGLE}, {"i6x",
+      I6x::SwitchHold::SW2_UP, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::SwitchHold::SW2_UP,
+      "gimbal", Gimbal::Mode::AUTO}, {"i6x", I6x::SwitchHold::SW2_DOWN, "gimbal", Gimbal::Mode::RELAX},
+      {"i6x", I6x::SwitchPos::SW1_UP, "launcher", Launcher::Event::FRIC_TOGGLE}}}}'

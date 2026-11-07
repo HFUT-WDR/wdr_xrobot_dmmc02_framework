@@ -39,6 +39,9 @@ modules:
 - id: HFUT-WDR/ImuFusion
   repo: ./ImuFusion.bundle
   status: community
+- id: HFUT-WDR/Launcher
+  repo: ./Launcher.bundle
+  status: community
 - id: HFUT-WDR/Motor
   repo: ./Motor.bundle
   status: community

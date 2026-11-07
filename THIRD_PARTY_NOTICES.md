@@ -17,3 +17,11 @@
 代码基线、修复和文件散列见各组件THIRD_PARTY_NOTICES.md与tests/imu/reference。
 引用的26_sentry快照未附工程根许可证，本工程不替其推定新的许可；组件LICENSE只覆盖WDR新增部分。
 ImuFusion模块内保留与基座Drivers/CMSIS同版本的CMSIS源码和原许可证，以支持模块独立编译；算法未改写。
+
+## 发射机构参考代码
+
+HFUT-WDR/Launcher 的发射状态、虚拟热量、弹速与卡弹流程参考26_sentry。
+主机回归使用的原始 shoot_task、heat_control 和 LPF 文件冻结在 tests/launcher/reference，
+SHA-256 记录于同目录 hashes.json；保留原文件内容，不将其重新声明为WDR原创。
+模块重组、设备接入和行为差异见 Launcher 仓库的 README 与来源说明。
+上述26_sentry参考代码沿用已有来源边界，本工程不替原始代码推定新的许可。

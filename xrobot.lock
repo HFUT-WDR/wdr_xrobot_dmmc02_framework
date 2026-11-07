@@ -23,6 +23,8 @@ requests:
   ref: same-or-dev
 - id: HFUT-WDR/I6x
   ref: same-or-dev
+- id: HFUT-WDR/Launcher
+  ref: same-or-dev
 - id: HFUT-WDR/Motor
   ref: same-or-dev
 - id: HFUT-WDR/Pitch
@@ -62,7 +64,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 66e1f52d26224f35c26a57f1199d2bfab9da0a59
+    commit: b0a7f1d2296515b15b9ad748e29e46388c407505
   HFUT-WDR/ControlAlgorithms:
     repo: https://github.com/HFUT-WDR/ControlAlgorithms.git
     source: ModuleIndex/index.yaml
@@ -97,7 +99,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 44c15d127eb4126ac4425f1ca95740e88058ac3d
+    commit: aecfd04be7f99f94de7b141e5a2f504438cccdb1
   HFUT-WDR/EventBinder:
     repo: https://github.com/HFUT-WDR/EventBinder.git
     source: ModuleIndex/index.yaml
@@ -111,7 +113,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 9633704b2566e2bc0c34440bb6ebfa560e2bfe1d
+    commit: add821db3fa5d29f0e720036c74ef9dd79ad1db5
   HFUT-WDR/HostData:
     repo: https://github.com/HFUT-WDR/HostData.git
     source: ModuleIndex/index.yaml
@@ -125,7 +127,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 63cbbc15698e2f85c2ca32c58fd855227af5b680
+    commit: c42cd1780d55a29535e7d369d9676c85803df0ea
   HFUT-WDR/ImuFusion:
     repo: https://github.com/HFUT-WDR/ImuFusion.git
     source: ModuleIndex/index.yaml
@@ -133,6 +135,13 @@ modules:
     resolved_ref: dev
     ref_kind: branch
     commit: 0508508870af35a4471934919853b76f369a2150
+  HFUT-WDR/Launcher:
+    repo: https://github.com/HFUT-WDR/Launcher.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: c7baaba29a7d63ce07bc260256cf5413f420d3b3
   HFUT-WDR/Motor:
     repo: https://github.com/HFUT-WDR/Motor.git
     source: ModuleIndex/index.yaml
@@ -160,7 +169,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: cd62207f05796b9c46fb83d3f65dde604e7413f8
+    commit: 6ae46d5fa5ca956d24833488cb5ebeca54ecdbd4
   HFUT-WDR/Referee:
     repo: https://github.com/HFUT-WDR/Referee.git
     source: ModuleIndex/index.yaml

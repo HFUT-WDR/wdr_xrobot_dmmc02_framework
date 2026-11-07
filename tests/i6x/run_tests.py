@@ -22,4 +22,4 @@ with tempfile.TemporaryDirectory(prefix='wdr-i6x-test-') as temp:
                     '-I' + str(modules / 'EventBinder'), '-I' + str(reference), str(root / 'tests/i6x/i6x_test.cpp'),
                     str(obj), '-o', str(exe)], check=True)
     subprocess.run([str(exe)], check=True)
-print('PASS: 1568 frozen-reference vectors; framing, failsafe threshold, CMD routing, HostData zero targets, independent PC expiry and STOP')
+print('PASS: 1568 frozen-reference vectors; framing, failsafe threshold, CMD routing, HostData zero targets, independent PC expiry and STOP, level hold events and recovery')

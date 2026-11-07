@@ -6,7 +6,7 @@ root=Path(__file__).resolve().parents[2];test=Path(__file__).resolve().parent
 modules=root/'Modules/HFUT-WDR'
 for name,digest in json.loads((test/'reference/hashes.json').read_text()).items():
  assert hashlib.sha256((test/'reference'/name).read_bytes()).hexdigest()==digest,name
-inc=[test/'stubs',root/'tests/chassis/stubs']+[modules/n for n in ['ImuFusion','Gimbal','DualYaw','Pitch','CMD','Motor','RMMotor','DMMotor','Chassis','ControlAlgorithms','ControlAlgorithms/algorithm','HostData','Referee']]+[root/'Middlewares/Third_Party/LibXR/src'/n for n in ['structure','utils']]
+inc=[test/'stubs',root/'tests/chassis/stubs']+[modules/n for n in ['ImuFusion','Gimbal','DualYaw','Pitch','Launcher','CMD','Motor','RMMotor','DMMotor','Chassis','ControlAlgorithms','ControlAlgorithms/algorithm','HostData','Referee']]+[root/'Middlewares/Third_Party/LibXR/src'/n for n in ['structure','utils']]
 with tempfile.TemporaryDirectory(prefix='wdr-gimbal-') as temp:
 
  temp=Path(temp)
@@ -93,10 +93,10 @@ float reference_pitch(float angle,float gyro,float target,float velocity,float a
  obj=temp/'reference.o'
  subprocess.run(['cc','-std=gnu11','-O1','-I'+str(test),'-I'+str(test/'reference'),'-c',str(source),'-o',str(obj)],check=True)
  exe=Path(temp)/'gimbal'
- subprocess.run(['c++','-std=c++20','-DLIBXR_DEFAULT_SCALAR=float','-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer',*['-I'+str(p) for p in inc],str(test/'test_gimbal.cpp'),str(obj),*[str(modules/n/f) for n,f in [('DualYaw','dual_yaw.cpp'),('Pitch','pitch.cpp'),('Gimbal','gimbal.cpp')]],'-o',str(exe)],check=True)
+ subprocess.run(['c++','-std=c++20','-DLIBXR_DEFAULT_SCALAR=float','-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer',*['-I'+str(p) for p in inc],str(test/'test_gimbal.cpp'),str(obj),*[str(modules/n/f) for n,f in [('DualYaw','dual_yaw.cpp'),('Pitch','pitch.cpp'),('Launcher','launcher.cpp'),('Gimbal','gimbal.cpp')]],'-o',str(exe)],check=True)
  subprocess.run([str(exe)],check=True)
 
  boundary=temp/'boundaries'
- subprocess.run(['c++','-std=c++20','-DLIBXR_DEFAULT_SCALAR=float','-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer',*['-I'+str(p) for p in inc],str(test/'test_boundaries.cpp'),*[str(modules/n/f) for n,f in [('DualYaw','dual_yaw.cpp'),('Pitch','pitch.cpp'),('Gimbal','gimbal.cpp')]],'-o',str(boundary)],check=True)
- for scenario in ['late_stop','mode_loss','source_loss','init','startup','scan_zero','scan_limits','aim_limits','boundary_feedforward','navigation']:
+ subprocess.run(['c++','-std=c++20','-DLIBXR_DEFAULT_SCALAR=float','-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer',*['-I'+str(p) for p in inc],str(test/'test_boundaries.cpp'),*[str(modules/n/f) for n,f in [('DualYaw','dual_yaw.cpp'),('Pitch','pitch.cpp'),('Launcher','launcher.cpp'),('Gimbal','gimbal.cpp')]],'-o',str(boundary)],check=True)
+ for scenario in ['late_stop','mode_loss','revive','init','startup','scan_zero','scan_limits','aim_limits','boundary_feedforward','navigation','launcher']:
   subprocess.run([str(boundary),scenario],check=True)

@@ -141,12 +141,9 @@ int main()
   Timebase::now += 1000;
   refresh();
   run_thread_once(task);
-  assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);  // 有效指令恢复不自启。
-  gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::AUTO));
-  Timebase::now += 1000;
-  refresh();
-  run_thread_once(task);
+  // 同26_sentry：AI失效只令本拍无力，有效指令恢复后按原请求自动继续。
   assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
+  assert(!gimbal.GetState().ai_lost);
   inner.SetVoltage(30000);
   outer.SetVoltage(-30000);
   assert(can.sent.back().id == 0x1FF);
@@ -160,10 +157,12 @@ int main()
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   rc.input_online = true;
   cmd.FeedRC(rc);
+  cmd.FeedAI(CMD::Channel::GIMBAL, ai);
   Timebase::now += 1000;
   refresh();
   run_thread_once(task);
-  assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
+  // 遥控恢复后不需要重新拨杆，回到断连前请求的模式。
+  assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
 
   // 完整双yaw端点扫描；结果更新零位/限位，不发送电机设零帧。
   gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::CALI));
@@ -183,6 +182,27 @@ int main()
   assert(yaw.GetCalibration().inner_offset == 8096);
   assert(yaw.GetCalibration().outer_offset == 4);
   assert(database.values.contains("gimbal_yaw_calibration"));
+  // 存储内容损坏（零位越界、NaN限位）时上电不断言，沿用YAML标定。
+  {
+    Database corrupt;
+    corrupt.values["gimbal_yaw_calibration"] = DualYaw::Calibration{
+        9000, 4, std::nanf(""), 1, -1, 1};
+    DualYaw fallback(inner, outer, yp, &corrupt);
+    assert(!fallback.CalibrationLoaded());
+    assert(fallback.GetCalibration().inner_offset == yp.inner.offset_ecd);
+    near(fallback.GetCalibration().inner_max, yp.inner.maximum);
+    DualYaw loaded(inner, outer, yp, &database);
+    assert(loaded.CalibrationLoaded());
+    assert(loaded.GetCalibration().inner_offset == 8096);
+  }
+  // CALI请求保持期间不重复扫描端点。
+  for (unsigned i = 0; i < 5; ++i)
+  {
+    Timebase::now += 1000;
+    refresh(8096, 4);
+    run_thread_once(task);
+    assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
+  }
   cmd.GetEvent().Active(uint32_t(CMD::Mode::CMD_OP_CTRL));
   cmd.FeedRC(rc);
   Timebase::now += 1000;
@@ -224,10 +244,10 @@ int main()
   run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
 
+  // 自瞄STOP只令本拍无力；视觉切回AIM后无需重新发模式事件。
   ai.gimbal.auto_mode = CMD::GimbalAutoMode::AIM;
   ai.gimbal.yaw = ai.gimbal.pit = 0;
   cmd.FeedAI(CMD::Channel::GIMBAL, ai);
-  gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::AUTO));
   Timebase::now += 1000;
   refresh(8096, 4);
   run_thread_once(task);
@@ -241,6 +261,38 @@ int main()
   run_thread_once(task);
   assert(gimbal.GetState().motor_lost);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
+  cmd.FeedAI(CMD::Channel::GIMBAL, ai);
+  Timebase::now += 1000;
+  refresh(8096, 4);
+  run_thread_once(task);
+  assert(!gimbal.GetState().motor_lost);
+  assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
+  // SMALL_FIRST增益调度后切到相对角，小yaw速度环须恢复配置增益而非沿用调度值。
+  {
+    DualYaw::Param gain_param{};
+    gain_param.align_alpha = 0;
+    DualYaw gain_yaw(inner, outer, gain_param);
+    wdr_imu::BoardState gain_board{};
+    wdr_imu::Attitude gain_dm{};
+    auto relative_voltage = [&](bool scheduled)
+    {
+      gain_yaw.SetPath(DualYaw::Path::RELAX, false);
+      refresh(0, 0);
+      gain_yaw.UpdateFeedback(gain_board, gain_dm, 0, uint32_t(Timebase::now / 1000));
+      if (scheduled)
+      {
+        gain_yaw.SetPath(DualYaw::Path::SMALL_FIRST, true);
+        gain_yaw.SetAbsolute(0, 1.0f);  // 小yaw大误差，增益调度t=1。
+        gain_yaw.ControlLoop(.001f);
+      }
+      gain_yaw.SetPath(DualYaw::Path::RELATIVE, false);
+      gain_yaw.SetRelative(0, .05f);
+      gain_yaw.ControlLoop(.001f);
+      return gain_yaw.GetState().axes[DualYaw::OUTER_YAW].voltage;
+    };
+    const auto clean = relative_voltage(false);
+    assert(relative_voltage(true) == clean);
+  }
   DualYaw::Param planning_param{};
   planning_param.align_alpha = 0;
   planning_param.inner.angle = planning_param.inner.auto_angle = {1, 0, 0, 0, 0, 100, 0};
@@ -322,7 +374,8 @@ int main()
   }
   assert(zero_yaw && disabled);
   std::cout << "PASS: no constructor TX, single thread, voltage mode, DM unsigned "
-               "decode, AI expiry latch, RC loss/recovery, complete "
+               "decode, AI expiry/recovery, RC loss/auto-resume, STOP->AIM resume, motor-loss resume, "
+               "SMALL_FIRST gain restore, complete "
                "calibration/persistence, modes; frozen PID/zero calibration 1000 "
                "dual-yaw plans and 1000 frozen pitch torque samples\n";
 }

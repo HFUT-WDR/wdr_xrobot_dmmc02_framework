@@ -1,5 +1,6 @@
 #include <cassert>
 #include <iostream>
+#include <optional>
 #include <string>
 
 #include "Gimbal.hpp"
@@ -50,7 +51,21 @@ int main(int argc, char** argv)
   CMD cmd;
   Gimbal::Param param;
   if (scenario == "late_stop") param.init_hold_ms = 0;
-  Gimbal gimbal(yaw, pitch, cmd, param);
+  // 拨弹M2006 0x207与两台yaw同属0x1FF组；只在发射场景注册，避免其他场景组帧缺槽。
+  CAN shoot_bus;
+  std::optional<RMMotor> fric_right, fric_left, trigger;
+  std::optional<Launcher> launcher;
+  if (scenario == "launcher")
+  {
+    fric_right.emplace(shoot_bus, RMMotor::Param{RMMotor::Model::MOTOR_M3508, true, 0x205});
+    fric_left.emplace(shoot_bus, RMMotor::Param{RMMotor::Model::MOTOR_M3508, false, 0x206});
+    trigger.emplace(can, RMMotor::Param{RMMotor::Model::MOTOR_M2006, false, 0x207});
+    launcher.emplace(*fric_right, *fric_left, *trigger, Launcher::Param{});
+  }
+  Gimbal gimbal(yaw, pitch, cmd, param, "gimbal_cmd", "board_attitude", "dm_attitude",
+                "gimbal_context", "robot_game_ref", "gimbal_chassis_feedback",
+                "gimbal_status", 4096, Thread::Priority::MEDIUM,
+                launcher ? &*launcher : nullptr);
   auto& task = *Thread::threads.back();
   HostData host(cmd);
   CMD::Data rc{};
@@ -90,39 +105,62 @@ int main(int argc, char** argv)
     };
     run_thread_once(task);
     assert(fired);
+    // 拍内到达的RELAX在下一拍生效；INIT完成不得改写外部请求而覆盖RELAX。
+    tick();
+    assert(gimbal.GetState().requested == Gimbal::Mode::RELAX);
     assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
     assert(can.sent.back().data[7] == 0xFD);
     tick();
     assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   }
-  else if (scenario == "mode_loss" || scenario == "source_loss")
+  else if (scenario == "mode_loss")
   {
+    // 同26_sentry：pitch掉线只重发使能，yaw照常闭环，模式请求保持。
     gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
     tick();
     for (unsigned i = 0; i < 19; ++i) tick(false);
-    if (scenario == "mode_loss")
-      gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELATIVE_ANGLE));
-    else
-    {
-      // 切源仍持有旧OP快照时，也不能绕过已经运行的Pitch掉线。
-      cmd.GetEvent().Active(uint32_t(CMD::Mode::CMD_AUTO_CTRL));
-      gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::AUTO));
-    }
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELATIVE_ANGLE));
     const auto first = can.sent.size();
     tick(false);
-    assert(gimbal.GetState().motor_lost);
-    assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
-    assert(!gimbal.GetState().waiting_for_enable);
-    bool disabled = false;
+    assert(!gimbal.GetState().motor_lost);
+    assert(!pitch.GetState().enabled);
+    assert(gimbal.GetState().mode == Gimbal::Mode::RELATIVE_ANGLE);
+    bool enable_sent = false;
     for (auto i = first; i < can.sent.size(); ++i)
       if (can.sent[i].id == 1)
       {
-        assert(can.sent[i].data[7] != 0xFC);
-        disabled |= can.sent[i].data[7] == 0xFD;
+        // 失能期间只允许使能帧，不下发MIT控制。
+        assert(can.sent[i].data[7] == 0xFC);
+        enable_sent = true;
       }
-    assert(disabled);
+    assert(enable_sent);
     tick();
+    assert(pitch.GetState().enabled);
+    assert(gimbal.GetState().mode == Gimbal::Mode::RELATIVE_ANGLE);
+  }
+  else if (scenario == "revive")
+  {
+    // 阵亡断电：全部电机反馈消失后整云台无力；复活上电后无需拨杆即恢复原模式。
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
+    tick();
+    assert(gimbal.GetState().mode == Gimbal::Mode::ABSOLUTE_ANGLE);
+    for (unsigned i = 0; i < 2000; ++i)
+    {
+      Timebase::now += 1000;
+      cmd.FeedRC(rc);
+      board_topic.Publish(board);
+      dm_topic.Publish(attitude);
+      run_thread_once(task);
+    }
+    assert(gimbal.GetState().motor_lost);
     assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
+    pitch_enabled = false;  // 复活上电后DM电机处于失能态，需云台重新使能。
+    tick();
+    assert(gimbal.GetState().mode == Gimbal::Mode::ABSOLUTE_ANGLE);
+    pitch_enabled = true;
+    tick();
+    assert(pitch.GetState().enabled);
+    assert(pitch.GetState().path == Pitch::Path::REMOTE_CONTROL);
   }
   else if (scenario == "init")
   {
@@ -144,7 +182,8 @@ int main(int argc, char** argv)
     gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
     const auto first = can.sent.size();
     tick();
-    assert(gimbal.GetState().waiting_for_enable);
+    assert(gimbal.GetState().mode == Gimbal::Mode::ABSOLUTE_ANGLE);
+    assert(!pitch.GetState().enabled);
     bool enable_sent = false;
     for (auto i = first; i < can.sent.size(); ++i)
       enable_sent |= can.sent[i].id == 1 && can.sent[i].data[7] == 0xFC;
@@ -259,6 +298,67 @@ int main(int argc, char** argv)
       assert(gimbal.GetState().invalid_input);
       assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
     }
+  }
+  else if (scenario == "launcher")
+  {
+    // 拨弹由云台线程同拍写入：每拍恰好一帧0x1FF，同时含两路yaw和拨弹槽位。
+    const auto feed_shooter = [&](float speed)
+    {
+      const int rpm = int(std::lround(speed / Launcher::Param{}.fric_rpm_to_speed));
+      CAN::ClassicPack p{};
+      p.dlc = 8;
+      for (auto [id, raw] : {std::pair{0x205u, -rpm}, std::pair{0x206u, rpm}})
+      {
+        p.id = id;
+        p.data[2] = uint8_t(uint16_t(int16_t(raw)) >> 8);
+        p.data[3] = uint8_t(uint16_t(int16_t(raw)) & 255);
+        shoot_bus.Emit(p);
+      }
+      CAN::ClassicPack t{};
+      t.id = 0x207;
+      t.dlc = 8;
+      can.Emit(t);
+    };
+    auto frames = [&](size_t from)
+    {
+      unsigned n = 0;
+      for (auto i = from; i < can.sent.size(); ++i) n += can.sent[i].id == 0x1FF;
+      return n;
+    };
+    launcher->GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    rc.launcher.isfire = true;  // OP开火命令经CMD每帧发布到launcher_cmd。
+    // 云台RELAX：停发射联锁，摩擦轮请求保留但不运行。
+    auto first = can.sent.size();
+    feed_shooter(0);
+    tick();
+    assert(frames(first) == 1);
+    assert(gimbal.GetState().stop_launcher && launcher->GetState().fric_request);
+    assert(!launcher->GetState().running);
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
+    feed_shooter(0);
+    tick();
+    assert(launcher->GetState().running && !launcher->GetState().spun_up);
+    for (unsigned i = 0; i < 3; ++i)
+    {
+      feed_shooter(Launcher::Param{}.initial_speed);
+      first = can.sent.size();
+      tick();
+      assert(frames(first) == 1);
+    }
+    assert(launcher->GetState().firing && launcher->GetState().trigger_current > 0);
+    const auto& frame = can.sent.back();
+    assert(frame.id == 0x1FF);
+    assert(int16_t((uint16_t(frame.data[4]) << 8) | frame.data[5]) ==
+           launcher->GetState().trigger_current);
+    // MOTIONLESS仍允许发射（同原车），RELAX撤销许可后拨弹立停。
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::MOTIONLESS));
+    feed_shooter(Launcher::Param{}.initial_speed);
+    tick();
+    assert(!gimbal.GetState().stop_launcher && launcher->GetState().firing);
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELAX));
+    feed_shooter(Launcher::Param{}.initial_speed);
+    tick();
+    assert(!launcher->GetState().running && launcher->GetState().trigger_current == 0);
   }
   else
     assert(false);

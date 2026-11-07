@@ -19,4 +19,5 @@ modules:
 - HFUT-WDR/PowerControl@same-or-dev
 - HFUT-WDR/DualYaw@same-or-dev
 - HFUT-WDR/Pitch@same-or-dev
+- HFUT-WDR/Launcher@same-or-dev
 - HFUT-WDR/Gimbal@same-or-dev

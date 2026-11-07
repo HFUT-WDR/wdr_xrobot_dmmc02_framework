@@ -352,7 +352,23 @@ int main()
   assert_zero(can.sent.back());
   refresh();
   task->Run(1);
-  assert_zero(can.sent.back());  // 恢复在线事件不自动启动。
+  // 同26_sentry：遥控恢复后按原模式请求自动继续，不需要重新拨杆。
+  assert(std::any_cast<State>(Topic::values.at("chassis_status")).mode == Mode::NO_FOLLOW_YAW);
+  assert(std::any_cast<State>(Topic::values.at("chassis_status")).current[0] != 0);
+  // 云台停底盘为电平许可：置位期间无力，撤销后自动继续。
+  {
+    GimbalFeedback stop{};
+    stop.yaw_relative_rad = .1;
+    stop.stop_chassis = true;
+    for (unsigned i = 0; i < 4; ++i) feed_can(can, 0x201 + i);
+    Topic::CreateTopic<GimbalFeedback>("gimbal_chassis_feedback").Publish(stop);
+    task->Run(1);
+    assert_zero(can.sent.back());
+    assert(std::any_cast<State>(Topic::values.at("chassis_status")).faults.gimbal_stop);
+    refresh();
+    task->Run(1);
+    assert(std::any_cast<State>(Topic::values.at("chassis_status")).mode == Mode::NO_FOLLOW_YAW);
+  }
   for (unsigned i = 0; i < 4; ++i) feed_can(can, 0x201 + i);
   chassis.GetEvent().Active(uint32_t(Mode::RAW));
   task->Run(1);
@@ -416,5 +432,5 @@ int main()
   assert(reversed.GetFeedbackCurrent() == 32768);
   puts(
       "PASS: real Chassis/CMD/RMMotor integration, no constructor TX, held angle snapshots, "
-      "motor expiry, RC loss, RAW guard, four-slot zero output");
+      "motor expiry, RC loss/auto-resume, gimbal stop gate, RAW guard, four-slot zero output");
 }

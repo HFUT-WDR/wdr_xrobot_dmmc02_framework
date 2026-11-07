@@ -210,6 +210,50 @@ int main()
   submit();
   assert(chassis_probe.mode == 0 && friction_edges == 1);
   assert(command.GetCtrlMode() == CMD::Mode::CMD_AUTO_CTRL);
+  // 保持事件：每个有效帧按当前档位重发，链路恢复后无需拨杆即回到该模式；
+  // 边沿类开关（摩擦轮）不因保持事件重复触发。
+  {
+    using Hold = I6x::SwitchHold;
+    using ChordHold = I6x::ChordHold;
+    ModeProbe hold_probe;
+    hold_probe.event.Register(0, [&](bool, uint32_t) { hold_probe.mode = 0; });
+    hold_probe.event.Register(1, [&](bool, uint32_t) { hold_probe.mode = 1; });
+    unsigned sw2_up_holds = 0;
+    receiver.GetEvent().Register(static_cast<uint32_t>(Hold::SW2_UP),
+                                 [&](bool, uint32_t) { ++sw2_up_holds; });
+    EventBinder hold_binder(
+        {{"i6x", receiver}, {"probe", hold_probe}},
+        {{{{"i6x", ChordHold::SW2_UP_SW3_UP, "probe", 1},
+           {"i6x", Chord::SW2_UP_SW3_UP_EXIT, "probe", 0}}}});
+    state.switches = {-1, 1, 1, 1};
+    submit();
+    assert(hold_probe.mode == 1 && sw2_up_holds == 1);
+    submit();
+    assert(hold_probe.mode == 1 && sw2_up_holds == 2);
+    hold_probe.mode = 0;  // 模拟断连期间被其他条件清除的模式请求。
+    state.online = false;
+    submit(false);
+    state.online = true;
+    submit();
+    assert(hold_probe.mode == 1 && sw2_up_holds == 3);
+    // 离线期间离开组合，恢复首帧仍补发EXIT，不残留进入状态。
+    state.online = false;
+    submit(false);
+    state.switches[3] = 0;
+    state.online = true;
+    submit();
+    assert(hold_probe.mode == 0);
+    // 坏帧/失控帧不发保持事件。
+    const unsigned before = sw2_up_holds;
+    state.failsafe = true;
+    submit();
+    state.failsafe = false;
+    state.frame_lost = true;
+    submit();
+    state.frame_lost = false;
+    assert(sw2_up_holds == before);
+    assert(friction_edges == 1);
+  }
   // 从两个独立事件分别设置来源；上位机数据过期跨计时回绕后仍归零。
   command.GetEvent().Active(static_cast<uint32_t>(CMD::Mode::CMD_AUTO_CTRL));
   LibXR::Timebase::now = UINT32_MAX - 20;

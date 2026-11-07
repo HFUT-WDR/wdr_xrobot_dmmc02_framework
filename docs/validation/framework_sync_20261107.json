@@ -1,0 +1,68 @@
+{
+  "date": "2026-11-07",
+  "scope": "Framework dependency integration, level-triggered mode recovery, optional launcher, snapshot consistency and regressions",
+  "base_commit": "86dbab1d1a0e9dc82fedffac4ef01fa6496b5a22",
+  "host_suites": {
+    "launcher": "passed",
+    "gimbal": "passed",
+    "chassis": "passed",
+    "i6x": "passed",
+    "power": "passed",
+    "imu": "passed",
+    "control_algorithms": "passed"
+  },
+  "default_firmware": {
+    "config": "User/xrobot.yaml",
+    "Debug": "passed",
+    "Release": "passed",
+    "external_module_constructor_checks": "passed, including Launcher"
+  },
+  "combined_firmware_link": "passed: chassis, power, gimbal, launcher and stop interlocks",
+  "frozen_offline_restore": {
+    "result": "passed",
+    "wdr_bundles": 19,
+    "locked_modules": 23
+  },
+  "remote_dependencies": "All 19 WDR locked commits and ModuleIndex commit verified as ancestors of, or equal to, their remote dev branch",
+  "wdr_locked_commits": {
+    "HFUT-WDR/BoardAttitude": "a676aa3fe4172c4242b84b6049f031f3bedf5078",
+    "HFUT-WDR/CMD": "731e7fbcdbe0872d7b76184c1f84d8980e748e6a",
+    "HFUT-WDR/Chassis": "b0a7f1d2296515b15b9ad748e29e46388c407505",
+    "HFUT-WDR/ControlAlgorithms": "4debdf2f8cf83d78b65f2811389d31a48a016015",
+    "HFUT-WDR/DMMotor": "88f58cd835bca3cd5ff479b54a5c58881fc401bd",
+    "HFUT-WDR/DR16": "eb469c4ce5ec186e1de6f7cf131c23ba9821f127",
+    "HFUT-WDR/DmImu": "5c339d8756618d8b350cb2829b0870efce7c1b2e",
+    "HFUT-WDR/DualYaw": "aecfd04be7f99f94de7b141e5a2f504438cccdb1",
+    "HFUT-WDR/EventBinder": "a5e8a657b0491d59c208c7565d451dead0eb4ea1",
+    "HFUT-WDR/Gimbal": "add821db3fa5d29f0e720036c74ef9dd79ad1db5",
+    "HFUT-WDR/HostData": "40f03d444d5716f92b79ad47153970931177b0c1",
+    "HFUT-WDR/I6x": "c42cd1780d55a29535e7d369d9676c85803df0ea",
+    "HFUT-WDR/ImuFusion": "0508508870af35a4471934919853b76f369a2150",
+    "HFUT-WDR/Launcher": "c7baaba29a7d63ce07bc260256cf5413f420d3b3",
+    "HFUT-WDR/Motor": "a31e7437ae45b34a8d52c5a74663fd80d95ab763",
+    "HFUT-WDR/Pitch": "49c64bb6e772839a11906c70cd9a939be98d0fba",
+    "HFUT-WDR/PowerControl": "f6a94a9dc4d09e9e77f0801b578933ec4e812c1f",
+    "HFUT-WDR/RMMotor": "6ae46d5fa5ca956d24833488cb5ebeca54ecdbd4",
+    "HFUT-WDR/Referee": "4e8e7fae5c46e87639d1c2e221175ec335bc0807"
+  },
+  "hardware_validation": {
+    "flashed": false,
+    "device_communication": false,
+    "mechanism_closed_loop": false
+  },
+  "commands": [
+    "python tests/launcher/run_tests.py",
+    "python tests/gimbal/run_tests.py",
+    "python tests/chassis/run_tests.py",
+    "python tests/i6x/run_tests.py",
+    "python tests/power/run_tests.py",
+    "python tests/imu/run_tests.py",
+    "python tests/control_algorithms/run_tests.py",
+    "python tools/check_module_snapshots.py",
+    "cmake --preset Debug",
+    "cmake --build --preset Debug -j4",
+    "cmake --preset Release",
+    "cmake --build --preset Release -j4",
+    "python tests/gimbal/run_firmware_link.py --combined"
+  ]
+}

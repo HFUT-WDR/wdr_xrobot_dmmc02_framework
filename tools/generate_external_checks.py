@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 MODULES = [f"HFUT-WDR/{name}" for name in
            ("CMD", "RMMotor", "DMMotor", "DR16", "Referee", "HostData")]
 MODULES += [f"xrobot-org/{name}" for name in ("SharedTopic", "SharedTopicClient")]
-MODULES += ["HFUT-WDR/I6x", "HFUT-WDR/EventBinder", "HFUT-WDR/BoardAttitude", "HFUT-WDR/DmImu", "HFUT-WDR/Chassis", "HFUT-WDR/PowerControl", "HFUT-WDR/DualYaw", "HFUT-WDR/Pitch", "HFUT-WDR/Gimbal"]
+MODULES += ["HFUT-WDR/I6x", "HFUT-WDR/EventBinder", "HFUT-WDR/BoardAttitude", "HFUT-WDR/DmImu", "HFUT-WDR/Chassis", "HFUT-WDR/PowerControl", "HFUT-WDR/DualYaw", "HFUT-WDR/Pitch", "HFUT-WDR/Launcher", "HFUT-WDR/Gimbal"]
 
 
 def run(*args, cwd=ROOT):
