@@ -1,0 +1,157 @@
+{
+  "date": "2026-11-07",
+  "scope": "Reuse existing named constants, centralize fixed protocol definitions, expose control parameters with unchanged defaults",
+  "modules": [
+    {
+      "repository": "BoardAttitude",
+      "conclusion": "success",
+      "databaseId": 42349640749,
+      "headSha": "a676aa3fe4172c4242b84b6049f031f3bedf5078",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/BoardAttitude/actions/runs/42349640749"
+    },
+    {
+      "repository": "CMD",
+      "conclusion": "success",
+      "databaseId": 42349626560,
+      "headSha": "731e7fbcdbe0872d7b76184c1f84d8980e748e6a",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/CMD/actions/runs/42349626560"
+    },
+    {
+      "repository": "Chassis",
+      "conclusion": "success",
+      "databaseId": 42349654144,
+      "headSha": "0efd7e03ef6d0224b0da6ed5d50d995381f5fc02",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Chassis/actions/runs/42349654144"
+    },
+    {
+      "repository": "ControlAlgorithms",
+      "conclusion": "success",
+      "databaseId": 42349625956,
+      "headSha": "4debdf2f8cf83d78b65f2811389d31a48a016015",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/ControlAlgorithms/actions/runs/42349625956"
+    },
+    {
+      "repository": "DMMotor",
+      "conclusion": "success",
+      "databaseId": 42349636799,
+      "headSha": "88f58cd835bca3cd5ff479b54a5c58881fc401bd",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/DMMotor/actions/runs/42349636799"
+    },
+    {
+      "repository": "DR16",
+      "conclusion": "success",
+      "databaseId": 42349633241,
+      "headSha": "eb469c4ce5ec186e1de6f7cf131c23ba9821f127",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/DR16/actions/runs/42349633241"
+    },
+    {
+      "repository": "DmImu",
+      "conclusion": "success",
+      "databaseId": 42349639533,
+      "headSha": "5c339d8756618d8b350cb2829b0870efce7c1b2e",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/DmImu/actions/runs/42349639533"
+    },
+    {
+      "repository": "DualYaw",
+      "conclusion": "success",
+      "databaseId": 42349653339,
+      "headSha": "83926aa23237286af2c518d62dc30db65d7ba95b",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/DualYaw/actions/runs/42349653339"
+    },
+    {
+      "repository": "Gimbal",
+      "conclusion": "success",
+      "databaseId": 42349772026,
+      "headSha": "9633704b2566e2bc0c34440bb6ebfa560e2bfe1d",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Gimbal/actions/runs/42349772026"
+    },
+    {
+      "repository": "I6x",
+      "conclusion": "success",
+      "databaseId": 42349633242,
+      "headSha": "63cbbc15698e2f85c2ca32c58fd855227af5b680",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/I6x/actions/runs/42349633242"
+    },
+    {
+      "repository": "ImuFusion",
+      "conclusion": "success",
+      "databaseId": 42349626282,
+      "headSha": "0508508870af35a4471934919853b76f369a2150",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/ImuFusion/actions/runs/42349626282"
+    },
+    {
+      "repository": "Motor",
+      "conclusion": "success",
+      "databaseId": 42349626315,
+      "headSha": "a31e7437ae45b34a8d52c5a74663fd80d95ab763",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Motor/actions/runs/42349626315"
+    },
+    {
+      "repository": "Pitch",
+      "conclusion": "success",
+      "databaseId": 42349653115,
+      "headSha": "49c64bb6e772839a11906c70cd9a939be98d0fba",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Pitch/actions/runs/42349653115"
+    },
+    {
+      "repository": "PowerControl",
+      "conclusion": "success",
+      "databaseId": 42349646290,
+      "headSha": "f6a94a9dc4d09e9e77f0801b578933ec4e812c1f",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/PowerControl/actions/runs/42349646290"
+    },
+    {
+      "repository": "RMMotor",
+      "conclusion": "success",
+      "databaseId": 42349632979,
+      "headSha": "19e2a6d74b2121cd5c6384e333fb9996755b1ced",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/RMMotor/actions/runs/42349632979"
+    },
+    {
+      "repository": "Referee",
+      "conclusion": "success",
+      "databaseId": 42349640839,
+      "headSha": "4e8e7fae5c46e87639d1c2e221175ec335bc0807",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Referee/actions/runs/42349640839"
+    }
+  ],
+  "bsp": {
+    "conclusion": "success",
+    "databaseId": 42349797785,
+    "headSha": "3ff156e50fbdffb8628daa2a5dd5ae84c20c52c4",
+    "status": "completed",
+    "url": "https://github.com/HFUT-WDR/wdr_xrobot_dmmc02_framework/actions/runs/42349797785"
+  },
+  "local_checks": {
+    "host_suites": [
+      "imu",
+      "gimbal",
+      "chassis",
+      "i6x",
+      "control_algorithms",
+      "power"
+    ],
+    "Debug": "passed",
+    "Release": "passed",
+    "combined_firmware_link": "gimbal/chassis/power/interlock passed",
+    "frozen_offline_restore": "18 snapshots, 22 modules passed"
+  },
+  "unchanged": "Default numerical values, operation order, host messages, vendor code and frozen reference sources",
+  "hardware_validation": "Not flashed or tested against physical devices in this change."
+}
