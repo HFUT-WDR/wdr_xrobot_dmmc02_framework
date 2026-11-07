@@ -1,7 +1,7 @@
 xrobot: 1.0.1
 modules:
-- xrobot-org/BuzzerAlarm@same-or-dev
-- xrobot-org/BMI088@e4e64d705f5b61685e629a91e123ad2febe75fc7
+- HFUT-WDR/BuzzerAlarm@same-or-dev
+- HFUT-WDR/BMI088@same-or-dev
 - xrobot-org/SharedTopic@same-or-dev
 - xrobot-org/SharedTopicClient@same-or-dev
 - HFUT-WDR/CMD@same-or-dev

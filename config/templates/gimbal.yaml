@@ -347,6 +347,7 @@ modules:
   - task_stack_depth: 4096
   - thread_priority: LibXR::Thread::Priority::MEDIUM
   - launcher: '&launcher'
+  - calibration_buzzer: '&buzzer'
 - module: HFUT-WDR/EventBinder
   id: gimbal_mode_events
   args:

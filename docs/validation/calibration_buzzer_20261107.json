@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-07",
+  "scope": "Migrate BMI088 and BuzzerAlarm to the HFUT-WDR namespace and add intermittent calibration buzzer prompts to BMI088 and Gimbal",
+  "migration": {
+    "bmi088": {
+      "from": "xrobot-org/BMI088@e4e64d705f5b61685e629a91e123ad2febe75fc7",
+      "to": "HFUT-WDR/BMI088",
+      "dev_commit": "83f6f52dd5a96e47df027a2ad078693dd87a25c1",
+      "bundle": "module_sources/HFUT-WDR/BMI088.bundle"
+    },
+    "buzzer_alarm": {
+      "from": "xrobot-org/BuzzerAlarm@a7c17cf7b1d10409848c32bd420cb393515e7f27",
+      "to": "HFUT-WDR/BuzzerAlarm",
+      "dev_commit": "0068ba8a216f8a31d55d210828d8cf4fe50f74bb",
+      "bundle": "module_sources/HFUT-WDR/BuzzerAlarm.bundle"
+    },
+    "gimbal": {
+      "id": "HFUT-WDR/Gimbal",
+      "dev_commit": "087b3130fd32acaf6521459354644bcc0bfed8e8",
+      "bundle": "module_sources/HFUT-WDR/Gimbal.bundle",
+      "lock_source": "local bundle until the commit is pushed to HFUT-WDR/Gimbal"
+    },
+    "history_and_license": "Upstream history and LICENSE preserved; UPSTREAM.md added to both migrated repositories",
+    "lock": "modules.yaml, module_sources/HFUT-WDR/index.yaml and xrobot.lock updated; old Modules/xrobot-org copies moved to .cache/retired_modules"
+  },
+  "module_changes": {
+    "BuzzerAlarm": "Added non-blocking StartTone(freq, duty) / StopTone(); Play(freq, duration, duty) keeps the original 0.005 default duty for the startup tune and fatal alarm",
+    "BMI088": "Optional BuzzerAlarm* buzzer; bmi088 cali beeps at start, every 3 s during sampling, every 1 s during the quality check (800 Hz/4%, 80 ms), and three times at completion",
+    "Gimbal": "Optional BuzzerAlarm* calibration_buzzer at the end of the constructor; CALI beeps every 2 s (800 Hz/4%, 80 ms), scheduled without blocking the 1 ms control thread, and stops on completion, failure or exit"
+  },
+  "checks": {
+    "offline_setup": "PASS: 21 modules resolved",
+    "snapshot_restore": "PASS: 19 snapshots, 21-module frozen offline setup",
+    "default_Debug": "PASS",
+    "default_Release": "PASS",
+    "sentry_remote_Debug": "PASS",
+    "sentry_remote_Release": "PASS",
+    "host_suites": [
+      "board_support",
+      "imu",
+      "gimbal",
+      "chassis",
+      "control_algorithms",
+      "i6x",
+      "launcher",
+      "power",
+      "external_modules"
+    ],
+    "host_notes": "Added tests/gimbal/stubs/BuzzerAlarm.hpp; external module isolation now expects the HFUT-WDR module ids",
+    "firmware_sizes": {
+      "default_debug_text": 184512,
+      "default_release_text": 174604
+    }
+  },
+  "hardware": {
+    "profile": "User/xrobot.yaml",
+    "preset": "Debug",
+    "probe": "SEGGER J-Link V9 via OpenOCD 0.12.0",
+    "flash_verify": "passed",
+    "buzzer_pwm": "TIM12 CH2 CC2E enabled; CCR2/ARR matched the configured duty during the continuous-tone iterations and the final intermittent 800 Hz/4% beeps",
+    "calibration_run": "bmi088 cali completed, offset saved and printed as {0.004970, -0.003222, -0.002206} rad/s",
+    "reset_load": "After reset bmi088 list_offset returned the same offset, confirming flash load",
+    "note": "The board may have been disturbed during the calibration run; the value verifies the read/write path, not the final zero offset"
+  },
+  "unverified": [
+    "Gimbal CALI buzzer prompts not tested on hardware; requires motors and the mechanism",
+    "Final tone frequency, duty and intervals await operator acceptance",
+    "Sound pressure level not measured",
+    "HFUT-WDR/BMI088 and HFUT-WDR/BuzzerAlarm GitHub repositories not created or pushed; ModuleIndex not updated",
+    "HFUT-WDR/Gimbal commit not pushed; lock temporarily uses the local bundle",
+    "Cold power-loss during calibration not tested"
+  ]
+}

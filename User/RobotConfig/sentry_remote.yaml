@@ -1,16 +1,16 @@
 # 26_sentry整车遥控配置：直接实例化底盘、云台和发射，不接入上位机通信。
 # Pitch使用DM4310电机零位，软件zero=0；Yaw通过CALI校准获取编码器零位。
 # SW1下+SW3上保持触发Yaw校准；完成后该组合下保持RELAX，退出后恢复当前SW2模式。
-# Yaw校准结果仅存RAM，重启后重新校准；不发送电机设零命令。
+# Yaw校准结果写入Flash数据库，重启后自动加载；不发送电机设零命令。
 modules:
-  - module: xrobot-org/BuzzerAlarm
+  - module: HFUT-WDR/BuzzerAlarm
     id: buzzer
     args:
       - pwm: pwm_tim12_ch2
       - alarm_freq: 1500
       - alarm_duration: 300
       - alarm_delay: 300
-  - module: xrobot-org/BMI088
+  - module: HFUT-WDR/BMI088
     id: imu
     args:
       - accl_cs: ACC_CS
@@ -20,6 +20,7 @@ modules:
       - heater_pwm: pwm_tim3_ch4
       - database: database
       - ramfs: ramfs
+      - buzzer: '&buzzer'
       - param:
           gyro_freq: BMI088::GyroFreq::GYRO_1000HZ_BW116HZ
           accl_freq: BMI088::AcclFreq::ACCL_1600HZ
@@ -514,6 +515,7 @@ modules:
       - task_stack_depth: 4096
       - thread_priority: LibXR::Thread::Priority::MEDIUM
       - launcher: '&launcher'
+      - calibration_buzzer: '&buzzer'
   - module: HFUT-WDR/EventBinder
     id: gimbal_mode_events
     args:

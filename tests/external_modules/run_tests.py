@@ -39,7 +39,7 @@ if selected == "User/RobotConfig/sentry_remote.yaml":
 
 # 板级配置仍保持隔离；整车启用由独立完整配置声明。
 assert {m["module"] for m in config["modules"]} == {
-    "xrobot-org/BuzzerAlarm", "xrobot-org/BMI088", "HFUT-WDR/BoardAttitude"}, "Unexpected default activation"
+    "HFUT-WDR/BuzzerAlarm", "HFUT-WDR/BMI088", "HFUT-WDR/BoardAttitude"}, "Unexpected default activation"
 for name in ("RMMotor", "DMMotor", "DR16", "Referee", "HostData", "CMD",
              "SharedTopic", "SharedTopicClient", "I6x", "EventBinder", "DmImu", "Chassis", "PowerControl", "DualYaw", "Pitch", "Gimbal"):
     assert name + "::" not in symbols, f"Inactive module linked into firmware: {name}"

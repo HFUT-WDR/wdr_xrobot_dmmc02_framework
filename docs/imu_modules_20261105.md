@@ -9,7 +9,7 @@
 
 | 模块 | 职责 | 默认实例 |
 | --- | --- | --- |
-| xrobot-org/BMI088 | SPI采样、传感器零偏；原始accel(g)/gyro(rad/s) Topic | 已有 |
+| HFUT-WDR/BMI088 | SPI采样、传感器零偏；原始accel(g)/gyro(rad/s) Topic | 已有 |
 | YunMo-yanyu/ImuFusion | 公共算法、强类型数据、DM协议与流组帧；无线程 | 依赖 |
 | YunMo-yanyu/BoardAttitude | 同一采样时间戳配对，g→m/s²，安装变换、板载EKF和在线Z零偏 | 默认启动 |
 | YunMo-yanyu/DmImu | RS485连续流解析、DM专用EKF、发布姿态 | 仅独立配置 |

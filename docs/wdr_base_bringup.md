@@ -9,6 +9,8 @@
 - LibXR 子模块 `5161373dbe6d9d9fb1904d90e0ebd4344a44047a`，保持上游基线。
 - 生成器 6.0.1，XRobot 1.0.1。
 - `xrobot.lock` 锁定首个模块 BuzzerAlarm：`a7c17cf7b1d10409848c32bd420cb393515e7f27`。
+
+> 2026-11-07 更新：BuzzerAlarm 与 BMI088 已迁移到 HFUT-WDR 自维护，见[xrobot-org 模块迁移](module_migration_20261107.md)。
 - 旧 WDR 工程没有被覆盖。本工程直接继承 MC02 基座的引脚和板级资源组织，包括 USART2/3 RS485、更多 PWM 和 SPI6 BDMA；这些外设的接线和实际功能仍需逐项验收。
 
 ## 必要适配

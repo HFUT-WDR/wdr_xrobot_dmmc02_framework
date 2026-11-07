@@ -1,7 +1,13 @@
 namespace: HFUT-WDR
 modules:
+- id: HFUT-WDR/BMI088
+  repo: ./BMI088.bundle
+  status: community
 - id: HFUT-WDR/BoardAttitude
   repo: ./BoardAttitude.bundle
+  status: community
+- id: HFUT-WDR/BuzzerAlarm
+  repo: ./BuzzerAlarm.bundle
   status: community
 - id: HFUT-WDR/CMD
   repo: ./CMD.bundle
