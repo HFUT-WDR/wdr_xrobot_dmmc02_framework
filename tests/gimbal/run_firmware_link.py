@@ -35,5 +35,5 @@ with tempfile.TemporaryDirectory(prefix='wdr-full-gimbal-') as temp:
   for command in [['xrobot','gen','-c','User/full.yaml','--no-line-directives'],['cmake','--preset','Debug'],['cmake','--build','--preset','Debug','-j4','--target','wdr_xrobot_dmmc02_framework']]:
    subprocess.run(command,cwd=stage,stdout=out,stderr=subprocess.STDOUT,check=True)
   symbols=subprocess.check_output(['arm-none-eabi-nm','-C',str(stage/'build/Debug/wdr_xrobot_dmmc02_framework.elf')],text=True)
-  for name in ['Gimbal::Tick','DualYaw::ControlLoop','Pitch::ControlLoop']+(['Chassis<wdr_chassis::Control>','PowerControl::Calculate'] if args.combined else []):assert name in symbols,name
+  for name in ['Gimbal::ThreadFunc','DualYaw::ControlLoop','Pitch::ControlLoop']+(['Chassis<wdr_chassis::Control>','PowerControl::Calculate'] if args.combined else []):assert name in symbols,name
  print('PASS: full gimbal'+(' + chassis/power/interlock' if args.combined else '')+' firmware linked; no flash')

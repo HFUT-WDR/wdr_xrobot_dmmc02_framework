@@ -4,6 +4,7 @@
 
 #include "Gimbal.hpp"
 #include "HostData.hpp"
+#include "thread_step.hpp"
 
 using namespace LibXR;
 static void near(float actual, float expected, float tolerance = 1e-4f)
@@ -50,6 +51,7 @@ int main(int argc, char** argv)
   Gimbal::Param param;
   if (scenario == "late_stop") param.init_hold_ms = 0;
   Gimbal gimbal(yaw, pitch, cmd, param);
+  auto& task = *Thread::threads.back();
   HostData host(cmd);
   CMD::Data rc{};
   rc.input_online = true;
@@ -71,10 +73,10 @@ int main(int argc, char** argv)
   {
     Timebase::now += 1000;
     fresh(with_pitch);
-    gimbal.Tick();
+    run_thread_once(task);
   };
   fresh();
-  gimbal.Tick();
+  run_thread_once(task);
   if (scenario == "late_stop")
   {
     gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::INIT));
@@ -86,7 +88,7 @@ int main(int argc, char** argv)
       fired = true;
       gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELAX));
     };
-    gimbal.Tick();
+    run_thread_once(task);
     assert(fired);
     assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
     assert(can.sent.back().data[7] == 0xFD);
@@ -159,7 +161,7 @@ int main(int argc, char** argv)
   {
     attitude.pitch = .2f;
     fresh();
-    gimbal.Tick();
+    run_thread_once(task);
     pitch.SetPath(Pitch::Path::REMOTE_CONTROL);
     pitch.SetRelative(0);
     pitch.ControlLoop(.001f);
@@ -177,7 +179,7 @@ int main(int argc, char** argv)
       // 机械角居中，倾斜底座使惯性目标对应到机械范围之外。
       attitude.pitch = -sign;
       fresh();
-      gimbal.Tick();
+      run_thread_once(task);
       pitch.SetPath(Pitch::Path::RELAX);
       pitch.SetPath(scenario == "scan_limits" ? Pitch::Path::SCAN : Pitch::Path::AIM);
       pitch.SetAbsolute(sign * .5f, sign * 2, sign * 3);
@@ -201,7 +203,7 @@ int main(int argc, char** argv)
     {
       attitude.pitch = -sign * .2f;
       fresh();
-      gimbal.Tick();
+      run_thread_once(task);
       pitch.SetPath(Pitch::Path::AIM);
       const float mechanical = sign < 0 ? pitch_param.minimum : pitch_param.maximum;
       const float target = attitude.pitch + mechanical - pitch.GetState().relative;

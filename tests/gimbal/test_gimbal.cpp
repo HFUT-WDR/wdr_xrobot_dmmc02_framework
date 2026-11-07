@@ -3,6 +3,7 @@
 
 #include "Gimbal.hpp"
 #include "HostData.hpp"
+#include "thread_step.hpp"
 #include "reference_api.h"
 using namespace LibXR;
 static void near(float a, float b, float tolerance = 1e-4f)
@@ -87,6 +88,7 @@ int main()
   gp.calibration_hold_ms = 2;
   gp.init_hold_ms = 3;
   Gimbal gimbal(yaw, pitch, cmd, gp);
+  auto& task = *Thread::threads.back();
   assert(can.sent.empty());
   assert(Thread::threads.size() == 1);
   auto refresh = [&](uint16_t a = 0, uint16_t b = 0)
@@ -103,13 +105,13 @@ int main()
   rc.input_online = true;
   cmd.FeedRC(rc);
   refresh();
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   assert(can.sent.back().data[7] == 0xFD);
   gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
   Timebase::now += 1000;
   refresh();
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::ABSOLUTE_ANGLE);
   near(dm.GetAngle(), 6.283185f / 65535, 2e-6f);  // 无符号位置解码覆盖半圈分界。
   CMD::Data ai{};
@@ -120,30 +122,30 @@ int main()
   gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::AUTO));
   Timebase::now += 1000;
   refresh();
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   assert(gimbal.GetState().waiting_for_source);
   cmd.FeedAI(CMD::Channel::GIMBAL, ai);
   Timebase::now += 1000;
   refresh();
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
   for (unsigned i = 0; i < 100; ++i)
   {
     Timebase::now += 1000;
     refresh();
-    gimbal.Tick();
+    run_thread_once(task);
   }
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   cmd.FeedAI(CMD::Channel::GIMBAL, ai);
   Timebase::now += 1000;
   refresh();
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);  // 有效指令恢复不自启。
   gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::AUTO));
   Timebase::now += 1000;
   refresh();
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
   inner.SetVoltage(30000);
   outer.SetVoltage(-30000);
@@ -154,13 +156,13 @@ int main()
   cmd.FeedRC(rc);
   Timebase::now += 1000;
   refresh();
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   rc.input_online = true;
   cmd.FeedRC(rc);
   Timebase::now += 1000;
   refresh();
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
 
   // 完整双yaw端点扫描；结果更新零位/限位，不发送电机设零帧。
@@ -173,7 +175,7 @@ int main()
     {
       Timebase::now += 1000;
       refresh(a, b);
-      gimbal.Tick();
+      run_thread_once(task);
     }
   }
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
@@ -185,41 +187,41 @@ int main()
   cmd.FeedRC(rc);
   Timebase::now += 1000;
   refresh(8096, 4);
-  gimbal.Tick();
+  run_thread_once(task);
   for (auto mode :
        {Gimbal::Mode::RELATIVE_ANGLE, Gimbal::Mode::MOTIONLESS, Gimbal::Mode::INIT})
   {
     gimbal.GetEvent().Active(uint32_t(mode));
     Timebase::now += 1000;
     refresh(8096, 4);
-    gimbal.Tick();
+    run_thread_once(task);
     assert(gimbal.GetState().mode == mode);
   }
   for (unsigned i = 0; i < 4; ++i)
   {
     Timebase::now += 1000;
     refresh(8096, 4);
-    gimbal.Tick();
+    run_thread_once(task);
   }
   assert(gimbal.GetState().mode == Gimbal::Mode::ABSOLUTE_ANGLE);
   gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELAX));
   Timebase::now += 1000;
   refresh(8096, 4);
-  gimbal.Tick();
+  run_thread_once(task);
   cmd.GetEvent().Active(uint32_t(CMD::Mode::CMD_AUTO_CTRL));
   ai.gimbal.auto_mode = CMD::GimbalAutoMode::SCAN;
   cmd.FeedAI(CMD::Channel::GIMBAL, ai);
   gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::AUTO));
   Timebase::now += 1000;
   refresh(8096, 4);
-  gimbal.Tick();
+  run_thread_once(task);
   assert(yaw.GetState().path == DualYaw::Path::SCAN);
   assert(pitch.GetState().path == Pitch::Path::SCAN);
   ai.gimbal.auto_mode = CMD::GimbalAutoMode::STOP;
   cmd.FeedAI(CMD::Channel::GIMBAL, ai);
   Timebase::now += 1000;
   refresh(8096, 4);
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
 
   ai.gimbal.auto_mode = CMD::GimbalAutoMode::AIM;
@@ -228,7 +230,7 @@ int main()
   gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::AUTO));
   Timebase::now += 1000;
   refresh(8096, 4);
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
   assert(yaw.GetState().path == DualYaw::Path::SMALL_FIRST);
   assert(pitch.GetState().path == Pitch::Path::AIM);
@@ -236,7 +238,7 @@ int main()
   Timebase::now += 11000;
   can.Emit(yaw_pack(0x205, 8096));
   can.Emit(pitch_pack());
-  gimbal.Tick();
+  run_thread_once(task);
   assert(gimbal.GetState().motor_lost);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   DualYaw::Param planning_param{};

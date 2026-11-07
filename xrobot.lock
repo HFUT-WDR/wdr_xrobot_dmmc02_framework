@@ -111,7 +111,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 4dcfcda963d829103b1f50cf281bd8fbd6159091
+    commit: 67ef03900aa1d8aa877bd0a924b4df60260a04ff
   HFUT-WDR/HostData:
     repo: https://github.com/HFUT-WDR/HostData.git
     source: ModuleIndex/index.yaml
