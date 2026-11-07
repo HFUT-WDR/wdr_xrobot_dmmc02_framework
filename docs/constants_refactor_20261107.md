@@ -32,3 +32,5 @@ Pitch增加积分区间、复位阈值、积分限幅、换向衰减和扫描阻
 ## 电机常量命名补充
 
 原MOTOR_ENC_RES改为RM_MOTOR_ENC_RES，表示M2006/M3508/GM6020共用的8192计数/圈；原MOTOR_CUR_RES改为RM_MOTOR_CUR_FEEDBACK_RES，明确16384用于电流反馈换算。底盘控制指令归一化单独复用M3508_MAX_ABS_LSB。所有引用同步更新，数值与运算顺序保持不变。
+
+本次命名补充的云台/底盘主机回归、Debug编译、云台与底盘组合固件链接和冻结离线恢复通过，三个模块CI通过；BSP CI已触发，记录时仍在队列中。见[命名补充验证记录](validation/motor_constant_names_20261107.json)。未烧录或验证机构闭环。
