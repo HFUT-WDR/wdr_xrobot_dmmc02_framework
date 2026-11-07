@@ -3,11 +3,13 @@
 #include "app_main.h"
 
 #include "cdc_uart.hpp"
+#include "flash_map.hpp"
 #include "libxr.hpp"
 #include "main.h"
 #include "stm32_adc.hpp"
 #include "stm32_canfd.hpp"
 #include "stm32_dac.hpp"
+#include "stm32_flash.hpp"
 #include "stm32_gpio.hpp"
 #include "stm32_power.hpp"
 #include "stm32_pwm.hpp"
@@ -170,6 +172,10 @@ extern "C" void app_main(void)
   term_thread.Create(&terminal, terminal.ThreadFun, "terminal", 2048,
                      Thread::Priority::MEDIUM);
 
+  // Flash and database
+  static STM32Flash flash(FLASH_REGIONS, FLASH_REGION_NUMBER);
+  static DatabaseRaw<STM32Flash::MIN_WRITE_SIZE> database(flash);
+
   // Hardware registration
   XR_REGISTER(power_manager, LibXR::PowerManager);
 
@@ -223,6 +229,8 @@ extern "C" void app_main(void)
   XR_REGISTER(ramfs, LibXR::RamFS);
 
   XR_REGISTER(terminal, LibXR::Terminal<32, 32, 5, 5>);
+
+  XR_REGISTER(database, LibXR::Database);
 
   /* User Code Begin 3 */
   static ImuRamDatabase imu_ram_database;

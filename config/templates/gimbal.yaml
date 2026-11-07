@@ -1,6 +1,6 @@
 # 云台增量模板；Yaw编码器零位通过CALI校准，Pitch使用DM4310电机零位。
 # 电机CAN3、yaw 0x205/0x206电压模式、pitch 0x03/0x13且±12.5rad取自原车。
-# database=nullptr不持久化；注入实际持久化Database后保存标定结果。
+# 标定结果写入Flash数据库database；未注册database时改回nullptr，结果仅在本次上电有效。
 modules:
 - module: HFUT-WDR/CMD
   id: cmd
@@ -335,7 +335,7 @@ modules:
           integral_limit: 0
           output_limit: 10
           integral_zone: 0
-  - calibration_database: nullptr
+  - calibration_database: '&database'
   - calibration_key: '"gimbal_yaw_calibration"'
   - command_topic_name: '"gimbal_cmd"'
   - board_topic_name: '"board_attitude"'

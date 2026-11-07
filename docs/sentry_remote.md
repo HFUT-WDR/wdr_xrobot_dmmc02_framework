@@ -20,7 +20,7 @@ cmake --build --preset Release -j4
 
 - Pitch：DM4310 电机自身提供零位。`gimbal.param.pitch.zero=0` 表示不再叠加软件偏移，位置反馈直接使用电机坐标；归中目标使用该电机零位。不增加Pitch端点扫描，不发送电机设零命令。
 - Yaw：两个编码器零位通过现有 `Gimbal::Mode::CALI` 获取，校准过程同时更新零位和机械相对角限位。YAML中的初始值不视为已完成机械校准。
-- `database=nullptr`：Yaw校准结果在本次上电期间生效，重启后重新校准；本次不新增Flash存储功能。
+- `database`：Yaw校准结果通过 Flash 数据库的 `gimbal_yaw_calibration` 键保存，上电自动加载；写入成功时 `gimbal_status.calibration_saved` 为 true。存储布局和未验证项见[Flash 数据库与标定持久化](flash_database_20261107.md)。
 
 ## 遥控绑定
 

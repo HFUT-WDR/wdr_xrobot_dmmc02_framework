@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-07",
+  "scope": "Enable the LibXR internal flash database and persist BMI088 gyro zero offset and gimbal yaw calibration across resets",
+  "profiles": [
+    "User/xrobot.yaml",
+    "User/RobotConfig/sentry_remote.yaml"
+  ],
+  "changes": {
+    "linker": "STM32H723xG_flash.ld FLASH length 1024K -> 768K; last two 128 KB sectors 0x080C0000-0x080FFFFF reserved for DatabaseRaw main/backup blocks and protected by a linker ASSERT",
+    "generator": "User/libxr_config.yaml database.enable=false -> true, block_size=32 -> auto; regenerated User/app_main.cpp with STM32Flash and DatabaseRaw<STM32Flash::MIN_WRITE_SIZE> registered as database",
+    "wiring": "BMI088 database argument imu_ram_database -> database in both profiles; sentry_remote Gimbal calibration_database nullptr -> &database; gimbal template updated",
+    "kept": "User/imu_ram_database.hpp and its host regression remain as the RAM-only fallback backend"
+  },
+  "flash_layout": {
+    "sector_table": "0x08000000, 8 x 128 KB",
+    "main_block": "0x080C0000-0x080DFFFF",
+    "backup_block": "0x080E0000-0x080FFFFF",
+    "min_write_size_bytes": 32,
+    "firmware_limit": "0x080C0000",
+    "highest_allocated_section_debug": "0x0803DFA8 (.data LMA end)"
+  },
+  "checks": {
+    "default_Debug": "PASS",
+    "default_Release": "PASS",
+    "sentry_remote_Debug": "PASS",
+    "sentry_remote_Release": "PASS",
+    "host_suites": [
+      "board_support",
+      "imu",
+      "gimbal",
+      "chassis",
+      "control_algorithms",
+      "i6x",
+      "launcher",
+      "power",
+      "external_modules"
+    ],
+    "elf_size_debug": {
+      "text": 253212,
+      "data": 600,
+      "bss": 137728
+    },
+    "elf_size_release": {
+      "text": 244952,
+      "data": 596,
+      "bss": 137736
+    },
+    "flash_regions_contents": "0x08000000, 0x00020000, 8",
+    "generated_config_selected": "User/RobotConfig/sentry_remote.yaml"
+  },
+  "unverified": [
+    "Not flashed and not tested on hardware",
+    "First-boot key creation, real CALI save/load, and power-loss recovery not exercised on target",
+    "Flash sector erase/program blocking time with FreeRTOS tasks not measured",
+    "CubeMX regeneration may overwrite the 768K linker limit; must be rechecked after regenerating",
+    "BMI088 cali ignores the Database Set return value and prints success unconditionally"
+  ]
+}

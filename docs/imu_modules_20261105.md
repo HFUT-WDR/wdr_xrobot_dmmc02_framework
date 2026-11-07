@@ -79,4 +79,6 @@ User/xrobot_imu.yaml只实例化一颗DM，启用需执行 `xrobot gen -c User/x
 本次未烧录，新模块启动、线程栈余量、4Mbps连续接收、姿态实际轴向与温控/零偏标定均未板测。
 当前BMI088零偏仍使用RAM数据库，持久校准与恢复在后续校准阶段接入，不宣称已完成。
 
+> 2026-11-07 更新：BMI088 零偏已改由内部 Flash 数据库保存，见[Flash 数据库与标定持久化](flash_database_20261107.md)；本文其余板测结论对应 2026-11-05 的 RAM 配置。
+
 > 2026-11-06 清理更新：本文中的多份独立 YAML 为当时验证入口，现已删除。当前机器人入口统一为 `User/xrobot.yaml`；底盘、DM IMU 增量参数位于 `config/templates/chassis.yaml`、`config/templates/dm_imu.yaml`，由 `tools/generate_external_checks.py` 合并并生成回归组合，不直接运行旧生成命令。历史验证结果保留原样。

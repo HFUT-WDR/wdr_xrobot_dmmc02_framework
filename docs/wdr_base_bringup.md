@@ -22,6 +22,8 @@
 7. 默认 Flash 数据库关闭：上游 `DatabaseRaw` 构造会初始化存储，而当前生成的 Flash 区域覆盖整个芯片，未划分独立数据区。没有迁入数据库写入或校准存储功能。
 8. 引入 MC02 基座的命名/格式规范，增加 `status` 和 `echo token` 诊断命令；没有自研 USB 驱动或终端解析。
 
+> 2026-11-07 更新：已把末尾两个 128 KB 扇区划为数据库区并启用 Flash 数据库，见[Flash 数据库与标定持久化](flash_database_20261107.md)。
+
 ## CPU_FREQ_BOOST
 
 初次读取 `FLASH_OPTSR2_CUR=0`，先构建了未刷入的 520 MHz 适配版本。用户明确授权后，通过 OpenOCD 的带掩码选项写入开启 bit2，再恢复 MC02 基座的 550 MHz PLL 参数。

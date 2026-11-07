@@ -14,7 +14,7 @@ modules:
       - gyro_int: GYRO_INT
       - spi: spi2
       - heater_pwm: pwm_tim3_ch4
-      - database: imu_ram_database
+      - database: database
       - ramfs: ramfs
       - param:
           gyro_freq: BMI088::GyroFreq::GYRO_1000HZ_BW116HZ
