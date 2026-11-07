@@ -34,3 +34,11 @@ Token作为WDR_MODULES_READ_TOKEN存储到18个模块和框架的Actions Secrets
 
 Actions绿色表示对应静态检查与编译通过；构建、烧录校验、实际收发、机构闭环为不同验证层次。
 CI沿用xrobot-org/XRobot v1共享工作流，WDR维护私有索引、认证和组织调用配置；源许可证保留在xrobot-ci。
+
+## 2026-11-07验收
+
+20个仓库全部私有且读取成员集合一致；个人仓库保留。
+18个模块CI、共享CI自检、BSP生成/配置/锁文件检查及Debug/Release云端构建均已通过。
+[BSP运行及固件产物](https://github.com/HFUT-WDR/wdr_xrobot_dmmc02_framework/actions/runs/42346203050)包含default-Debug-firmware和default-Release-firmware。
+各模块运行链接、提交及验证边界见[完成记录](validation/wdr_organization_ci_20261107.json)。
+2026-11-06记录保留最初凭据失败的历史状态，本记录为最终验收结果；本轮未烧录或运行机构。

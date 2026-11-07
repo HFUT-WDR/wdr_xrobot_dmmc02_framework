@@ -1,0 +1,191 @@
+{
+  "date": "2026-11-07",
+  "organization": "HFUT-WDR",
+  "result": "passed",
+  "repositories": {
+    "private": 20,
+    "self_maintained_modules": 18,
+    "default_branch": "dev",
+    "same_readers_on_all_repositories": true,
+    "readers_per_repository": 20,
+    "personal_repositories": "preserved"
+  },
+  "shared_ci": {
+    "conclusion": "success",
+    "databaseId": 42346173925,
+    "headSha": "da755bbeddfa2e6abe34fbadd92fdc0a30fd7627",
+    "status": "completed",
+    "url": "https://github.com/HFUT-WDR/xrobot-ci/actions/runs/42346173925"
+  },
+  "module_ci": [
+    {
+      "repository": "BoardAttitude",
+      "conclusion": "success",
+      "databaseId": 42346117257,
+      "headSha": "f60bd269acf2313145d9e2e474cd0bda28f630b7",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/BoardAttitude/actions/runs/42346117257"
+    },
+    {
+      "repository": "CMD",
+      "conclusion": "success",
+      "databaseId": 42346117456,
+      "headSha": "5b42349031d2f23a1d1589712b1779b65962e4e1",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/CMD/actions/runs/42346117456"
+    },
+    {
+      "repository": "Chassis",
+      "conclusion": "success",
+      "databaseId": 42346117141,
+      "headSha": "81143d19c1b94e9cfde43db35ce59a40f86bf788",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Chassis/actions/runs/42346117141"
+    },
+    {
+      "repository": "ControlAlgorithms",
+      "conclusion": "success",
+      "databaseId": 42346117769,
+      "headSha": "86b596c911efdef46f0c0ef9b883349889538996",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/ControlAlgorithms/actions/runs/42346117769"
+    },
+    {
+      "repository": "DMMotor",
+      "conclusion": "success",
+      "databaseId": 42346120474,
+      "headSha": "f8c06b56e3300e6d9e486b763fa0c87769ad987d",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/DMMotor/actions/runs/42346120474"
+    },
+    {
+      "repository": "DR16",
+      "conclusion": "success",
+      "databaseId": 42346120482,
+      "headSha": "47778b3a8b31e34333dd14a0a1c430e8a1ba461d",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/DR16/actions/runs/42346120482"
+    },
+    {
+      "repository": "DmImu",
+      "conclusion": "success",
+      "databaseId": 42346120866,
+      "headSha": "0ea3e9c01eece0faf15c1c30749e74ae68925667",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/DmImu/actions/runs/42346120866"
+    },
+    {
+      "repository": "DualYaw",
+      "conclusion": "success",
+      "databaseId": 42346121328,
+      "headSha": "583a80eb9dcaecfff4f7537ca8479068fb850eb9",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/DualYaw/actions/runs/42346121328"
+    },
+    {
+      "repository": "EventBinder",
+      "conclusion": "success",
+      "databaseId": 42346124540,
+      "headSha": "a5e8a657b0491d59c208c7565d451dead0eb4ea1",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/EventBinder/actions/runs/42346124540"
+    },
+    {
+      "repository": "Gimbal",
+      "conclusion": "success",
+      "databaseId": 42346123926,
+      "headSha": "4dcfcda963d829103b1f50cf281bd8fbd6159091",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Gimbal/actions/runs/42346123926"
+    },
+    {
+      "repository": "HostData",
+      "conclusion": "success",
+      "databaseId": 42346123946,
+      "headSha": "40f03d444d5716f92b79ad47153970931177b0c1",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/HostData/actions/runs/42346123946"
+    },
+    {
+      "repository": "I6x",
+      "conclusion": "success",
+      "databaseId": 42346124668,
+      "headSha": "cb115159867ec82d307a6e437de9a7612efa7221",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/I6x/actions/runs/42346124668"
+    },
+    {
+      "repository": "ImuFusion",
+      "conclusion": "success",
+      "databaseId": 42346127053,
+      "headSha": "a524962f8df2f52c0173766476b4c4a6c76742ee",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/ImuFusion/actions/runs/42346127053"
+    },
+    {
+      "repository": "Motor",
+      "conclusion": "success",
+      "databaseId": 42346127205,
+      "headSha": "baeb30e89e8e42ff4f40f68a4b59a1016b1e0a3e",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Motor/actions/runs/42346127205"
+    },
+    {
+      "repository": "Pitch",
+      "conclusion": "success",
+      "databaseId": 42346127450,
+      "headSha": "ec44696683953d3a9ad12ed99ecd832a988958f2",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Pitch/actions/runs/42346127450"
+    },
+    {
+      "repository": "PowerControl",
+      "conclusion": "success",
+      "databaseId": 42346127213,
+      "headSha": "f29f0cf614099ec3dea48ab6dd677c1eb3c96959",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/PowerControl/actions/runs/42346127213"
+    },
+    {
+      "repository": "RMMotor",
+      "conclusion": "success",
+      "databaseId": 42346129754,
+      "headSha": "c33589d2ad0b43e3a93190eba6005919ee7b347b",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/RMMotor/actions/runs/42346129754"
+    },
+    {
+      "repository": "Referee",
+      "conclusion": "success",
+      "databaseId": 42346130015,
+      "headSha": "ada1f14c3f2a53d12ce254ca75e8ebaf796c2436",
+      "status": "completed",
+      "url": "https://github.com/HFUT-WDR/Referee/actions/runs/42346130015"
+    }
+  ],
+  "bsp_ci": {
+    "conclusion": "success",
+    "databaseId": 42346203050,
+    "headSha": "5e206af49c59a774cd8758f009a3ab9ae9c9e0c5",
+    "status": "completed",
+    "url": "https://github.com/HFUT-WDR/wdr_xrobot_dmmc02_framework/actions/runs/42346203050"
+  },
+  "artifacts": [
+    {
+      "name": "default-Release-firmware",
+      "size_in_bytes": 422914,
+      "expired": false
+    },
+    {
+      "name": "default-Debug-firmware",
+      "size_in_bytes": 3268588,
+      "expired": false
+    }
+  ],
+  "local_verification": "2026-11-06 host regressions, frozen snapshots, Debug/Release and full gimbal firmware link passed; local frozen offline setup reconfirmed 2026-11-07",
+  "hardware_validation": "No flashing, device communication or mechanism closed-loop validation in this migration.",
+  "notes": [
+    "The earlier 401/404 failures were credential access failures; the final successful runs confirm private dependency checkout.",
+    "BSP source commit is recorded above; this completion record changes documentation only."
+  ]
+}
