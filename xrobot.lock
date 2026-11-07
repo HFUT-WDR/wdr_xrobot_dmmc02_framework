@@ -64,14 +64,14 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: b0a7f1d2296515b15b9ad748e29e46388c407505
+    commit: 51643b42bbf329863feb01a596f92a5ab5f898f5
   HFUT-WDR/ControlAlgorithms:
     repo: https://github.com/HFUT-WDR/ControlAlgorithms.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 4debdf2f8cf83d78b65f2811389d31a48a016015
+    commit: e942d1ba53a9941e2c8ee4d40bfa7670329b89dd
   HFUT-WDR/DMMotor:
     repo: https://github.com/HFUT-WDR/DMMotor.git
     source: ModuleIndex/index.yaml
@@ -99,7 +99,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: aecfd04be7f99f94de7b141e5a2f504438cccdb1
+    commit: 7c05b615bed8a704722e6eee7a44f538e65c1187
   HFUT-WDR/EventBinder:
     repo: https://github.com/HFUT-WDR/EventBinder.git
     source: ModuleIndex/index.yaml
@@ -141,7 +141,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: c7baaba29a7d63ce07bc260256cf5413f420d3b3
+    commit: fd90e2888222e1c72172c6582f08e7aee7f14faf
   HFUT-WDR/Motor:
     repo: https://github.com/HFUT-WDR/Motor.git
     source: ModuleIndex/index.yaml
@@ -155,7 +155,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 49c64bb6e772839a11906c70cd9a939be98d0fba
+    commit: 4ce20fe52314dc6762e03046e74e886b5fec76f1
   HFUT-WDR/PowerControl:
     repo: https://github.com/HFUT-WDR/PowerControl.git
     source: ModuleIndex/index.yaml

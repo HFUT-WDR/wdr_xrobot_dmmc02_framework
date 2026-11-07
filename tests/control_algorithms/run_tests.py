@@ -10,9 +10,9 @@ for name,digest in json.loads((root/'tests/chassis/reference/algorithm_hashes.js
  assert hashlib.sha256((frozen.parent/name).read_bytes()).hexdigest()==digest
 with tempfile.TemporaryDirectory(prefix='wdr-control-algorithms-') as temp:
  temp=Path(temp);obj=[];flags=['-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer']
- for i,name in enumerate(['PID.c','LPF.c']):
+ for i,name in enumerate(['PID.c','LPF.c','translation_filter.c']):
   out=temp/f'{i}.o';subprocess.run(['cc','-std=gnu11',*flags,'-c',str(frozen/name),'-o',str(out)],check=True);obj.append(str(out))
- includes=[root/'tests/chassis/stubs',module,module/'algorithm',frozen,root/'Middlewares/Third_Party/LibXR/src/utils',sp]
+ includes=[root/'tests/chassis/stubs',module,module/'include',frozen,root/'Middlewares/Third_Party/LibXR/src/utils',sp]
  exe=temp/'test'
  subprocess.run(['c++','-std=c++20','-DLIBXR_DEFAULT_SCALAR=float',*flags,*['-I'+str(x) for x in includes],str(test/'test_algorithms.cpp'),str(sp/'tools/pid/pid.cpp'),str(sp/'tools/math_tools/math_tools.cpp'),str(sp/'tools/low_pass_filter/low_pass_filter.cpp'),*obj,'-o',str(exe)],check=True)
  subprocess.run([str(exe)],check=True)

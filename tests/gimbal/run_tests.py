@@ -6,7 +6,7 @@ root=Path(__file__).resolve().parents[2];test=Path(__file__).resolve().parent
 modules=root/'Modules/HFUT-WDR'
 for name,digest in json.loads((test/'reference/hashes.json').read_text()).items():
  assert hashlib.sha256((test/'reference'/name).read_bytes()).hexdigest()==digest,name
-inc=[test/'stubs',root/'tests/chassis/stubs']+[modules/n for n in ['ImuFusion','Gimbal','DualYaw','Pitch','Launcher','CMD','Motor','RMMotor','DMMotor','Chassis','ControlAlgorithms','ControlAlgorithms/algorithm','HostData','Referee']]+[root/'Middlewares/Third_Party/LibXR/src'/n for n in ['structure','utils']]
+inc=[test/'stubs',root/'tests/chassis/stubs']+[modules/n for n in ['ImuFusion','Gimbal','DualYaw','Pitch','Launcher','CMD','Motor','RMMotor','DMMotor','Chassis','ControlAlgorithms','ControlAlgorithms/include','HostData','Referee']]+[root/'Middlewares/Third_Party/LibXR/src'/n for n in ['structure','utils']]
 with tempfile.TemporaryDirectory(prefix='wdr-gimbal-') as temp:
 
  temp=Path(temp)

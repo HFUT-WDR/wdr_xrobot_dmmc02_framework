@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-07",
+  "scope": "Unified first-order LPF and public header layout",
+  "modules": {
+    "ControlAlgorithms": "e942d1ba53a9941e2c8ee4d40bfa7670329b89dd",
+    "Chassis": "51643b42bbf329863feb01a596f92a5ab5f898f5",
+    "Pitch": "4ce20fe52314dc6762e03046e74e886b5fec76f1",
+    "DualYaw": "7c05b615bed8a704722e6eee7a44f538e65c1187",
+    "Launcher": "fd90e2888222e1c72172c6582f08e7aee7f14faf"
+  },
+  "host_regressions": {
+    "control_algorithms": "passed",
+    "chassis": "passed",
+    "gimbal": "passed",
+    "launcher": "passed",
+    "power": "passed",
+    "i6x": "passed",
+    "imu": "passed"
+  },
+  "frozen_translation_comparison": "passed: 10000 updates with variable dt, zero reset and restart; original reference hashes unchanged",
+  "full_vehicle_config": "User/RobotConfig/sentry_remote.yaml",
+  "builds": {
+    "Debug": {
+      "result": "passed",
+      "actual_vehicle_modules": "passed",
+      "old_c_filter_symbols": "absent",
+      "elf_sha256": "30d972e86a007edb1fc8b3a05c3ff943b99991695f36e7d253b6f922d41e4b4f"
+    },
+    "Release": {
+      "result": "passed",
+      "actual_vehicle_modules": "passed",
+      "old_c_filter_symbols": "absent",
+      "elf_sha256": "d1dfd80808a0b3e48526fd017cdf5d85053c77c4411719dcec3389350bbbf0a4"
+    }
+  },
+  "frozen_offline_restore": "passed: 19 snapshots, 23 modules, 2 configurations",
+  "module_ci": {
+    "ControlAlgorithms": "passed",
+    "Chassis": "passed",
+    "Pitch": "passed",
+    "DualYaw": "passed",
+    "Launcher": "blocked before compilation: private CI repository access HTTP 401"
+  },
+  "hardware_validation": {
+    "flashed": false,
+    "mechanism_closed_loop": false
+  }
+}

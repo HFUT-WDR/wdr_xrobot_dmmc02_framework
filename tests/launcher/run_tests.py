@@ -90,7 +90,7 @@ void ref_filter(float x, float* latest, float* delayed)
 { LowPassFilter2p_Update(&ref_lpf, x); *latest = ref_lpf.Output[2]; *delayed = ref_lpf.Output[0]; }
 ''')
 stubs = [root / 'tests/chassis/stubs', root / 'tests/gimbal/stubs']
-inc = stubs + [modules / n for n in ['Launcher', 'CMD', 'Motor', 'RMMotor', 'ControlAlgorithms',
+inc = stubs + [modules / n for n in ['Launcher', 'CMD', 'Motor', 'RMMotor', 'ControlAlgorithms', 'ControlAlgorithms/include',
                                      'Referee']] + \
     [root / 'Middlewares/Third_Party/LibXR/src' / n for n in ['structure', 'utils']] + [test]
 with tempfile.TemporaryDirectory(prefix='wdr-launcher-') as temp:

@@ -8,6 +8,7 @@
 extern "C"
 {
 #include "PID.h"
+#include "translation_filter.h"
 }
 static void near(float a, float b, float eps = 1e-5f)
 {
@@ -66,6 +67,31 @@ int main(int argc, char**)
   wdr_control::LowPassFilter hold(0), bypass(1);
   near(hold.Update(2),2);near(hold.Update(3),2);
   near(bypass.Update(2),2);near(bypass.Update(3),3);
+
+  // 时间常数模式与冻结原车平移滤波对照，覆盖实际dt变化、清零和重新起步。
+  wdr_control::LowPassFilter translation(
+      1.0f, wdr_control::LowPassFilter::InitialState::ZERO);
+  first_order_filter_type_t legacy{};
+  const float tau[]{0.1666666667f};
+  first_order_filter_init(&legacy, .002f, tau);
+  for (unsigned i = 0; i < 10000; ++i)
+  {
+    const float dt = .001f + float(i % 7) * .0007f;
+    const float input = i % 113 == 0 ? 0.0f : 3 * std::sin(i * .017f);
+    legacy.frame_period = dt;
+    first_order_filter_cali(&legacy, input);
+    near(translation.Update(input, dt, tau[0]), legacy.out, 1e-6f);
+    if (i % 113 == 0)
+    {
+      legacy.out = legacy.input = 0;
+      translation.Reset();
+    }
+  }
+  translation.Reset();
+  near(translation.Update(4, .002f, tau[0]), 4 * .002f / (tau[0] + .002f));
+  near(translation.Update(4, .002f, 0), 4);
+  near(translation.Update(4, 0, tau[0]), 0);
+  near(translation.Update(4, .002f, tau[0]), 4 * .002f / (tau[0] + .002f));
 
   // 无饱和且Ki=0时，与sp的微分先行、首拍抑制和新采样权重一致。
   wdr_control::PID filtered({.kp=2,.ki=0,.kd=.1f,.i_limit=0,.out_limit=1000,.d_alpha=.25f});
