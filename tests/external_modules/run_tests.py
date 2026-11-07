@@ -32,8 +32,8 @@ if selected == "User/RobotConfig/sentry_remote.yaml":
     for name in ("Gimbal::ThreadFunc", "DualYaw::ControlLoop", "Pitch::ControlLoop",
                  "Launcher::Update", "Chassis<wdr_chassis::Control>", "PowerControl::Calculate"):
         assert name in symbols, f"整车固件缺少模块符号: {name}"
-    pitch = next(m for m in config["modules"] if m["id"] == "pitch")
-    assert next(a["param"] for a in pitch["args"] if "param" in a)["zero"] == 0
+    gimbal = next(m for m in config["modules"] if m["id"] == "gimbal")
+    assert next(a["param"] for a in gimbal["args"] if "param" in a)["pitch"]["zero"] == 0
     print(f"PASS: referee layout and full sentry remote firmware ({args.preset})")
     raise SystemExit(0)
 

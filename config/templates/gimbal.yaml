@@ -55,160 +55,6 @@ modules:
       reverse: false
       can_id: 3
       position_max: 12.5
-- module: HFUT-WDR/DualYaw
-  id: dual_yaw
-  args:
-  - inner: inner_yaw_motor
-  - outer: outer_yaw_motor
-  - param:
-      inner:
-        offset_ecd: 0
-        minimum: -3
-        maximum: 3
-        angle:
-          kp: 30
-          ki: 0
-          kd: 0
-          kf: 0
-          integral_limit: 0
-          output_limit: 10
-          integral_zone: 0.1
-        auto_angle:
-          kp: 20
-          ki: 0
-          kd: 0
-          kf: 0
-          integral_limit: 0
-          output_limit: 10
-          integral_zone: 0.1
-        relative:
-          kp: 25
-          ki: 0
-          kd: 0
-          kf: 0
-          integral_limit: 0
-          output_limit: 10
-          integral_zone: 0
-        velocity:
-          kp: 22000
-          ki: 500
-          kd: 0
-          kf: 0
-          integral_limit: 10000
-          output_limit: 30000
-          integral_zone: 0
-        soft_velocity:
-          kp: 20000
-          ki: 0
-          kd: 0
-          kf: 0
-          integral_limit: 10000
-          output_limit: 30000
-          integral_zone: 0
-      outer:
-        offset_ecd: 0
-        minimum: -0.785398
-        maximum: 0.785398
-        angle:
-          kp: 40
-          ki: 0
-          kd: 0
-          kf: 0
-          integral_limit: 1
-          output_limit: 10
-          integral_zone: 0.08
-        auto_angle:
-          kp: 30
-          ki: 0.05
-          kd: 0
-          kf: 0
-          integral_limit: 1
-          output_limit: 10
-          integral_zone: 0.08
-        relative:
-          kp: 20
-          ki: 1
-          kd: 0
-          kf: 0
-          integral_limit: 1
-          output_limit: 10
-          integral_zone: 0
-        velocity:
-          kp: 12000
-          ki: 5
-          kd: 0
-          kf: 0
-          integral_limit: 2000
-          output_limit: 30000
-          integral_zone: 0
-        soft_velocity:
-          kp: 7000
-          ki: 0
-          kd: 0
-          kf: 0
-          integral_limit: 0
-          output_limit: 30000
-          integral_zone: 0
-      voltage_limit: 30000
-      align_alpha: 0.001
-      velocity_feedforward: 0.9
-      accel_feedforward: 120
-      outer_min_kp: 10
-      outer_min_velocity_kp: 7000
-      scan_speed: 1.5
-      scan_low_speed: 1
-      motor_timeout_ms: 10
-  - database: nullptr
-  - calibration_key: '"gimbal_yaw_calibration"'
-- module: HFUT-WDR/Pitch
-  id: pitch
-  args:
-  - motor: pitch_motor
-  - param:
-      zero: 0
-      minimum: -0.47
-      maximum: 0.57
-      absolute_minimum: -0.31
-      absolute_maximum: 0.5
-      mit_kp: 15
-      mit_kd: 1.4
-      tracking_kd: 1
-      inertia: 0.01116936
-      damping: 0.02214229
-      gravity: 0.8850881
-      coulomb: 0.14099603
-      coulomb_smooth: 0.5
-      tracking_kp: 3000
-      tracking_ki: 10
-      tracking_kd_feedback: 150
-      integral_error_min: 0.004
-      integral_error_max: 0.05
-      integral_reset_error: 0.1
-      integral_min: -0.3
-      integral_max: 0.2
-      integral_reverse_decay: 0.85
-      scan_kd: 1
-      torque_limit: 5
-      td_w: 40
-      td_zeta: 1
-      scan_center: 0.1
-      scan_amplitude: 0.35
-      scan_frequency: 1
-      high_scan_center: -0.3
-      high_scan_amplitude: 0.2
-      high_scan_frequency: 1
-      scan_center_speed: 2
-      scan_ramp_speed: 1
-      motor_timeout_ms: 20
-      enable_period_ms: 500
-      relative_pid:
-        kp: 26
-        ki: 0.002
-        kd: 0.0002
-        kf: 0
-        integral_limit: 0
-        output_limit: 10
-        integral_zone: 0
 - module: HFUT-WDR/DmImu
   id: dm_imu
   args:
@@ -328,8 +174,9 @@ modules:
 - module: HFUT-WDR/Gimbal
   id: gimbal
   args:
-  - dual_yaw: dual_yaw
-  - pitch: pitch
+  - inner_yaw: inner_yaw_motor
+  - outer_yaw: outer_yaw_motor
+  - pitch_motor: pitch_motor
   - cmd: cmd
   - param:
       yaw_manual_speed: 3.96
@@ -345,6 +192,151 @@ modules:
       init_hold_ms: 1000
       calibration_hold_ms: 2000
       calibration_step_timeout_ms: 15000
+      yaw:
+        inner:
+          offset_ecd: 0
+          minimum: -3
+          maximum: 3
+          angle:
+            kp: 30
+            ki: 0
+            kd: 0
+            kf: 0
+            integral_limit: 0
+            output_limit: 10
+            integral_zone: 0.1
+          auto_angle:
+            kp: 20
+            ki: 0
+            kd: 0
+            kf: 0
+            integral_limit: 0
+            output_limit: 10
+            integral_zone: 0.1
+          relative:
+            kp: 25
+            ki: 0
+            kd: 0
+            kf: 0
+            integral_limit: 0
+            output_limit: 10
+            integral_zone: 0
+          velocity:
+            kp: 22000
+            ki: 500
+            kd: 0
+            kf: 0
+            integral_limit: 10000
+            output_limit: 30000
+            integral_zone: 0
+          soft_velocity:
+            kp: 20000
+            ki: 0
+            kd: 0
+            kf: 0
+            integral_limit: 10000
+            output_limit: 30000
+            integral_zone: 0
+        outer:
+          offset_ecd: 0
+          minimum: -0.785398
+          maximum: 0.785398
+          angle:
+            kp: 40
+            ki: 0
+            kd: 0
+            kf: 0
+            integral_limit: 1
+            output_limit: 10
+            integral_zone: 0.08
+          auto_angle:
+            kp: 30
+            ki: 0.05
+            kd: 0
+            kf: 0
+            integral_limit: 1
+            output_limit: 10
+            integral_zone: 0.08
+          relative:
+            kp: 20
+            ki: 1
+            kd: 0
+            kf: 0
+            integral_limit: 1
+            output_limit: 10
+            integral_zone: 0
+          velocity:
+            kp: 12000
+            ki: 5
+            kd: 0
+            kf: 0
+            integral_limit: 2000
+            output_limit: 30000
+            integral_zone: 0
+          soft_velocity:
+            kp: 7000
+            ki: 0
+            kd: 0
+            kf: 0
+            integral_limit: 0
+            output_limit: 30000
+            integral_zone: 0
+        voltage_limit: 30000
+        align_alpha: 0.001
+        velocity_feedforward: 0.9
+        accel_feedforward: 120
+        outer_min_kp: 10
+        outer_min_velocity_kp: 7000
+        scan_speed: 1.5
+        scan_low_speed: 1
+        motor_timeout_ms: 10
+      pitch:
+        zero: 0
+        minimum: -0.47
+        maximum: 0.57
+        absolute_minimum: -0.31
+        absolute_maximum: 0.5
+        mit_kp: 15
+        mit_kd: 1.4
+        tracking_kd: 1
+        inertia: 0.01116936
+        damping: 0.02214229
+        gravity: 0.8850881
+        coulomb: 0.14099603
+        coulomb_smooth: 0.5
+        tracking_kp: 3000
+        tracking_ki: 10
+        tracking_kd_feedback: 150
+        integral_error_min: 0.004
+        integral_error_max: 0.05
+        integral_reset_error: 0.1
+        integral_min: -0.3
+        integral_max: 0.2
+        integral_reverse_decay: 0.85
+        scan_kd: 1
+        torque_limit: 5
+        td_w: 40
+        td_zeta: 1
+        scan_center: 0.1
+        scan_amplitude: 0.35
+        scan_frequency: 1
+        high_scan_center: -0.3
+        high_scan_amplitude: 0.2
+        high_scan_frequency: 1
+        scan_center_speed: 2
+        scan_ramp_speed: 1
+        motor_timeout_ms: 20
+        enable_period_ms: 500
+        relative_pid:
+          kp: 26
+          ki: 0.002
+          kd: 0.0002
+          kf: 0
+          integral_limit: 0
+          output_limit: 10
+          integral_zone: 0
+  - calibration_database: nullptr
+  - calibration_key: '"gimbal_yaw_calibration"'
   - command_topic_name: '"gimbal_cmd"'
   - board_topic_name: '"board_attitude"'
   - dm_topic_name: '"dm_attitude"'

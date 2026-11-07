@@ -18,7 +18,7 @@ cmake --build --preset Release -j4
 
 ## 零位与校准
 
-- Pitch：DM4310 电机自身提供零位。`pitch.param.zero=0` 表示不再叠加软件偏移，位置反馈直接使用电机坐标；归中目标使用该电机零位。不增加Pitch端点扫描，不发送电机设零命令。
+- Pitch：DM4310 电机自身提供零位。`gimbal.param.pitch.zero=0` 表示不再叠加软件偏移，位置反馈直接使用电机坐标；归中目标使用该电机零位。不增加Pitch端点扫描，不发送电机设零命令。
 - Yaw：两个编码器零位通过现有 `Gimbal::Mode::CALI` 获取，校准过程同时更新零位和机械相对角限位。YAML中的初始值不视为已完成机械校准。
 - `database=nullptr`：Yaw校准结果在本次上电期间生效，重启后重新校准；本次不新增Flash存储功能。
 
@@ -46,3 +46,5 @@ CALI期间Pitch保持失能，底盘和发射被云台联锁停止。CALI是显�
 配置沿用已迁移模板的总线、ID、PID、方向及安装矩阵。本次启用整车构建，不代表已经实测这些参数与实车安装相符，也不代表已进行烧录、设备收发或机构闭环验收。
 
 构建后可运行 `python tests/external_modules/run_tests.py --preset Debug`（Release同理），确认当前ELF包含底盘、功率、双Yaw、Pitch、云台和发射的实际控制符号，并检查裁判协议布局。
+
+云台结构：完整配置包含23个实例。DualYaw/Pitch已收进Gimbal内部，YAML只创建一个云台实例，注入三台电机；所有轴参数归入 `gimbal.param.yaw` 和 `gimbal.param.pitch`。校准数据库入口为 `gimbal.calibration_database`。

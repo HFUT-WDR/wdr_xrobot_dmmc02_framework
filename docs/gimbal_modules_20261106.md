@@ -2,7 +2,7 @@
 
 ## 已确认需求
 
-- `DualYaw`、`Pitch`、`Gimbal` 分别为 XRobot 模块，YAML 创建对象并注入引用。
+- 2026-11-07统一为一个 `Gimbal` XRobot 模块；`DualYaw`、`Pitch` 为其 `components/` 下的内部组件，由Gimbal按值持有。YAML直接注入三台电机，参数收进 `gimbal.param.yaw`、`gimbal.param.pitch`。
 - 只有 `Gimbal` 创建控制线程，标称 1 ms；控制链同拍共用实际 dt。
 - 上电保持 RELAX。构造阶段不发送电机控制或使能帧。
 - 故障按拍判定、不锁定（2026-11-07按26_sentry赛场行为修订）：遥控断连、AI失效、自瞄STOP、任一yaw掉线、异常拍只令本拍无力；条件恢复后回到当前请求的模式并重新捕获目标。比赛开始后无法操作遥控器，阵亡断电复活后必须自行恢复。
@@ -23,7 +23,7 @@
 
 调度阶段与底盘统一命名：`FeedbackUpdate`读取输入与反馈，`SetMode`检查故障并处理启动/切源等待，`ModeTransition`只处理模式边沿，`SetControl`生成目标，`ControlLoop`计算闭环，`SendOutput`发送，`PublishStatus`发布状态。拍内到达的模式请求下一拍生效，标称周期为1 ms，实际调度延迟需上板测量。校准和归中完成拍跳过普通闭环。
 
-两个控制模块不创建线程、不重复订阅 CMD。Gimbal callback 仅提交原子模式请求，控制线程只读该请求、从不改写。INIT/CALI 结束后记录本次请求：请求不变期间 INIT 按当前命令来源映射为 AUTO 或绝对角，CALI 保持 RELAX，不重复扫描端点；标定被故障打断即结束本次请求并置 `calibration_failed`，不在恢复后自动重新驱动到端点。
+两个内部控制组件不创建线程、不重复订阅 CMD。Gimbal callback 仅提交原子模式请求，控制线程只读该请求、从不改写。INIT/CALI 结束后记录本次请求：请求不变期间 INIT 按当前命令来源映射为 AUTO 或绝对角，CALI 保持 RELAX，不重复扫描端点；标定被故障打断即结束本次请求并置 `calibration_failed`，不在恢复后自动重新驱动到端点。
 
 IMU 首帧到达前 `waiting_for_enable` 置位并保持无力。命令来源与模式不匹配时 `waiting_for_source` 置位、本拍无力，来源匹配即继续，不设等待时限。CALI独立驱动yaw并保持Pitch失能。
 
@@ -71,7 +71,7 @@ CALI 先扫描 OUTER_YAW 正/反端点，再扫描 INNER_YAW 正/反端点。仅
 
 完成后先提交零输出，再应用标定并回到 RELAX。`gimbal_status.calibration` 导出两轴偏置/限位；`calibration_complete` 和 `calibration_saved` 分别表示完成、存储成功。
 
-DualYaw 可注入 `LibXR::Database*`，以 `gimbal_yaw_calibration` 为默认键加载/保存结果。数据库必须比模块存活更久；Flash 后端写入只在已停止输出后执行。`database=nullptr` 时结果只在 RAM，复位后使用 YAML，不能声称掉电保存成功。当前模板保留此默认值，尚未接入实际 Flash 后端。
+Gimbal 可通过 `calibration_database` 注入 `LibXR::Database*`，以 `gimbal_yaw_calibration` 为默认键加载/保存结果。数据库必须比模块存活更久；Flash 后端写入只在已停止输出后执行。`database=nullptr` 时结果只在 RAM，复位后使用 YAML，不能声称掉电保存成功。当前模板保留此默认值，尚未接入实际 Flash 后端。
 
 Yaw编码器零位通过CALI获取，模板初始偏置不视为校准结果。Pitch使用DM4310电机提供的零位，软件zero=0，不额外要求Pitch机械置零。整车配置与校准操作见[整车遥控构建](sentry_remote.md)。
 

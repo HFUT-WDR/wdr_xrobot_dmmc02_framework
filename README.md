@@ -16,7 +16,7 @@ cmake --preset Debug
 cmake --build --preset Debug -j4
 ```
 
-Pitch使用DM4310电机提供的零位，软件偏置为0；Yaw通过CALI校准获取零位。校准绑定、完整实例和验证范围见上述说明。板级配置仍保留在 `User/xrobot.yaml`，两种配置共用构建产物路径。
+云台统一使用Gimbal模块，DualYaw/Pitch作为内部组件，两轴参数在 `gimbal.param.yaw` / `gimbal.param.pitch`。Pitch使用DM4310电机提供的零位，软件偏置为0；Yaw通过CALI校准获取零位。校准绑定、完整实例和验证范围见上述说明。板级配置仍保留在 `User/xrobot.yaml`，两种配置共用构建产物路径。
 
 ## 目录
 

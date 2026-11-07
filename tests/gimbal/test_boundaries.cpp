@@ -44,12 +44,12 @@ int main(int argc, char** argv)
       can, {RMMotor::Model::MOTOR_GM6020, false, 0x206, RMMotor::Gm6020Mode::VOLTAGE});
   DMMotor motor(can, {DMMotor::Model::MOTOR_DM4310, false, 1});
   DualYaw::Param yaw_param;
-  DualYaw yaw(inner, outer, yaw_param);
   Pitch::Param pitch_param;
   pitch_param.zero = 1;
-  Pitch pitch(motor, pitch_param);
   CMD cmd;
   Gimbal::Param param;
+  param.yaw = yaw_param;
+  param.pitch = pitch_param;
   if (scenario == "late_stop") param.init_hold_ms = 0;
   // 拨弹M2006 0x207与两台yaw同属0x1FF组；只在发射场景注册，避免其他场景组帧缺槽。
   CAN shoot_bus;
@@ -62,7 +62,8 @@ int main(int argc, char** argv)
     trigger.emplace(can, RMMotor::Param{RMMotor::Model::MOTOR_M2006, false, 0x207});
     launcher.emplace(*fric_right, *fric_left, *trigger, Launcher::Param{});
   }
-  Gimbal gimbal(yaw, pitch, cmd, param, "gimbal_cmd", "board_attitude", "dm_attitude",
+  Gimbal gimbal(inner, outer, motor, cmd, param, nullptr, "gimbal_yaw_calibration",
+                "gimbal_cmd", "board_attitude", "dm_attitude",
                 "gimbal_context", "robot_game_ref", "gimbal_chassis_feedback",
                 "gimbal_status", 4096, Thread::Priority::MEDIUM,
                 launcher ? &*launcher : nullptr);
@@ -123,7 +124,7 @@ int main(int argc, char** argv)
     const auto first = can.sent.size();
     tick(false);
     assert(!gimbal.GetState().motor_lost);
-    assert(!pitch.GetState().enabled);
+    assert(!gimbal.GetState().pitch.enabled);
     assert(gimbal.GetState().mode == Gimbal::Mode::RELATIVE_ANGLE);
     bool enable_sent = false;
     for (auto i = first; i < can.sent.size(); ++i)
@@ -135,7 +136,7 @@ int main(int argc, char** argv)
       }
     assert(enable_sent);
     tick();
-    assert(pitch.GetState().enabled);
+    assert(gimbal.GetState().pitch.enabled);
     assert(gimbal.GetState().mode == Gimbal::Mode::RELATIVE_ANGLE);
   }
   else if (scenario == "revive")
@@ -159,8 +160,8 @@ int main(int argc, char** argv)
     assert(gimbal.GetState().mode == Gimbal::Mode::ABSOLUTE_ANGLE);
     pitch_enabled = true;
     tick();
-    assert(pitch.GetState().enabled);
-    assert(pitch.GetState().path == Pitch::Path::REMOTE_CONTROL);
+    assert(gimbal.GetState().pitch.enabled);
+    assert(gimbal.GetState().pitch.path == Pitch::Path::REMOTE_CONTROL);
   }
   else if (scenario == "init")
   {
@@ -169,11 +170,11 @@ int main(int argc, char** argv)
     gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::INIT));
     for (unsigned i = 0; i < 500; ++i) tick();
     assert(gimbal.GetState().mode == Gimbal::Mode::INIT);
-    near(pitch.GetState().output.position, pitch_param.zero);
-    near(pitch.GetState().output.velocity, .5f);
-    near(pitch.GetState().output.kp, 15);
-    near(pitch.GetState().output.kd, 1.4f);
-    near(pitch.GetState().output.torque, 0);
+    near(gimbal.GetState().pitch.output.position, pitch_param.zero);
+    near(gimbal.GetState().pitch.output.velocity, .5f);
+    near(gimbal.GetState().pitch.output.kp, 15);
+    near(gimbal.GetState().pitch.output.kd, 1.4f);
+    near(gimbal.GetState().pitch.output.torque, 0);
   }
   else if (scenario == "startup")
   {
@@ -183,7 +184,7 @@ int main(int argc, char** argv)
     const auto first = can.sent.size();
     tick();
     assert(gimbal.GetState().mode == Gimbal::Mode::ABSOLUTE_ANGLE);
-    assert(!pitch.GetState().enabled);
+    assert(!gimbal.GetState().pitch.enabled);
     bool enable_sent = false;
     for (auto i = first; i < can.sent.size(); ++i)
       enable_sent |= can.sent[i].id == 1 && can.sent[i].data[7] == 0xFC;
@@ -191,16 +192,18 @@ int main(int argc, char** argv)
     pitch_enabled = true;
     tick();
     assert(gimbal.GetState().mode == Gimbal::Mode::ABSOLUTE_ANGLE);
-    assert(pitch.GetState().path == Pitch::Path::REMOTE_CONTROL);
+    assert(gimbal.GetState().pitch.path == Pitch::Path::REMOTE_CONTROL);
     gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELATIVE_ANGLE));
     tick();
     assert(gimbal.GetState().mode == Gimbal::Mode::RELATIVE_ANGLE);
   }
   else if (scenario == "scan_zero")
   {
+    Pitch pitch(motor, pitch_param);
     attitude.pitch = .2f;
     fresh();
     run_thread_once(task);
+    pitch.UpdateFeedback(attitude, uint32_t(Timebase::now / 1000));
     pitch.SetPath(Pitch::Path::REMOTE_CONTROL);
     pitch.SetRelative(0);
     pitch.ControlLoop(.001f);
@@ -213,12 +216,14 @@ int main(int argc, char** argv)
   }
   else if (scenario == "scan_limits" || scenario == "aim_limits")
   {
+    Pitch pitch(motor, pitch_param);
     for (float sign : {-1.0f, 1.0f})
     {
       // 机械角居中，倾斜底座使惯性目标对应到机械范围之外。
       attitude.pitch = -sign;
       fresh();
       run_thread_once(task);
+      pitch.UpdateFeedback(attitude, uint32_t(Timebase::now / 1000));
       pitch.SetPath(Pitch::Path::RELAX);
       pitch.SetPath(scenario == "scan_limits" ? Pitch::Path::SCAN : Pitch::Path::AIM);
       pitch.SetAbsolute(sign * .5f, sign * 2, sign * 3);
@@ -238,11 +243,13 @@ int main(int argc, char** argv)
   }
   else if (scenario == "boundary_feedforward")
   {
+    Pitch pitch(motor, pitch_param);
     for (float sign : {-1.0f, 1.0f})
     {
       attitude.pitch = -sign * .2f;
       fresh();
       run_thread_once(task);
+      pitch.UpdateFeedback(attitude, uint32_t(Timebase::now / 1000));
       pitch.SetPath(Pitch::Path::AIM);
       const float mechanical = sign < 0 ? pitch_param.minimum : pitch_param.maximum;
       const float target = attitude.pitch + mechanical - pitch.GetState().relative;
@@ -271,8 +278,8 @@ int main(int argc, char** argv)
       ai.gimbal.auto_mode = mode;
       cmd.FeedAI(CMD::Channel::GIMBAL, ai);
       tick();
-      const float yaw_target = yaw.GetState().axes[0].target;
-      const float drag_target = yaw.GetState().drag_target;
+      const float yaw_target = gimbal.GetState().yaw.axes[0].target;
+      const float drag_target = gimbal.GetState().yaw.drag_target;
       for (float speed : {-2.0f, 2.0f})
       {
         chassis_topic.Publish(HostData::HostChassisTarget{speed, .5f, .3f});
@@ -281,9 +288,9 @@ int main(int argc, char** argv)
             std::any_cast<CMD::ChassisCMD>(Topic::values.at("chassis_cmd"));
         near(chassis.x, speed);
         assert(chassis.frame == CMD::ChassisFrame::GIMBAL);
-        near(yaw.GetState().axes[0].target, yaw_target);
-        near(yaw.GetState().drag_target, drag_target);
-        assert(yaw.GetState().path == (mode == CMD::GimbalAutoMode::SCAN
+        near(gimbal.GetState().yaw.axes[0].target, yaw_target);
+        near(gimbal.GetState().yaw.drag_target, drag_target);
+        assert(gimbal.GetState().yaw.path == (mode == CMD::GimbalAutoMode::SCAN
                                            ? DualYaw::Path::SCAN
                                            : DualYaw::Path::SMALL_FIRST));
         assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);

@@ -12,8 +12,8 @@ ORG = 'HFUT-WDR'
 SECRET = 'WDR_MODULES_READ_TOKEN'
 REPOSITORIES = [
     'BoardAttitude', 'CMD', 'Chassis', 'ControlAlgorithms', 'DMMotor', 'DR16',
-    'DmImu', 'DualYaw', 'EventBinder', 'Gimbal', 'HostData', 'I6x', 'ImuFusion',
-    'Motor', 'Pitch', 'PowerControl', 'RMMotor', 'Referee',
+    'DmImu', 'EventBinder', 'Gimbal', 'HostData', 'I6x', 'ImuFusion',
+    'Launcher', 'Motor', 'PowerControl', 'RMMotor', 'Referee',
     'wdr_xrobot_dmmc02_framework',
 ]
 

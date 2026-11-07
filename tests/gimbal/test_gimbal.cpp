@@ -80,14 +80,14 @@ int main()
   DMMotor dm(can, {DMMotor::Model::MOTOR_DM4310, false, 1});
   Database database;
   DualYaw::Param yp{};
-  DualYaw yaw(inner, outer, yp, &database);
   Pitch::Param pp{};
-  Pitch pitch(dm, pp);
   CMD cmd;
   Gimbal::Param gp{};
   gp.calibration_hold_ms = 2;
   gp.init_hold_ms = 3;
-  Gimbal gimbal(yaw, pitch, cmd, gp);
+  gp.yaw = yp;
+  gp.pitch = pp;
+  Gimbal gimbal(inner, outer, dm, cmd, gp, &database);
   auto& task = *Thread::threads.back();
   assert(can.sent.empty());
   assert(Thread::threads.size() == 1);
@@ -179,8 +179,8 @@ int main()
   }
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   assert(gimbal.GetState().calibration_complete && gimbal.GetState().calibration_saved);
-  assert(yaw.GetCalibration().inner_offset == 8096);
-  assert(yaw.GetCalibration().outer_offset == 4);
+  assert(gimbal.GetState().calibration.inner_offset == 8096);
+  assert(gimbal.GetState().calibration.outer_offset == 4);
   assert(database.values.contains("gimbal_yaw_calibration"));
   // 存储内容损坏（零位越界、NaN限位）时上电不断言，沿用YAML标定。
   {
@@ -235,8 +235,8 @@ int main()
   Timebase::now += 1000;
   refresh(8096, 4);
   run_thread_once(task);
-  assert(yaw.GetState().path == DualYaw::Path::SCAN);
-  assert(pitch.GetState().path == Pitch::Path::SCAN);
+  assert(gimbal.GetState().yaw.path == DualYaw::Path::SCAN);
+  assert(gimbal.GetState().pitch.path == Pitch::Path::SCAN);
   ai.gimbal.auto_mode = CMD::GimbalAutoMode::STOP;
   cmd.FeedAI(CMD::Channel::GIMBAL, ai);
   Timebase::now += 1000;
@@ -252,8 +252,8 @@ int main()
   refresh(8096, 4);
   run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
-  assert(yaw.GetState().path == DualYaw::Path::SMALL_FIRST);
-  assert(pitch.GetState().path == Pitch::Path::AIM);
+  assert(gimbal.GetState().yaw.path == DualYaw::Path::SMALL_FIRST);
+  assert(gimbal.GetState().pitch.path == Pitch::Path::AIM);
   // 任一yaw真实反馈超时使整套云台停机，不依赖Update调用次数。
   Timebase::now += 11000;
   can.Emit(yaw_pack(0x205, 8096));
