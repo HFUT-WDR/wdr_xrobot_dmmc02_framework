@@ -46,11 +46,27 @@
       "bss": 137736
     },
     "flash_regions_contents": "0x08000000, 0x00020000, 8",
-    "generated_config_selected": "User/RobotConfig/sentry_remote.yaml"
+    "generated_config_selected": "User/xrobot.yaml (board test selection)"
+  },
+  "hardware": {
+    "date": "2026-11-07",
+    "profile": "User/xrobot.yaml",
+    "preset": "Debug",
+    "probe": "SEGGER J-Link V9 via OpenOCD 0.12.0",
+    "flash_verify": "passed",
+    "log": "docs/validation/flash_database_20261107_flash.log",
+    "database_init": "main block header 0x1234567B at 0x080C0000; backup block erased",
+    "key_created": "bmi088_gyro_data, nameLen 17, dataSize 12, initial value 0,0,0",
+    "update_test": "nonzero values written through debugger-injected Key::Save(); new key entry at 0x080C0200",
+    "reset_load": "RAM key data restored to 0.01, -0.02, 0.03 after reset",
+    "faults": "CFSR=0, HFSR=0; RTOS tick advancing",
+    "cleanup": "sectors 6-7 erased; firmware recreated the key with zero offset"
   },
   "unverified": [
-    "Not flashed and not tested on hardware",
-    "First-boot key creation, real CALI save/load, and power-loss recovery not exercised on target",
+    "USB CDC was not connected to a host; the bmi088 cali command path was not exercised end-to-end",
+    "The update used a debugger-injected Save() with interrupts disabled, not the terminal command while RTOS tasks run",
+    "Gimbal CALI persistence not tested; requires motors and the mechanism",
+    "Power-loss (cold power cycle) not tested; only reset was exercised",
     "Flash sector erase/program blocking time with FreeRTOS tasks not measured",
     "CubeMX regeneration may overwrite the 768K linker limit; must be rechecked after regenerating",
     "BMI088 cali ignores the Database Set return value and prints success unconditionally"

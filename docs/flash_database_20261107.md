@@ -53,11 +53,20 @@
 
 ## 验证范围
 
-- 通过：`default` 和 `sentry_remote` 配置的 Debug/Release 构建；
+- 通过（主机）：`default` 和 `sentry_remote` 配置的 Debug/Release 构建；
   `board_support`、`imu`、`gimbal`、`chassis`、`control_algorithms`、`i6x`、
-  `launcher`、`power` 主机回归。
-- 未验证：未烧录、未上板；上电首次建键、真实标定写入、掉电恢复、
-  Flash 擦写阻塞时间、云台 `calibration_saved` 的实机表现均未测试。
+  `launcher`、`power`、`external_modules` 主机回归。
+- 通过（2026-11-07 板测，`default` Debug，J-Link + OpenOCD 烧录校验）：
+  - 首次上电在 0x080C0000 写入主块头 0x1234567B，备份块保持擦除态；
+  - `bmi088_gyro_data` 键自动建立，键名长度 17、数据长度 12、初值全零；
+  - 通过调试器写入非零值并调用 `Key::Save()`，Flash 追加新条目；
+    复位后 RAM 恢复为写入值，CFSR/HFSR 均为 0，RTOS tick 正常运行；
+  - 擦除扇区 6、7 后复位，数据库重新初始化并重建零偏键，值恢复为零。
+- 未验证：板载 USB CDC 未连接主机（OTG 处于挂起、无 SOF），未通过
+  `bmi088 cali` 命令做端到端测试；写入由调试器注入的 `Save()` 触发，
+  不是终端命令路径。云台 CALI 持久化需要电机，未测试。掉电恢复只做了
+  复位验证，未做真实断电。Flash 擦写对 RTOS 任务的阻塞时间未测量，
+  注入调用时关闭了中断。
 - 未验证：CubeMX 重新生成后 `.ld` 是否保留 768K 限制。重新生成后必须核对
   `STM32H723xG_flash.ld` 的 FLASH 长度；若被改回 1024K，须手工恢复并重新构建。
 
