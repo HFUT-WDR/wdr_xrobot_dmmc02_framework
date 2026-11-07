@@ -62,7 +62,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 0efd7e03ef6d0224b0da6ed5d50d995381f5fc02
+    commit: 66e1f52d26224f35c26a57f1199d2bfab9da0a59
   HFUT-WDR/ControlAlgorithms:
     repo: https://github.com/HFUT-WDR/ControlAlgorithms.git
     source: ModuleIndex/index.yaml
@@ -97,7 +97,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 83926aa23237286af2c518d62dc30db65d7ba95b
+    commit: 7fe52b898506d8e7e4144463d17284841e1ba69a
   HFUT-WDR/EventBinder:
     repo: https://github.com/HFUT-WDR/EventBinder.git
     source: ModuleIndex/index.yaml
@@ -160,7 +160,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 19e2a6d74b2121cd5c6384e333fb9996755b1ced
+    commit: 97b977faed9b199da49c7a1960b8e3a9666615d3
   HFUT-WDR/Referee:
     repo: https://github.com/HFUT-WDR/Referee.git
     source: ModuleIndex/index.yaml

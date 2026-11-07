@@ -4,7 +4,7 @@
 
 ## 定义归属
 
-- RMMotor继续持有MOTOR_ENC_RES、MOTOR_CUR_RES；DualYaw的换算、取模、校准和零位校验共同复用编码器分辨率。
+- RMMotor持有带RM电机系列前缀的RM_MOTOR_ENC_RES、RM_MOTOR_CUR_FEEDBACK_RES；DualYaw的换算、取模、校准和零位校验共同复用编码器分辨率。底盘M3508控制指令归一化复用M3508_MAX_ABS_LSB，与电流反馈尺度区分。
 - RMMotor统一声明GM6020电压模式协议上限，DualYaw和Gimbal引用；Motor提供两个具体驱动共用的rpm换算单位。
 - DualYaw定义大小Yaw角色索引，反馈、控制、目标和校准输出统一引用。
 - CMD提供PC有效期与轻量遥控输入尺度头；Gimbal、I6x、DR16和Referee按已有依赖复用。
@@ -28,3 +28,7 @@ Pitch增加积分区间、复位阈值、积分限幅、换向衰减和扫描阻
 
 16个修改模块的Module CI全部通过；[BSP检查及Debug/Release构建](https://github.com/HFUT-WDR/wdr_xrobot_dmmc02_framework/actions/runs/42349797785)全部通过。
 对应提交、模块运行链接及本地验证范围见[验证记录](validation/constants_refactor_20261107.json)。本节为文档补充，未修改已验证源码。
+
+## 电机常量命名补充
+
+原MOTOR_ENC_RES改为RM_MOTOR_ENC_RES，表示M2006/M3508/GM6020共用的8192计数/圈；原MOTOR_CUR_RES改为RM_MOTOR_CUR_FEEDBACK_RES，明确16384用于电流反馈换算。底盘控制指令归一化单独复用M3508_MAX_ABS_LSB。所有引用同步更新，数值与运算顺序保持不变。
