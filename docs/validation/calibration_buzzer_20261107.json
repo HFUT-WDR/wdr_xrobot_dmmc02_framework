@@ -5,7 +5,7 @@
     "bmi088": {
       "from": "xrobot-org/BMI088@e4e64d705f5b61685e629a91e123ad2febe75fc7",
       "to": "HFUT-WDR/BMI088",
-      "dev_commit": "83f6f52dd5a96e47df027a2ad078693dd87a25c1",
+      "dev_commit": "a65f9d094c8cf0064adc1b344935624f20abc005",
       "bundle": "module_sources/HFUT-WDR/BMI088.bundle"
     },
     "buzzer_alarm": {
@@ -58,7 +58,7 @@
     "probe": "SEGGER J-Link V9 via OpenOCD 0.12.0",
     "flash_verify": "passed",
     "buzzer_pwm": "TIM12 CH2 CC2E enabled; CCR2/ARR matched the configured duty during the continuous-tone iterations and the final intermittent 800 Hz/4% beeps",
-    "calibration_run": "bmi088 cali completed, offset saved and printed as {0.004970, -0.003222, -0.002206} rad/s",
+    "calibration_run": "bmi088 cali completed in about 50 s (30 s sampling + 15 s quality), offset saved as {0.005551, -0.002516, -0.004179} rad/s",
     "reset_load": "After reset bmi088 list_offset returned the same offset, confirming flash load",
     "note": "The board may have been disturbed during the calibration run; the value verifies the read/write path, not the final zero offset"
   },

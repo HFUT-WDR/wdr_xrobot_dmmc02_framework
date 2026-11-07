@@ -16,8 +16,8 @@
 BMI088 构造参数新增可选 `BuzzerAlarm* buzzer`（默认 `nullptr`）：
 
 - `bmi088 cali` 开始时短鸣 150 ms；
-- 120 s 采样阶段每 3 s 短鸣 80 ms（800 Hz、4% 占空比）；
-- 60 s 质量检查阶段每 1 s 短鸣 80 ms（1 kHz、4%）；
+- 30 s 采样阶段每 3 s 短鸣 80 ms（800 Hz、4% 占空比）；
+- 15 s 质量检查阶段每 1 s 短鸣 80 ms（1 kHz、4%）；
 - 保存完成后三声短鸣（800 Hz、4%）。
 
 Gimbal 构造参数新增可选 `BuzzerAlarm* calibration_buzzer`（默认 `nullptr`）：
@@ -49,7 +49,7 @@ Gimbal 构造参数新增可选 `BuzzerAlarm* calibration_buzzer`（默认 `null
 - 默认板级 Debug 已烧录。TIM12 CH2 寄存器确认：CC2E 使能、CCR2/ARR 与设定
   占空比一致；间歇版本在校准启动后按预期出现短鸣。
 - `bmi088 cali` 端到端完成并写入 Flash，零偏为
-  `{0.004970, -0.003222, -0.002206}` rad/s；复位后 `bmi088 list_offset`
+  `{0.005551, -0.002516, -0.004179}` rad/s（30 s + 15 s 流程，约 50 s 完成）；复位后 `bmi088 list_offset`
   返回同一组值，说明启动加载路径有效。
 - 该次校准期间板子可能受到桌面/线缆扰动，数值只用于验证读写链路，不作为
   最终零偏。

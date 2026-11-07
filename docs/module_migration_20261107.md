@@ -3,7 +3,7 @@
 ## 范围
 
 - `xrobot-org/BMI088`（基线 `e4e64d705f5b61685e629a91e123ad2febe75fc7`）迁移为
-  `HFUT-WDR/BMI088`，本地 dev 提交 `83f6f52dd5a96e47df027a2ad078693dd87a25c1`。
+  `HFUT-WDR/BMI088`，本地 dev 提交 `a65f9d094c8cf0064adc1b344935624f20abc005`。
 - `xrobot-org/BuzzerAlarm`（基线 `a7c17cf7b1d10409848c32bd420cb393515e7f27`）迁移为
   `HFUT-WDR/BuzzerAlarm`，本地 dev 提交 `0068ba8a216f8a31d55d210828d8cf4fe50f74bb`。
 - 两个仓库保留上游 Git 历史和 LICENSE，新增 `UPSTREAM.md` 记录来源与迁移基线。
