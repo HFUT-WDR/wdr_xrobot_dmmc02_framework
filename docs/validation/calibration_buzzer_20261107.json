@@ -18,7 +18,7 @@
       "id": "HFUT-WDR/Gimbal",
       "dev_commit": "087b3130fd32acaf6521459354644bcc0bfed8e8",
       "bundle": "module_sources/HFUT-WDR/Gimbal.bundle",
-      "lock_source": "local bundle until the commit is pushed to HFUT-WDR/Gimbal"
+      "lock_source": "HFUT-WDR/Gimbal dev via ModuleIndex after push"
     },
     "history_and_license": "Upstream history and LICENSE preserved; UPSTREAM.md added to both migrated repositories",
     "lock": "modules.yaml, module_sources/HFUT-WDR/index.yaml and xrobot.lock updated; old Modules/xrobot-org copies moved to .cache/retired_modules"
@@ -66,8 +66,6 @@
     "Gimbal CALI buzzer prompts not tested on hardware; requires motors and the mechanism",
     "Final tone frequency, duty and intervals await operator acceptance",
     "Sound pressure level not measured",
-    "HFUT-WDR/BMI088 and HFUT-WDR/BuzzerAlarm GitHub repositories not created or pushed; ModuleIndex not updated",
-    "HFUT-WDR/Gimbal commit not pushed; lock temporarily uses the local bundle",
     "Cold power-loss during calibration not tested"
   ]
 }

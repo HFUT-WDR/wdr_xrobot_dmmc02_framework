@@ -41,8 +41,8 @@ requests:
   ref: same-or-dev
 modules:
   HFUT-WDR/BMI088:
-    repo: module_sources/HFUT-WDR/BMI088.bundle
-    source: module_sources/HFUT-WDR/index.yaml
+    repo: https://github.com/HFUT-WDR/BMI088.git
+    source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
@@ -55,8 +55,8 @@ modules:
     ref_kind: branch
     commit: 21fcd42496693e84aaef0052c38e3f7ac742991d
   HFUT-WDR/BuzzerAlarm:
-    repo: module_sources/HFUT-WDR/BuzzerAlarm.bundle
-    source: module_sources/HFUT-WDR/index.yaml
+    repo: https://github.com/HFUT-WDR/BuzzerAlarm.git
+    source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
@@ -111,8 +111,8 @@ modules:
     ref_kind: branch
     commit: 82f3c702fd6a8d01a9c02cc52f934f28bcd92a9f
   HFUT-WDR/Gimbal:
-    repo: module_sources/HFUT-WDR/Gimbal.bundle
-    source: module_sources/HFUT-WDR/index.yaml
+    repo: https://github.com/HFUT-WDR/Gimbal.git
+    source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
