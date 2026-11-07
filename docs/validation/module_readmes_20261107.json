@@ -1,0 +1,190 @@
+{
+  "date": "2026-11-07",
+  "active_modules": {
+    "HFUT-WDR/BoardAttitude": {
+      "previous_lock_commit": "a676aa3fe4172c4242b84b6049f031f3bedf5078",
+      "documentation_commit": "21fcd42496693e84aaef0052c38e3f7ac742991d",
+      "readme_sha256": "59c8e357a18b438660828996b729ba02e097a54b455be435c772227e27eb1ccf",
+      "source_mentions": 1
+    },
+    "HFUT-WDR/CMD": {
+      "previous_lock_commit": "731e7fbcdbe0872d7b76184c1f84d8980e748e6a",
+      "documentation_commit": "1157192f71f0cbb17972d00b6a4b7613a05d57ff",
+      "readme_sha256": "e3085070ff74ccf6343bbf36fbe4a133b7f065df8e205bed05e43f0618bb05c9",
+      "source_mentions": 0
+    },
+    "HFUT-WDR/Chassis": {
+      "previous_lock_commit": "51643b42bbf329863feb01a596f92a5ab5f898f5",
+      "documentation_commit": "45299004945aac4d41018f3feef48aa28b19cacd",
+      "readme_sha256": "2c7fdf7f3b7fed50f11741ed0c8924bbde7340895c1df0452fad850cc7675791",
+      "source_mentions": 1
+    },
+    "HFUT-WDR/ControlAlgorithms": {
+      "previous_lock_commit": "e942d1ba53a9941e2c8ee4d40bfa7670329b89dd",
+      "documentation_commit": "b5addd7383fbfe69e4ba25bbe48fe06b6d422d30",
+      "readme_sha256": "a7be932d750d25e3953a48c55f4697d3d838ffb31287d3c01a9d470fd8347641",
+      "source_mentions": 1
+    },
+    "HFUT-WDR/DMMotor": {
+      "previous_lock_commit": "88f58cd835bca3cd5ff479b54a5c58881fc401bd",
+      "documentation_commit": "548143b8b93fdac0f609685922658ed97570beb8",
+      "readme_sha256": "5451fc6a1fc9a2fadcabeff57b92e725b2036b1068fe0596a5997c6a697dbeeb",
+      "source_mentions": 0
+    },
+    "HFUT-WDR/DR16": {
+      "previous_lock_commit": "eb469c4ce5ec186e1de6f7cf131c23ba9821f127",
+      "documentation_commit": "3334fdad5a02e01923fe77eb2a69436e8c46eb35",
+      "readme_sha256": "e9334833cd8d4798a35a128ca95174d10b671b7f772292f5529ff1c8925d7cc4",
+      "source_mentions": 0
+    },
+    "HFUT-WDR/DmImu": {
+      "previous_lock_commit": "5c339d8756618d8b350cb2829b0870efce7c1b2e",
+      "documentation_commit": "041c66b8f51e739770cbec9c50c163d8a5f8ed64",
+      "readme_sha256": "895e51e95adcaf9bc4f691f4566be956935794ac9cb4823debccf003371adf0b",
+      "source_mentions": 1
+    },
+    "HFUT-WDR/EventBinder": {
+      "previous_lock_commit": "a5e8a657b0491d59c208c7565d451dead0eb4ea1",
+      "documentation_commit": "82f3c702fd6a8d01a9c02cc52f934f28bcd92a9f",
+      "readme_sha256": "31fb91425363f7fa6b55eda8aa81f6ed9208fa008aa109be6f4aa886a99dc87a",
+      "source_mentions": 0
+    },
+    "HFUT-WDR/Gimbal": {
+      "previous_lock_commit": "8c139394239421bc7ffe6e4d70e4ed352da840bb",
+      "documentation_commit": "6626b23b437261d13a8cdd1de7ab51c1d66ffd0d",
+      "readme_sha256": "70d70b8fa90821c951ecaf7ecc88a35402b22e83df3ddfdbb16d9314f7208a9f",
+      "source_mentions": 1
+    },
+    "HFUT-WDR/HostData": {
+      "previous_lock_commit": "40f03d444d5716f92b79ad47153970931177b0c1",
+      "documentation_commit": "b9d0c4998b366677ba9152e92a30aff751b83c43",
+      "readme_sha256": "023252bfe330c4fd8e8c6c4308521c593fa9e22520b9790246f21d04a5ca9194",
+      "source_mentions": 0
+    },
+    "HFUT-WDR/I6x": {
+      "previous_lock_commit": "c42cd1780d55a29535e7d369d9676c85803df0ea",
+      "documentation_commit": "2ccbe3d9ce1f3302fda4cc9174a36bf772d911e9",
+      "readme_sha256": "f9163f5ae950a2620ef7b6d104ec05b553c1ef16a04dbffe3ce4ef7b0468d589",
+      "source_mentions": 1
+    },
+    "HFUT-WDR/ImuFusion": {
+      "previous_lock_commit": "0508508870af35a4471934919853b76f369a2150",
+      "documentation_commit": "bd22eedd3aff788d23c7ab1ca5434ef2fc1ce539",
+      "readme_sha256": "ff6de8a6e51b6cca87b5f663097d7aa1822f50afb861091ee649264546039cba",
+      "source_mentions": 1
+    },
+    "HFUT-WDR/Launcher": {
+      "previous_lock_commit": "fd90e2888222e1c72172c6582f08e7aee7f14faf",
+      "documentation_commit": "c667772492f311f5c3ccf6d876a219f79164bc6d",
+      "readme_sha256": "edc5d22d5dda70f13f932df50ef2b4ffc9d9c3959f89672eadce55f798105e8f",
+      "source_mentions": 1
+    },
+    "HFUT-WDR/Motor": {
+      "previous_lock_commit": "a31e7437ae45b34a8d52c5a74663fd80d95ab763",
+      "documentation_commit": "23b4d9f1c7f44d646c24913dbb8366b1312e9de4",
+      "readme_sha256": "aa7b17cb904294748b8bccd2492665af5fee77383b22e1cc0045b5f4a47726bb",
+      "source_mentions": 0
+    },
+    "HFUT-WDR/PowerControl": {
+      "previous_lock_commit": "f6a94a9dc4d09e9e77f0801b578933ec4e812c1f",
+      "documentation_commit": "6d360dc3766c091b0bccc3da7a1bb0777c5789c2",
+      "readme_sha256": "d1811e4f7c4bf4b25c14482d1e0b242cc52a5f8179175ed17079e09cb678919d",
+      "source_mentions": 1
+    },
+    "HFUT-WDR/RMMotor": {
+      "previous_lock_commit": "6ae46d5fa5ca956d24833488cb5ebeca54ecdbd4",
+      "documentation_commit": "d1e558ab398b2cd57234f7796cc3615b3ee8b4b0",
+      "readme_sha256": "72b1dedea9ad66e7233bf02db5a16c62ff9836fd88b75b86ea3df85ded3cd257",
+      "source_mentions": 0
+    },
+    "HFUT-WDR/Referee": {
+      "previous_lock_commit": "4e8e7fae5c46e87639d1c2e221175ec335bc0807",
+      "documentation_commit": "b0c34bf75725c901c13339269049a9d4f8fe4b85",
+      "readme_sha256": "f3eea17e86f74f338c2f27168419ec48056233be9bc880ce71eac21d9a4eea65",
+      "source_mentions": 0
+    }
+  },
+  "markdown_checks": "passed: fences, local links, table column counts, YAML parse",
+  "example_checks": {
+    "BoardAttitude": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "CMD": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "Chassis": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "ControlAlgorithms": {
+      "yaml_examples": 0,
+      "cpp_examples": 2
+    },
+    "DMMotor": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "DR16": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "DmImu": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "EventBinder": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "Gimbal": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "HostData": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "I6x": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "ImuFusion": {
+      "yaml_examples": 0,
+      "cpp_examples": 1
+    },
+    "Launcher": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "Motor": {
+      "yaml_examples": 0,
+      "cpp_examples": 1
+    },
+    "PowerControl": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "RMMotor": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    },
+    "Referee": {
+      "yaml_examples": 1,
+      "cpp_examples": 0
+    }
+  },
+  "source_build_files": "unchanged; only Markdown and already-published personal-config ignore cleanup differ from previous lock",
+  "hardware_validation": "not performed; documentation-only change",
+  "repository_status": {
+    "HFUT-WDR/Pitch": "deleted by user",
+    "HFUT-WDR/DualYaw": "retained by user request; history README points to Gimbal"
+  },
+  "lock_update": "passed: XRobot updated 17 module revisions; official repository URLs retained; published local commit cache used for Git object transfer after network interruptions",
+  "snapshot_restore": "passed: 17 snapshots, 21 modules, 2 configurations, frozen offline setup",
+  "yaml_example_count": 14,
+  "cpp_example_count": 4,
+  "dual_yaw_documentation_commit": "e3ec0ea3dfdf5ae6b4e3e0b2a52b28f5abc737b8",
+  "module_index_commit": "43b5f7cef08378efd570798390c959691bc1d051"
+}
