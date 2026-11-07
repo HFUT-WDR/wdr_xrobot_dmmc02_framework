@@ -6,6 +6,18 @@
 
 本文使用本工程的文件名和命令。XRobot 的通用机制见 [XRobot 官方文档](https://xrobot.work/)，学习路线可参考 [QDU-Robomaster 战队文档](https://qdu-robomaster.github.io/)。QDU 部分页面使用旧版工具命令，本工程以 `requirements-tools.txt` 固定的版本和本文命令为准。
 
+## 整车遥控构建
+
+完整配置已提供：[26_sentry整车遥控说明](docs/sentry_remote.md)。直接选择并构建全部机构：
+
+```sh
+xrobot gen -c User/RobotConfig/sentry_remote.yaml
+cmake --preset Debug
+cmake --build --preset Debug -j4
+```
+
+Pitch使用DM4310电机提供的零位，软件偏置为0；Yaw通过CALI校准获取零位。校准绑定、完整实例和验证范围见上述说明。板级配置仍保留在 `User/xrobot.yaml`，两种配置共用构建产物路径。
+
 ## 目录
 
 - [1. 准备开发环境](#1-准备开发环境)
@@ -244,7 +256,7 @@ cmake --build --preset Debug -j4
 | 底盘功率控制、超电 | [功率控制接入](docs/chassis_power_20261106.md) |
 | 双 yaw + pitch 云台 | [云台接入](docs/gimbal_modules_20261106.md)、`config/templates/gimbal.yaml` |
 
-`config/templates/` 是增量参数，部分内容还包含编译占位绑定，**不能直接作为完整机器人配置生成或作为实机参数烧录**。例如云台模板零位不是实机标定结果。
+`config/templates/` 是增量参数，部分内容还包含编译占位绑定，**不能直接作为完整机器人配置生成或作为实机参数烧录**。例如Yaw编码器初始零位需要通过CALI获取，Pitch则使用DM4310电机提供的零位。
 
 如需多份完整配置，可放在 `User/RobotConfig/` 下，通过 `xrobot gen -c User/RobotConfig/你的配置.yaml` 选择。`xrobot setup` 会检查 `User/` 下的机器人配置，不要把未填写完整的草稿放入该目录。
 

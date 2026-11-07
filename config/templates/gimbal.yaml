@@ -1,4 +1,4 @@
-# 未启用的云台增量编译模板；零位为占位，实际使用前标定。
+# 云台增量模板；Yaw编码器零位通过CALI校准，Pitch使用DM4310电机零位。
 # 电机CAN3、yaw 0x205/0x206电压模式、pitch 0x03/0x13且±12.5rad取自原车。
 # database=nullptr不持久化；注入实际持久化Database后保存标定结果。
 modules:

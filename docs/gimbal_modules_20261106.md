@@ -73,7 +73,7 @@ CALI 先扫描 OUTER_YAW 正/反端点，再扫描 INNER_YAW 正/反端点。仅
 
 DualYaw 可注入 `LibXR::Database*`，以 `gimbal_yaw_calibration` 为默认键加载/保存结果。数据库必须比模块存活更久；Flash 后端写入只在已停止输出后执行。`database=nullptr` 时结果只在 RAM，复位后使用 YAML，不能声称掉电保存成功。当前模板保留此默认值，尚未接入实际 Flash 后端。
 
-模板零位 0 和限位是编译占位，不能当作该机构已验证标定。实际使用前从有效标定或原车保存数据填入 YAML，核对电机参数与物理限位。
+Yaw编码器零位通过CALI获取，模板初始偏置不视为校准结果。Pitch使用DM4310电机提供的零位，软件zero=0，不额外要求Pitch机械置零。整车配置与校准操作见[整车遥控构建](sentry_remote.md)。
 
 ## 对外联动与组合
 

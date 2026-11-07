@@ -17,7 +17,9 @@ jobs:
     uses: HFUT-WDR/xrobot-ci/.github/workflows/bsp-stm32-ci.yml@dev
     with:
       project: wdr_xrobot_dmmc02_framework
-      configs: default
+      configs: |
+        default
+        sentry_remote
       presets: |
         Debug
         Release
