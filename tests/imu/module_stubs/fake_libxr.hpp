@@ -20,6 +20,7 @@
   } while (0)
 namespace LibXR
 {
+inline constexpr double STANDARD_GRAVITY = 9.80665;
 enum class ErrorCode
 {
   OK,

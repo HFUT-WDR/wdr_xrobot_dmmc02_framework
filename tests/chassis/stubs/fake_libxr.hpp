@@ -15,6 +15,7 @@
 #define UNUSED(x) static_cast<void>(x)
 namespace LibXR
 {
+inline constexpr double STANDARD_GRAVITY = 9.80665;
 constexpr double PI = 3.14159265358979323846;
 constexpr double TWO_PI = 6.2831853071795864769;
 enum class ErrorCode

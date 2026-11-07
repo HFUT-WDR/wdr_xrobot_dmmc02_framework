@@ -90,6 +90,13 @@ modules:
           energy_kp: 20.0
           energy_kd_step: 0.05
           energy_max_output: 100.0
+          cap_gain_low: 0.7
+          cap_gain_high: 0.3
+          cap_ratio_low: 0.85
+          cap_ratio_high: 0.95
+          cap_ratio_span: 0.1
+          cap_gain_span: 0.4
+          cap_reserve_w: 5.0
           cap_full: 40.0
           cap_base: 20.0
           referee_full: 60.0

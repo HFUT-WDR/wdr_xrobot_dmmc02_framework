@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "imu.h"
 namespace wdr_imu
 {
 struct Attitude

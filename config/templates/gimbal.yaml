@@ -181,6 +181,13 @@ modules:
       tracking_kp: 3000
       tracking_ki: 10
       tracking_kd_feedback: 150
+      integral_error_min: 0.004
+      integral_error_max: 0.05
+      integral_reset_error: 0.1
+      integral_min: -0.3
+      integral_max: 0.2
+      integral_reverse_decay: 0.85
+      scan_kd: 1
       torque_limit: 5
       td_w: 40
       td_zeta: 1
