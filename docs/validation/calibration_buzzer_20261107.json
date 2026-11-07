@@ -63,6 +63,7 @@
     "note": "The board may have been disturbed during the calibration run; the value verifies the read/write path, not the final zero offset"
   },
   "unverified": [
+    "Module CI on the new BMI088/BuzzerAlarm repositories fails at the private-dependency token check (HTTP 401) until WDR_MODULES_READ_TOKEN is configured",
     "Gimbal CALI buzzer prompts not tested on hardware; requires motors and the mechanism",
     "Final tone frequency, duty and intervals await operator acceptance",
     "Sound pressure level not measured",

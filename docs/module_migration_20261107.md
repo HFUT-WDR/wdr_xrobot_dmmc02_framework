@@ -53,3 +53,7 @@
 - `default` 与 `sentry_remote` 的 Debug/Release 构建通过；9 组主机回归通过。
 - 默认板级 Debug 已烧录；BMI088 校准、Flash 持久化和复位加载见
   [校准蜂鸣提示](calibration_buzzer_20261107.md)。
+
+> CI 注意：新仓库的 Module CI 需要 `WDR_MODULES_READ_TOKEN`（或加入组织 secret 的可见仓库）。
+> 2026-11-07 首次运行在 "Check private dependency token access" 步骤以 HTTP 401 失败，
+> 尚未进入编译；请在两个新仓库设置该 secret 后重新运行 `gh workflow run build.yml`。
