@@ -16,7 +16,3 @@
 - 构建使用 cmake --preset Debug/Release 和 cmake --build --preset Debug/Release -j4。
 - 构建、烧录校验、设备收发和机构闭环是不同验证层次，记录范围及未验证项。
 - 当前为板级基座阶段；新增电机模块前明确初始化是否发送、控制模式及失控行为。
-
-## VS Code 构建与烧录同步
-
-修改工程名、产物路径、CMake 预设、工具链、编译标准、调试器或烧录参数时，同步检查 `.vscode/tasks.json`、`launch.json`、`settings.json`、`c_cpp_properties.json` 和 README。编译任务先配置再构建，烧录任务先构建再校验、复位。普通烧录禁止附带修改选项字节。
