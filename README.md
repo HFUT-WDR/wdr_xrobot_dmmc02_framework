@@ -1,162 +1,323 @@
-# WDR XRobot DM-MC02 Framework
+# WDR MC02 框架使用教程
 
-WDR MC02 机器人固件基座，使用 LibXR 与 XRobot 管理板级资源和功能模块。第三方来源与许可证见 [声明文件](THIRD_PARTY_NOTICES.md)。
+本工程用于达妙 DM-MC02（STM32H723VGT6）机器人控制板，基于 FreeRTOS、LibXR 和 XRobot，使用 C++20 开发。
 
-当前：STM32H723VGT6，CPU **550 MHz**，I/D Cache；TIM4 时基；双 USB CDC（Log / Host）；ADC3 温度和参考电压 BDMA 采集；XRobot 模块接入 `BuzzerAlarm`、`BMI088` 和 `BoardAttitude`，另有板级 RGB 灯、按键及状态诊断。原有板级模块已烧录并通过终端和 IMU 采样初测，新姿态模块尚未板测；用户已目视确认 RGB 红/绿/蓝及绿色心跳正常，实体按键按下/松开及边沿计数验证通过。
+第一次使用时，先按本文完成 **拉取工程 → 恢复模块 → 生成入口 → 编译 → 烧录 → 查看板级状态**，再接入遥控器、电机和机构。默认 `User/xrobot.yaml` 仅实例化蜂鸣器、板载 BMI088 和板载姿态模块，不启动外接电机、底盘、云台或发射机构。
 
-## 生成和构建
+本文使用本工程的文件名和命令。XRobot 的通用机制见 [XRobot 官方文档](https://xrobot.work/)，学习路线可参考 [QDU-Robomaster 战队文档](https://qdu-robomaster.github.io/)。QDU 部分页面使用旧版工具命令，本工程以 `requirements-tools.txt` 固定的版本和本文命令为准。
 
-工具版本：`libxr==6.0.1`、`xrobot==1.0.1`。本机使用 ARM GCC；原 starm-clang 配置保留，可用官方 `libxr stm32 toolchain` 切换。
+## 目录
 
-```sh
-git submodule update --init --recursive
-libxr stm32 setup -d . --xrobot
-xrobot setup
-cmake --preset Debug
-cmake --build --preset Debug -j4
-cmake --preset Release
-cmake --build --preset Release -j4
-```
+- [1. 准备开发环境](#1-准备开发环境)
+- [2. 拉取工程并恢复模块](#2-拉取工程并恢复模块)
+- [3. 生成入口并编译](#3-生成入口并编译)
+- [4. 烧录与首次运行](#4-烧录与首次运行)
+- [5. 修改配置与接入模块](#5-修改配置与接入模块)
+- [6. 日常开发与协作](#6-日常开发与协作)
+- [7. 常见问题](#7-常见问题)
+- [8. 专题文档与参考资料](#8-专题文档与参考资料)
 
-修改硬件后先由 CubeMX 重新生成 `wdr_xrobot_dmmc02_framework.ioc` 对应工程，再运行上述接入工具。HAL / LibXR 生成代码只改 USER CODE 区；DMA 链接段及边界符号必须保留。
+## 1. 准备开发环境
 
-产物：`build/Debug/wdr_xrobot_dmmc02_framework.elf`（及 HEX/BIN）；Release 同理。
+Windows 和 Linux 均可使用；以下命令默认在工程根目录执行。先按 [XRobot STM32 环境配置](https://xrobot.work/docs/env_setup/env-setup-stm32) 安装工具，再核对本工程的要求。
 
-## VS Code 编译、烧录和调试
+| 工具 | 用途与要求 |
+| --- | --- |
+| Git | 拉取主工程、LibXR 子模块和 XRobot 模块 |
+| Python 3 与 pip | 安装代码生成器、模块管理工具及检查脚本依赖 |
+| CMake | 不低于 3.22，使用仓库中的 Debug / Release 预设 |
+| Ninja | 预设指定的构建工具 |
+| ARM GNU Toolchain | 提供 `arm-none-eabi-gcc`、`arm-none-eabi-g++`、`arm-none-eabi-objcopy` 等命令 |
+| OpenOCD | 通过 CMSIS-DAP / DAPLink 或 J-Link 烧录、调试 |
+| GDB | 可用 `arm-none-eabi-gdb`；Linux 也可使用 `gdb-multiarch` |
+| GitHub CLI（`gh`） | 下文用于配置私有仓库的 HTTPS 认证 |
+| STM32CubeMX | 修改芯片外设、引脚和时钟配置时使用 |
 
-在 VS Code 中直接打开本工程根目录。安装推荐的 CMake Tools、C/C++ 和 Cortex-Debug 扩展；本机工具为 CMake、Ninja、ARM GCC、OpenOCD 和 gdb-multiarch。
-
-- `Ctrl+Shift+B`：配置并编译 Debug。
-- “终端 → 运行任务”：选择 `编译 Release` 或 `烧录 Debug（J-Link）` / `烧录 Release（J-Link）`。
-- 烧录任务自动先编译，再通过 J-Link / SWD 1 MHz 下载、校验、复位运行。
-- `F5`：使用 Debug 固件启动 Cortex-Debug，停在 `main`；该操作会下载固件。
-
-烧录和调试时，先关闭占用 J-Link 的 Ozone 或其他调试会话。F5 停在断点时 USB 可能暂时不可用；结束后若板子停住，可按复位键恢复运行。普通烧录不修改 CPU_FREQ_BOOST 等选项字节。配置中的 Linux 工具路径更换机器时需核对。
-
-## 使用日志终端
-
-USB 接主机后，接口 `if00` 为 Log，`if02` 为 Host。使用 ANSI/VT100 串口终端打开 Log CDC（115200 8N1），执行：
-
-```text
-ls
-status
-echo WDR_READY
-```
-
-输入行最大 32 字符，echo 接受单个 token。USB CDC 波特率设置不决定 USB 总线速率。
+确认命令行能找到工具：
 
 ```sh
-python3 tools/check_terminal.py --port /dev/serial/by-id/实际设备的-if00
+git --version
+python --version
+cmake --version
+ninja --version
+arm-none-eabi-gcc --version
+openocd --version
 ```
 
-## 板级模块
+Linux 若没有 `python` 命令，创建虚拟环境前使用 `python3`。Windows 安装工具后，重新打开终端，使 `PATH` 生效。
 
-| 功能 | 接口 | 终端命令 |
-| --- | --- | --- |
-| RGB 灯 | SPI6 / PA7，WS2812；默认绿色心跳 | `led`、`led 8 0 0`、`led 0 0 0`、`led auto` |
-| 用户按键 | PA15，低有效；10 ms 采样、连续 3 拍消抖 | `key`：按下状态、累计按下次数和原始电平 |
-| BMI088 | SPI2、PC0/PC3 片选、PE12 数据就绪；TIM3_CH4 加热输出为零 | `imu`：等待新采样，角速度 rad/s、加速度 g；`bmi088 show 1000 100`：上游温度/数据查看 |
-| 运行诊断 | 主频、运行时间、堆、任务数、SPI/ADC 错误和 CFSR | `status`、`health` |
+Python 包 `libxr` 是代码生成器，工程使用的 LibXR C++ 库位于 Git 子模块 `Middlewares/Third_Party/LibXR/`，两者都需要准备。
 
-BMI088 采用 XRobot 官方模块的固定提交，由 `xrobot.lock` 记录；参数和硬件绑定集中在 `User/xrobot.yaml`：陀螺仪 1000 Hz、±2000 dps，加速度 1600 Hz、±6 g，坐标旋转为单位四元数；原始六轴数据交给 `BoardAttitude` 做原26_sentry姿态融合。新姿态模块尚未板测。温控 PID 系数为零，因此不加热。
+## 2. 拉取工程并恢复模块
 
-`ImuRamDatabase` 只保存当前上电周期的零偏，复位即清除；没有开启 Flash 数据库。上游 `bmi088 cali` 为约 3 分钟的阻塞命令，本轮未执行或验证。`imu` 的新 Topic 消息不等价于有效姿态或控制系统在线判断。
+### 2.1 配置仓库访问权限
 
-SPI6 目前仅有 TX DMA；LibXR 生成器按其规则选择轮询发送。单次灯帧 88 字节，正常线速下约 117 μs，未测真实调度耗时。
-
-接入范围、来源和验证见 [板级模块记录](docs/board_modules.md)。
-
-## 板级条件与验证
-
-550 MHz 要求芯片已启用 CPU_FREQ_BOOST。本次经用户授权设置，采样选项寄存器前后对比确认只改变 BOOST 位；新板烧录前须先核对，应用不会自动改选项字节。
-
-内部 Flash 数据库暂时关闭；上游生成的默认 Flash 映射覆盖整个芯片，需先划分独立数据库区域才能启用。
-
-配置变化、首次模块闭环与板测证据见 [迁移与验收记录](docs/wdr_base_bringup.md)。命名与格式遵循 [AGENTS.md](AGENTS.md)。
-
-保留上游 [LICENSE](LICENSE) 和 [NOTICE](NOTICE)。
-
-## 外接基础模块（已接依赖，默认不启动）
-
-已引入 WDR 维护的 DJI／达妙电机、DR16、裁判系统、HostData，以及 CMD／Motor 和
-SharedTopic 双向通信依赖。型号、ID 和接线未确认的实例不加入默认启动配置。
-配置模板、参数含义、驱动差异和后续启用步骤见 [基础设备模块接入](docs/external_modules.md)。
-
-正常 Debug／Release 编译会同时检查外接模块和组合 YAML；检查对象不链接进板级固件。
-VS Code 日常菜单仅显示编译和烧录；配置、模块检查及主机测试任务隐藏，仍可作为内部依赖或开发脚本使用，测试由维护修改的一方运行。
-
-
-## 当前私有仓库与首次准备
-
-主工程和全部18个自维护模块存放于 `HFUT-WDR` 私有仓库，组织成员可读。
-共享索引、Module CI 和 BSP CI 在 [`HFUT-WDR/xrobot-ci`](https://github.com/HFUT-WDR/xrobot-ci)。
-个人仓库保留；LibXR 和 xrobot-org 官方模块继续使用上游。
+主工程、WDR 模块及模块索引使用 `HFUT-WDR` 组织仓库。先确认当前账号具有这些仓库的读取权限。使用 HTTPS 时：
 
 ```sh
 gh auth login
 gh auth setup-git
-git clone --recurse-submodules https://github.com/HFUT-WDR/wdr_xrobot_dmmc02_framework.git
+```
+
+若已配置可访问组织仓库的 Git 凭据，可直接使用现有认证方式。不要把 Token 写入 YAML、仓库 URL 或 README。
+
+### 2.2 拉取开发分支
+
+```sh
+git clone --branch dev --recurse-submodules https://github.com/HFUT-WDR/wdr_xrobot_dmmc02_framework.git
 cd wdr_xrobot_dmmc02_framework
-python3 -m pip install -r requirements-tools.txt
+```
+
+若已拉取主工程但未初始化子模块：
+
+```sh
+git submodule update --init --recursive
+```
+
+子模块包含 LibXR C++ 库和 `ModuleIndex` 模块索引。仅下载主工程 ZIP 不能替代完整的子模块初始化。
+
+### 2.3 安装固定版本的 Python 工具
+
+推荐在独立虚拟环境中安装。Linux / Bash：
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-tools.txt
+```
+
+Windows PowerShell：
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements-tools.txt
+```
+
+当前工具版本为 `libxr==6.0.1`、`xrobot==1.0.1`；其余 Python 依赖也由 `requirements-tools.txt` 维护。虚拟环境属于个人文件，在本机 `.git/info/exclude` 中加入 `.venv/`，不提交到仓库。
+
+### 2.4 恢复锁定模块
+
+```sh
 xrobot setup --frozen
+```
+
+该命令按 `xrobot.lock` 恢复模块，并检查配置、生成入口。首次执行需要联网和私有模块仓库的访问权限。完成后，模块源码位于 `Modules/<组织>/<模块名>/`，并生成 `Modules/CMakeLists.txt`。
+
+模块已在本地完整恢复、锁定提交可用时，可离线执行：
+
+```sh
+xrobot setup --frozen --offline
+```
+
+`--offline` 不会下载缺失依赖，不能用于空目录的首次安装。普通上手流程无需更新模块版本；需要升级依赖时再按[日常开发](#6-日常开发与协作)处理。
+
+## 3. 生成入口并编译
+
+### 3.1 选择默认板级配置
+
+```sh
+xrobot gen -c User/xrobot.yaml
+```
+
+该命令生成 `User/xrobot_main.hpp`。配置变更后重新生成，不要直接修改生成头文件。每次准备烧录时显式指定配置，可以避免沿用此前选中的其他配置。
+
+本工程已经接入 LibXR，首次拉取后通常无需重新运行板级生成器；只有修改 CubeMX 或底层资源映射时才需要重新生成板级代码。
+
+### 3.2 编译 Debug 或 Release
+
+```sh
 cmake --preset Debug
 cmake --build --preset Debug -j4
 ```
 
-私有索引通过 `ModuleIndex` Git 子模块读取；新机器需要各私有仓库的读取权限。
-开发分支为 `dev`。提交和PR自动调用组织共享CI，运行在GitHub提供的Ubuntu临时服务器及XRobot Docker镜像内。
-模块CI解析私有依赖、生成构造调用并进行编译，不执行构造函数；BSP CI检查生成文件、锁文件和配置，再交叉编译Debug/Release固件。
-CI不连接板子，不烧录、不驱动电机，也不能代替通信和机构闭环验收。
+Release：
 
-CI跨仓库读取使用专用 `WDR_MODULES_READ_TOKEN`（仅本次20个仓库Contents Read-only），普通 `GITHUB_TOKEN` 负责当前仓库操作。
-维护者更换Token时运行 `python3 tools/configure_wdr_ci.py` 隐藏输入；`--check`检查19个调用仓库是否已配置Secret。
-配置方式、触发条件与验证范围见[组织仓库与CI说明](docs/wdr_organization_ci.md)。
+```sh
+cmake --preset Release
+cmake --build --preset Release -j4
+```
 
-I6x现为正式XRobot模块，配置为`HFUT-WDR/I6x`。`config/templates/chassis.yaml`包含 I6x 接入参数；
-默认仍选择不含外接接收实例的`User/xrobot.yaml`。确认接线后才显式切换配置、构建并烧录。
-详见[模块接入说明](docs/external_modules.md)与[私有仓库迁移记录](docs/private_repositories_20261104.md)。
+| 产物 | Debug 路径 |
+| --- | --- |
+| ELF（烧录和调试符号） | `build/Debug/wdr_xrobot_dmmc02_framework.elf` |
+| HEX | `build/Debug/wdr_xrobot_dmmc02_framework.hex` |
+| BIN | `build/Debug/wdr_xrobot_dmmc02_framework.bin` |
+| C++ 索引数据库 | `build/Debug/compile_commands.json` |
 
-## 姿态模块（2026-11-05）
+Release 产物位于 `build/Release/`。正常构建还会编译检查未启用模块和组合 YAML；这些检查对象不链接进运行固件，因此“模块编译通过”不代表它已经在板上启动。
 
-默认 `User/xrobot.yaml` 增加板载姿态解算，单颗外置 DM 配置为 `config/templates/dm_imu.yaml`。
-默认安装矩阵为单位阵；外置 DM 不默认启动。新增终端命令 `attitude` 与 `dm_attitude`。
-设计、单位、配置、验证和未验证项见 [IMU接入记录](docs/imu_modules_20261105.md)。
-VS Code 的“测试 IMU（主机）”执行冻结算法和协议回归；普通编译仍同时检查未启用模块。
-本次未烧录，Flash 中仍为此前板级固件；原硬件验收不能代替新姿态模块验收。
+## 4. 烧录与首次运行
 
-DM模块已补齐CAN请求/应答、现版24字节RS485请求/应答与显式旧流兼容，支持原始测量、设备姿态/本地融合及诊断输出。
-CAN 请求、RS485 请求和流式组合由编译检查工具从同一增量模板生成，默认不启用外置设备。
-不含CAN主动上报模式；协议范围、配置与硬件未验证项见[DM模块补全记录](docs/dm_imu_complete_20261105.md)。
+### 4.1 连接控制板与调试器
 
-## 底盘模块（2026-11-05）
+将调试器的 SWDIO、SWCLK、GND 和电压参考按 MC02 与探针手册连接；控制板按硬件要求供电，USB 数据线连接主机以查看终端。烧录前关闭占用同一探针的 Ozone、GDB 或其他调试会话。
 
-已引入 `HFUT-WDR/Chassis`，增量模板为 `config/templates/chassis.yaml`；默认配置不启动底盘。
-功能与参数沿用26_sentry，模块使用Topic、事件和YAML组装。云台反馈接口已定义，缺失或停更时保持无力。
-终端 `chassis` 只读状态，VS Code“测试底盘（主机）”执行离线回归。
-配置、保护、验证及功率控制尚未接入的边界见[底盘接入记录](docs/chassis_module_20261105.md)。本轮未烧录。
+当前工程使用 **550 MHz** 时钟，目标芯片需启用对应的 `CPU_FREQ_BOOST` 选项。新板先按芯片手册核对这一条件；以下普通烧录命令不会修改选项字节。
 
-底盘命令现统一为m/s、rad/s，遥控死区在输入端处理；普通零目标保留闭环制动。接口与本轮验证见[底盘命令契约](docs/chassis_contract_20261105.md)。
+### 4.2 使用 CMSIS-DAP / DAPLink 烧录
 
-DAPLink/CMSIS-DAP已提供“烧录 Debug（DAPLink）”“烧录 Release（DAPLink）”任务及对应调试入口。采用SWD 1MHz，先编译再烧录、校验和复位，不修改选项字节。2026-11-05板级烧录及运行检查见[验证记录](docs/validation/daplink_20261105.json)。
+先完成 Debug 编译，再在工程根目录执行：
 
-PID与LPF已提取到公共ControlAlgorithms依赖，底盘改用LibXR PID基座并补齐导数滤波/首拍处理。选型、旧实现问题、增益换算及验证见[公共控制算法记录](docs/control_algorithms_20261106.md)。相关主机测试脚本供开发维护验证使用。
+```sh
+openocd -f interface/cmsis-dap.cfg -f target/stm32h7x.cfg -c "transport select swd" -c "adapter speed 1000" -c "program build/Debug/wdr_xrobot_dmmc02_framework.elf verify reset exit"
+```
 
-当前只使用 `User/xrobot.yaml` 作为机器人配置；`User/libxr_config.yaml` 配置底层外设。
-`config/templates/` 是未启用设备的增量参数，供编译回归使用，不能直接作为完整机器人配置生成。
+命令完成下载、校验并复位运行。使用 J-Link 时，将 `interface/cmsis-dap.cfg` 换为 `interface/jlink.cfg`；Release 烧录时将产物路径中的 `Debug` 换为 `Release`。核对输出中下载和校验均成功后，再检查板上运行状态。
 
-底盘故障现为可在调试器展开的具名布尔字段，见[故障快照说明](docs/chassis_faults_20261106.md)。
+也可在自己的 Ozone 或 IDE 调试配置中选择同一 ELF、STM32H723VGT6 和 SWD 接口。个人 `.vscode/`、`.settings/`、Ozone 工程及用户配置已停止入库，仓库不提供统一的快捷键或本机绝对路径。
 
-底盘功率控制已补齐RLS、能量环、逐轮功率分配与26_sentry超电协议；默认固件不启用。参数、离线回退及硬件未验证项见[功率控制接入](docs/chassis_power_20261106.md)。
+### 4.3 打开 Log 终端
 
-控制组织现为 `Chassis<Omni>` 与独立 `PowerControl` 模块；全局 OP/AUTO、遥控断连保护、实际 dt 及原车功率分配见[对齐记录](docs/control_alignment_20261106.md)。默认固件仍为板级配置。
+默认 USB 提供两个 CDC 接口：`if00` 为 Log，`if02` 为 Host 通信。Linux 可通过 `/dev/serial/by-id/` 找到设备；Windows 在设备管理器中确认对应 COM 端口。
 
-后续默认Debug已完成DAPLink烧录校验和板级运行检查：RTOS与姿态序号持续增长，SPI/ADC及CPU故障寄存器为零。此固件不含底盘/功率实例，记录见[板级测试](docs/validation/control_alignment_20261106_board.json)。
+使用支持 ANSI/VT100 的串口终端打开 Log CDC，设置为 115200、8N1。USB CDC 的波特率设置不决定 USB 总线速率。输入行最长 32 字符。
 
+先执行：
 
-## 双 yaw + pitch 云台
+```text
+ls
+status
+health
+echo WDR_READY
+```
 
-云台已拆为 `DualYaw`、`Pitch`、`Gimbal` 三个 XRobot 模块，由 Gimbal 的一个 1 ms 线程统一调用；默认板级配置不启用。上电保持 RELAX，遥控/AI 失效后需要明确模式操作恢复。GM6020 电压/电流模式显式区分，云台沿用原车电压模式；标定用于确定编码器相对角零点。
+然后检查板级功能：
 
-AUTO仅保留STOP/AIM/SCAN，遥控Pitch路径命名为REMOTE_CONTROL；删除AUTO_TEST搜寻状态机和AI大yaw导航角度输入。底盘独立在大yaw坐标系执行AI导航速度。Pitch归中使用机械零点，自瞄/扫描统一约束机械可达目标。
+| 命令 | 应观察的内容 |
+| --- | --- |
+| `status` | 主频、运行时间、剩余堆空间、任务数；多次执行时运行时间增长 |
+| `health` | SPI / ADC 错误及 CPU 故障状态 |
+| `led 8 0 0`、`led 0 0 0`、`led auto` | 红灯、熄灭、恢复自动心跳 |
+| `key` | 按下 / 松开时按键状态变化，按下计数递增 |
+| `imu` | 新陀螺仪和加速度数据，单位分别为 rad/s、g |
+| `attitude` | 板载姿态序号和时间更新，角度单位为 rad |
 
-增量配置见 [云台模板](config/templates/gimbal.yaml)，模块边界、命令契约、校准存储、原车差异及验证范围见 [云台移植说明](docs/gimbal_modules_20261106.md)。模板零位为编译占位，未绑定持久化数据库，不能直接当作实机标定参数。未进行云台烧录、设备收发或机构闭环验证。
+默认固件没有外置 DM IMU 或底盘实例，`dm_attitude`、`chassis` 等待不到新数据属于预期现象。上电后的 BMI088 零偏仅保存于 RAM，复位后清除；温控 PID 为零，默认不加热，内部 Flash 数据库未启用。
+
+构建成功、烧录校验成功、设备数据收发正常和机构闭环正常是不同验证层次。板级状态通过后，再按具体模块文档进行外接设备测试。
+
+## 5. 修改配置与接入模块
+
+### 5.1 先分清文件职责
+
+| 文件或目录 | 修改内容 |
+| --- | --- |
+| `wdr_xrobot_dmmc02_framework.ioc` | CubeMX 引脚、外设、DMA 和时钟配置 |
+| `User/libxr_config.yaml` | LibXR 外设封装、USB、终端等板级资源配置 |
+| `User/app_main.cpp` | 板级入口，通过 `XR_REGISTER` 注册资源，再调用 `XROBOT_MAIN()` |
+| `User/xrobot.yaml` | 实际启用的模块、实例顺序、设备参数和资源绑定 |
+| `Modules/modules.yaml` | 模块依赖及 XRobot 工具版本 |
+| `Modules/sources.yaml`、`ModuleIndex/` | 模块来源和索引 |
+| `xrobot.lock` | 模块锁定提交，由工具维护 |
+| `config/templates/` | 未启用设备的增量配置与参数参考 |
+| `Modules/<组织>/<模块名>/` | 独立模块仓库的实现代码 |
+
+电机型号、CAN 总线、ID、方向、PID、零位和几何参数放在机器人 YAML；模块中维护可复用功能。资源名称必须与 `User/app_main.cpp` 中的注册名称一致，例如 `can1`、`spi2`、`pwm_tim12_ch2`。
+
+### 5.2 做一次最小配置修改
+
+在 `User/xrobot.yaml` 的 `buzzer` 实例中，将 `alarm_freq` 从 `1500` 改为 `2000`，然后执行：
+
+```sh
+xrobot gen -c User/xrobot.yaml
+cmake --preset Debug
+cmake --build --preset Debug -j4
+```
+
+在生成的 `User/xrobot_main.hpp` 中核对蜂鸣器构造参数变为 `2000`，确认配置已进入构建链路。`alarm_freq` 只影响致命错误报警，上电提示音仍使用模块内固定旋律。改动保留在 YAML 中，生成头文件由工具更新。
+
+### 5.3 接入外接设备与机构
+
+仓库已声明多种模块依赖，但默认板级配置只启动其中一部分。接入顺序为：
+
+1. 阅读对应模块的 README 和下表中的接入说明，确认初始化是否发送报文、控制模式及失控行为。
+2. 按实际硬件核对总线、ID、方向、单位、限位和超时参数。
+3. 将所需实例从增量模板整理到 `User/xrobot.yaml`，并填写真实参数。依赖实例应排在使用它的实例之前。
+4. 重新生成、编译，先观察反馈和状态，再验证输出与闭环。
+
+| 功能 | 参数参考与说明 |
+| --- | --- |
+| 电机、DR16 / I6x、裁判系统、HostData、CMD | [基础模块接入](docs/external_modules.md)、`config/templates/external_devices.yaml.in` |
+| 板载 / 外置姿态 | [IMU 接入](docs/imu_modules_20261105.md)、[DM 协议说明](docs/dm_imu_complete_20261105.md)、`config/templates/dm_imu.yaml` |
+| 全向底盘 | [底盘接入](docs/chassis_module_20261105.md)、[命令单位与契约](docs/chassis_contract_20261105.md)、`config/templates/chassis.yaml` |
+| 底盘功率控制、超电 | [功率控制接入](docs/chassis_power_20261106.md) |
+| 双 yaw + pitch 云台 | [云台接入](docs/gimbal_modules_20261106.md)、`config/templates/gimbal.yaml` |
+
+`config/templates/` 是增量参数，部分内容还包含编译占位绑定，**不能直接作为完整机器人配置生成或作为实机参数烧录**。例如云台模板零位不是实机标定结果。
+
+如需多份完整配置，可放在 `User/RobotConfig/` 下，通过 `xrobot gen -c User/RobotConfig/你的配置.yaml` 选择。`xrobot setup` 会检查 `User/` 下的机器人配置，不要把未填写完整的草稿放入该目录。
+
+## 6. 日常开发与协作
+
+### 6.1 日常修改流程
+
+修改 YAML 后重新生成，再编译；仅修改普通 C++ 实现时按需编译。开始新功能前检查主工程及模块的未提交改动，模块源码属于独立仓库，不会随主工程提交自动保存。
+
+需要升级某个模块时，在保存好模块本地修改后执行，例如：
+
+```sh
+xrobot setup --update HFUT-WDR/Chassis
+```
+
+审查模块版本、配置和 `xrobot.lock` 的变化，再构建验证。跨仓库改动应先将模块提交到对应模块仓库，再更新主工程锁文件，避免其他人无法恢复锁定提交。不要通过直接编辑锁文件改变依赖。
+
+### 6.2 修改硬件配置
+
+在 CubeMX 中修改 `.ioc` 并重新生成代码，核对 `User/libxr_config.yaml` 后执行：
+
+```sh
+libxr stm32 setup -d . --xrobot
+xrobot setup --frozen
+xrobot gen -c User/xrobot.yaml
+cmake --preset Debug
+cmake --build --preset Debug -j4
+```
+
+生成前保存当前修改，生成后审查差异。CubeMX 文件只维护 USER CODE 区；LibXR 生成入口与 XRobot 生成头通过工具更新，保留 DMA 链接段和边界符号。详细约定见 [AGENTS.md](AGENTS.md)。
+
+### 6.3 验证与提交
+
+修改控制模块时运行对应的主机回归，例如：
+
+```sh
+python tests/chassis/run_tests.py
+python tests/power/run_tests.py
+python tests/imu/run_tests.py
+```
+
+测试范围按改动选择，主机回归不能代替设备收发和实机闭环。提交前查看 `git diff` 与暂存区，确认只包含本次改动。
+
+提交机器人 YAML、模块清单、锁文件、实现和必要文档；个人 IDE / 调试配置、虚拟环境、构建产物及下载的模块工作副本不应入库。个人目录可在本机 `.git/info/exclude` 中补充忽略规则。
+
+框架的 CI 对 Debug / Release 构建及生成配置进行检查，模块 CI 检查模块依赖和构造接口。CI 不连接控制板；跨私有仓库的权限与维护方式见 [组织仓库与 CI 说明](docs/wdr_organization_ci.md)。
+
+## 7. 常见问题
+
+| 现象 | 检查方法 |
+| --- | --- |
+| 私有仓库提示无权限或无法找到 | 确认账号有组织仓库权限；核对 HTTPS / SSH 认证及 `ModuleIndex` 子模块是否完整 |
+| `xrobot` / `libxr` 找不到或版本不符 | 激活本工程虚拟环境，重新按 `requirements-tools.txt` 安装 |
+| `--frozen` 提示锁文件与清单不一致 | 检查是否混用了不同版本的清单与锁文件；需要升级时由维护者正常解析并提交一致版本 |
+| 离线恢复失败 | 先联网执行 `xrobot setup --frozen`，确保模块目录和锁定提交都存在 |
+| CMake 找不到编译器或 Ninja | 检查 `PATH`，确认使用仓库预设指定的 ARM GCC 工具链 |
+| 找不到 `User/xrobot_main.hpp` 或模块 CMake 文件 | 先恢复模块，再运行 `xrobot gen -c User/xrobot.yaml` |
+| YAML 资源名称、构造参数或类型报错 | 对照 `XR_REGISTER`、模块构造函数与同版本模板；不要手工修改生成头文件绕过错误 |
+| 编译通过但新功能没有运行 | 检查所选配置是否实际实例化了模块，再确认已烧录本次生成的 ELF |
+| 调试探针无法连接或被占用 | 关闭其他调试会话，核对板卡供电、SWD 接线、驱动权限和探针类型 |
+| USB 无输出 | 确认打开的是 Log CDC，检查是否停在断点或异常；结束调试后复位再观察 |
+| `imu` / `attitude` 等待超时 | 检查实例是否启用、Topic 名称和采样链路；单次超时不等于已定位硬件故障 |
+| 配置修改后效果不变 | 重新执行生成、编译、烧录，并确认选择的是同一份配置和产物 |
+
+## 8. 专题文档与参考资料
+
+| 内容 | 入口 |
+| --- | --- |
+| LibXR / XRobot 环境、模块管理与生成工具 | [XRobot 官方文档](https://xrobot.work/)、[项目管理](https://xrobot.work/docs/proj_man)、[配置说明](https://xrobot.work/docs/proj_man/proj-man-config) |
+| 从板级程序到机器人配置的学习路线 | [QDU-Robomaster 文档](https://qdu-robomaster.github.io/)、[快速上手](https://qdu-robomaster.github.io/电控组/quick-start) |
+| 板级资源及验收记录 | [板级模块](docs/board_modules.md)、[基座迁移与验收](docs/wdr_base_bringup.md) |
+| 控制算法与诊断 | [公共控制算法](docs/control_algorithms_20261106.md)、[底盘故障快照](docs/chassis_faults_20261106.md) |
+| 开发规范 | [AGENTS.md](AGENTS.md) |
+| 第三方来源与许可证 | [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)、[LICENSE](LICENSE)、[NOTICE](NOTICE) |
+
+专题记录中的日期和验收结论对应当时的配置与固件；判断当前固件是否包含某功能，应以本次选择的 YAML、构建产物和实际测试为准。
