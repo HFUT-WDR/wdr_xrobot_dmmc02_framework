@@ -1,4 +1,0 @@
-xrobot: 1.0.1
-modules:
-- HFUT-WDR/HostLink@dev
-- HFUT-WDR/HostRos@dev

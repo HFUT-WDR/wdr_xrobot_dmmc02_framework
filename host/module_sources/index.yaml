@@ -1,8 +1,0 @@
-namespace: HFUT-WDR
-modules:
-- id: HFUT-WDR/HostLink
-  repo: ./HostLink.bundle
-  status: community
-- id: HFUT-WDR/HostRos
-  repo: ./HostRos.bundle
-  status: community
