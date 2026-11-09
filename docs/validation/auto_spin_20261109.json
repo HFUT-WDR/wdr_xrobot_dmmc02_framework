@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-09",
+  "scope": "恢复26_sentry下位机自动旋转策略；未重新烧录",
+  "architecture": {
+    "CMD": "选择OP/AUTO来源，传递自瞄状态与距离，不判断转速",
+    "Chassis.SetControl": "调用AutoSpin生成wz，使用裁判血量/伤害/比赛阶段及PowerControl缓冲",
+    "Control.SetControl": "沿用现有滤波、坐标变换及旋转缩减，普通移动姿态跳过缩减"
+  },
+  "policy": {
+    "base_rad_s": -2,
+    "stationary_near_aim_rad_s": -3.5,
+    "stationary_far_aim_rad_s": 0,
+    "stationary_threshold_m_s": 0.3,
+    "far_distance_m": 4,
+    "attacked_rad_s": -7,
+    "attacked_hold_ms": 6000,
+    "prepare_countdown_rad_s": -1,
+    "selfcheck_rad_s": 0,
+    "minimum_buffer_j": 30,
+    "minimum_rotation_scale": 0.3
+  },
+  "preserved": [
+    "mode0和aim失联联锁停车",
+    "扫描及自瞄允许导航",
+    "OP遥控旋转",
+    "nav失联停平移，aim有效时仍由本地策略旋转"
+  ],
+  "not_restored": [
+    "旧过坡mode5",
+    "原车上位机离线后继续旋转"
+  ],
+  "fixes": [
+    "0x020D姿态读取改为第二个16位的bit12-13；bit15区分强化姿态",
+    "参数、旋转策略及裁判缓存分配到堆，避免DTCM静态溢出"
+  ],
+  "passed": [
+    "Debug/Release及external_module_checks构建",
+    "自动旋转全部分支与优先级、受击保持、自检和低缓冲覆盖",
+    "实际Chassis任务目标距离、裁判伤害、功率缓冲接线",
+    "1000冻结轮系及原有失控/功率回归",
+    "LibXR HostData黄金帧、独立超时、LOCAL输入选择和手动旋转保留",
+    "云台1000冻结yaw规划、1000pitch力矩及15项边界回归",
+    "19模块快照与21模块frozen offline恢复",
+    "git diff --check"
+  ],
+  "dtcm_bytes": {
+    "Debug": 130976,
+    "Release": 130992,
+    "capacity": 131072
+  },
+  "flashed": false,
+  "hardware_status": "板上仍运行之前USB测试烧录的版本；自动旋转新策略未进行机构闭环验证",
+  "modules": {
+    "CMD": "1f8db5cfd09b7b4db86ba6b648aada199f1e648a",
+    "Chassis": "af474b9394cc0099e3347de388e9c9fcd33fb302",
+    "HostData": "57720411fb3792f6faddbea15ccd4ff83104eca8",
+    "PowerControl": "24cf0a94efdc6596ab95c2a71c2d7487466ca5df",
+    "Referee": "d27ddf44d0fecfd20ed5587deca0b036c73c1a90"
+  },
+  "elf_sha256": "f2504d9fe65ca084f51bd0ca5ac52b4dbe9ebec490e8ea91bd5e9f729bdbdb49"
+}

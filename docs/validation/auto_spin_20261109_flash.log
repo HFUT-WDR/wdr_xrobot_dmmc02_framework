@@ -1,0 +1,31 @@
+Open On-Chip Debugger 0.12.0
+Licensed under GNU GPL v2
+For bug reports, read
+	http://openocd.org/doc/doxygen/bugs.html
+swd
+adapter speed: 1000 kHz
+
+Info : J-Link V9 compiled May  7 2021 16:26:12
+Info : Hardware version: 9.40
+Info : VTarget = 3.312 V
+Info : clock speed 1800 kHz
+Info : SWD DPIDR 0x6ba02477
+Info : [stm32h7x.cpu0] Cortex-M7 r1p2 processor detected
+Info : [stm32h7x.cpu0] target has 8 breakpoints, 4 watchpoints
+Info : gdb port disabled
+Info : starting gdb server for stm32h7x.cpu0 on 3333
+Info : Listening on port 3333 for gdb connections
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread 
+xPSR: 0x01000000 pc: 0x08012e1c msp: 0x20020000
+** Programming Started **
+Info : Device: STM32H72x/73x
+Info : flash size probed value 1024k
+Info : STM32H7 flash has a single bank
+Info : Bank (0) size is 1024 kb, base address is 0x08000000
+Info : Padding image section 1 at 0x08041f1c with 4 bytes (bank write end alignment)
+Warn : Adding extra erase range, 0x08041f20 .. 0x0805ffff
+** Programming Finished **
+** Verify Started **
+** Verified OK **
+** Resetting Target **
+shutdown command invoked

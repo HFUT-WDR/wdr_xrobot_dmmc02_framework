@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-09T13:32:08+08:00",
+  "scope": "烧录sentry_remote Debug；Host USB真实收发与时间同步；不发送aim/nav控制包",
+  "result": "PASS",
+  "fix": {
+    "cause": "LibXR控制端点配置64B，但工程EP0描述符与逻辑缓冲仅8B，导致CDC打开及数据传输失败",
+    "change": "User/libxr_config.yaml ep0_packet_size=64；使用libxr gen重新生成入口；同步64B DMA缓冲、描述符及FIFO配置",
+    "regression": "Debug与Release重新构建通过"
+  },
+  "flash": {
+    "profile": "User/RobotConfig/sentry_remote.yaml",
+    "preset": "Debug",
+    "probe": "SEGGER J-Link 000069409066 via OpenOCD",
+    "verify": "Verified OK",
+    "elf_sha256": "76cbcd8f3286b59b02af88530e764698f5a55776d22fb41fe1c369143660cad0",
+    "log": "host_usb_20261109_flash.log",
+    "calibration_flash": "只擦除程序映像覆盖扇区，保留末尾数据库扇区"
+  },
+  "usb": {
+    "vid_pid": "1d50:6199",
+    "log_port": "/dev/ttyACM0",
+    "host_port": "/dev/ttyACM2",
+    "interface": "Host / if02",
+    "probe": "临时C++ POSIX串口读写与真实LibXR Topic解析器，发送内容仅host_time_sync",
+    "duration_s": 20,
+    "received_lower_bound": {
+      "aim": 3995,
+      "nav": 998,
+      "time_response": 194,
+      "bytes": 444190
+    },
+    "clock_ready": true,
+    "imu_time_us": 0,
+    "probe_log": "host_usb_20261109_probe.log",
+    "production_host": "host/build/Debug/wdr_host；enable_control=false；自动识别Host接口",
+    "production_sync": "PASS",
+    "production_rtt_us": {
+      "min": 2019,
+      "max": 2063
+    },
+    "production_log": "host_usb_20261109_link.log"
+  },
+  "runtime": {
+    "system_clock_hz": 550000000,
+    "tasks": 14,
+    "free_heap_bytes": 17448,
+    "minimum_free_heap_bytes": 17448,
+    "CFSR": 0,
+    "HFSR": 0,
+    "log": "host_usb_20261109_runtime.log"
+  },
+  "unverified": [
+    "没有外置DM IMU有效样本，imu_time_us=0；未验证真实姿态与相机对齐",
+    "未发送aim/nav控制包，未验证实车运动、发射或控制闭环",
+    "RTT与拟合残差不代表时间同步绝对精度，需外部测量"
+  ],
+  "cleanup": "上位机测试进程已退出；调试器已脱离，固件继续运行"
+}
