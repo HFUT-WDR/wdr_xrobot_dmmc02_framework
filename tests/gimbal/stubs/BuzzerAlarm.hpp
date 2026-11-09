@@ -6,7 +6,20 @@
 class BuzzerAlarm
 {
  public:
-  void StartTone(uint32_t, float = 0.005f) {}
-  void StopTone() {}
+  bool active{};
+  uint32_t frequency{}, starts{}, stops{};
+  float duty{};
+  void StartTone(uint32_t freq, float value = 0.005f)
+  {
+    active = true;
+    frequency = freq;
+    duty = value;
+    ++starts;
+  }
+  void StopTone()
+  {
+    active = false;
+    ++stops;
+  }
   void Play(uint32_t, uint32_t, float = 0.005f) {}
 };

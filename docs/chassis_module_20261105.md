@@ -32,7 +32,7 @@ CMD::ChassisCMD新增frame，默认GIMBAL，可显式BODY；X前、Y左、Z逆�
 
 | 字段 | 含义 |
 | --- | --- |
-| yaw_relative_rad | 原车 `get_yaw_motor_point(INNER_YAW)->relative_angle`，即大yaw机械相对角，rad |
+| yaw_relative_rad | 原车 `get_yaw_motor_point(BIG_YAW)->relative_angle`，即大yaw机械相对角，rad |
 | yaw_valid | 此轴反馈可用；不是整个云台机构就绪 |
 | stop_chassis | 校准、复活或其他独占状态要求底盘无力 |
 | time_us、sequence | 与该反馈同源的采集时间和序号；不可周期伪造新时刻掩盖停更 |
@@ -92,8 +92,8 @@ current为请求发送的协议整数，不能据此证明硬件已执行或CAN�
 ## 配置与验证
 
 默认仍为 `User/xrobot.yaml`，底盘不实例化。`User/xrobot_chassis.yaml`是可选完整配置，含板载姿态、CMD/I6x、四颗M3508与Chassis。
-原I6x组合SW2_MID_SW3_UP、SW2_UP_SW3_UP分别选择遥控/PC来源并进入NO_FOLLOW_YAW；退出或CMD失联事件进入RELAX。
-沿用现有I6x事件名称，不在本阶段改变物理拨杆映射。缺少真实云台反馈，该配置始终无力。
+I6x组合SW2_MID_SW3_DOWN、SW2_DOWN_SW3_DOWN分别选择遥控/PC来源并进入NO_FOLLOW_YAW；退出或CMD失联事件进入RELAX。
+SW3下拨为使能方向；旧SW3_UP组合保留事件编号，但不再用于底盘使能。缺少真实云台反馈，该配置始终无力。
 生成：`xrobot gen -c User/xrobot_chassis.yaml`；恢复默认：`xrobot gen -c User/xrobot.yaml`。
 VS Code增加“测试底盘（主机）”；原构建/烧录任务使用当前选中配置，本轮未运行烧录任务。
 

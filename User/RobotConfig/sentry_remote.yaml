@@ -1,6 +1,6 @@
 # 26_sentry整车遥控配置：直接实例化底盘、云台和发射，不接入上位机通信。
 # Pitch使用DM4310电机零位，软件zero=0；Yaw通过CALI校准获取编码器零位。
-# SW1下+SW3上保持触发Yaw校准；完成后该组合下保持RELAX，退出后恢复当前SW2模式。
+# SW2上位、SW0下位，通过两阶段摇杆手势申请Yaw校准；选择间歇鸣叫，扫描持续鸣叫。
 # Yaw校准结果写入Flash数据库，重启后自动加载；不发送电机设零命令。
 modules:
   - module: HFUT-WDR/BuzzerAlarm
@@ -53,6 +53,7 @@ modules:
       - chassis_cmd_topic_name: "chassis_cmd"
       - gimbal_cmd_topic_name: "gimbal_cmd"
       - launcher_cmd_topic_name: "launcher_cmd"
+      - auto_chassis_wz_source: CMD::ChassisWzSource::RC
   - module: HFUT-WDR/Referee
     id: referee
     args:
@@ -210,9 +211,9 @@ modules:
     id: input_events
     args:
       - modules: '{{"i6x", i6x}, {"cmd", cmd}, {"chassis", chassis}}'
-      - event_binding_groups: '{{{{"i6x", I6x::SwitchHold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL}, {"i6x", I6x::SwitchHold::SW2_UP, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::ChordHold::SW2_MID_SW3_UP, "chassis", Chassis<Omni>::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::ChordHold::SW2_UP_SW3_UP, "chassis", Chassis<Omni>::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::Chord::SW2_MID_SW3_UP_EXIT, "chassis", Chassis<Omni>::Mode::RELAX}, {"i6x", I6x::Chord::SW2_UP_SW3_UP_EXIT, "chassis", Chassis<Omni>::Mode::RELAX}}}}'
+      - event_binding_groups: '{{{{"i6x", I6x::SwitchHold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL}, {"i6x", I6x::SwitchHold::SW2_DOWN, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::ChordHold::SW2_MID_SW3_DOWN, "chassis", Chassis<Omni>::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::ChordHold::SW2_DOWN_SW3_DOWN, "chassis", Chassis<Omni>::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::Chord::SW2_MID_SW3_DOWN_EXIT, "chassis", Chassis<Omni>::Mode::RELAX}, {"i6x", I6x::Chord::SW2_DOWN_SW3_DOWN_EXIT, "chassis", Chassis<Omni>::Mode::RELAX}}}}'
   - module: HFUT-WDR/RMMotor
-    id: inner_yaw_motor
+    id: big_yaw_motor
     args:
       - can_bus: can3
       - param:
@@ -221,7 +222,7 @@ modules:
           feedback_id: 517
           gm6020_mode: RMMotor::Gm6020Mode::VOLTAGE
   - module: HFUT-WDR/RMMotor
-    id: outer_yaw_motor
+    id: small_yaw_motor
     args:
       - can_bus: can3
       - param:
@@ -307,6 +308,7 @@ modules:
             out_limit: 10000
           trigger_filter: '{1.725709860247969f, -0.75594777109163436f, 0.030237910843665373f}'
           spin_up_tolerance: 0.3
+          auto_spin_up_tolerance: 0.1
           brake_speed: 0.1
           fire_speed: 20
           jam_speed: 1
@@ -342,8 +344,8 @@ modules:
   - module: HFUT-WDR/Gimbal
     id: gimbal
     args:
-      - inner_yaw: inner_yaw_motor
-      - outer_yaw: outer_yaw_motor
+      - big_yaw: big_yaw_motor
+      - small_yaw: small_yaw_motor
       - pitch_motor: pitch_motor
       - cmd: cmd
       - param:
@@ -361,7 +363,7 @@ modules:
           calibration_hold_ms: 2000
           calibration_step_timeout_ms: 15000
           yaw:
-            inner:
+            big_yaw:
               offset_ecd: 0
               minimum: -3
               maximum: 3
@@ -405,7 +407,7 @@ modules:
                 integral_limit: 10000
                 output_limit: 30000
                 integral_zone: 0
-            outer:
+            small_yaw:
               offset_ecd: 0
               minimum: -0.785398
               maximum: 0.785398
@@ -453,8 +455,8 @@ modules:
             align_alpha: 0.001
             velocity_feedforward: 0.9
             accel_feedforward: 120
-            outer_min_kp: 10
-            outer_min_velocity_kp: 7000
+            small_yaw_min_kp: 10
+            small_yaw_min_velocity_kp: 7000
             scan_speed: 1.5
             scan_low_speed: 1
             motor_timeout_ms: 10
@@ -520,6 +522,6 @@ modules:
     id: gimbal_mode_events
     args:
       - modules: '{{"i6x", i6x}, {"cmd", cmd}, {"gimbal", gimbal}, {"launcher", launcher}}'
-      - event_binding_groups: '{{{{"i6x", I6x::SwitchHold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL}, {"i6x", I6x::SwitchHold::SW2_MID, "gimbal", Gimbal::Mode::ABSOLUTE_ANGLE}, {"i6x", I6x::SwitchHold::SW2_UP, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::SwitchHold::SW2_UP, "gimbal", Gimbal::Mode::AUTO}, {"i6x", I6x::SwitchHold::SW2_DOWN, "gimbal", Gimbal::Mode::RELAX}, {"i6x", I6x::SwitchPos::SW1_UP, "launcher", Launcher::Event::FRIC_TOGGLE}, {"i6x", I6x::ChordHold::SW1_DOWN_SW3_UP, "gimbal", Gimbal::Mode::CALI}}}}'
+      - event_binding_groups: '{{{{"i6x", I6x::SwitchHold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL}, {"i6x", I6x::SwitchHold::SW2_MID, "gimbal", Gimbal::Mode::ABSOLUTE_ANGLE}, {"i6x", I6x::SwitchHold::SW2_DOWN, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::SwitchHold::SW2_DOWN, "gimbal", Gimbal::Mode::AUTO}, {"i6x", I6x::SwitchHold::SW2_UP, "gimbal", Gimbal::Mode::RELAX}, {"i6x", I6x::SwitchPos::SW1_DOWN, "launcher", Launcher::Event::FRIC_TOGGLE}, {"i6x", I6x::Gesture::CALIBRATION_CONFIRMED, "gimbal", Gimbal::Event::CALIBRATE}, {"i6x", I6x::Gesture::CALIBRATION_SELECTING, "gimbal", Gimbal::Event::CALIBRATION_SELECTING}, {"i6x", I6x::Gesture::CALIBRATION_CANCELLED, "gimbal", Gimbal::Event::CALIBRATION_CANCELLED}}}}'
 settings:
   monitor_sleep_ms: 1000

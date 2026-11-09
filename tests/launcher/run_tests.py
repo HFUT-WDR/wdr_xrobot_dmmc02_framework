@@ -36,7 +36,14 @@ typedef uint8_t bool_t;
 #define GIMBAL_AUTO 1
 #define GIMBAL_AUTO_TEST 2
 #define ENHANCED_ATTACK_STATE 99
-#define switch_is_down(s) ((s) == 2)
+#define switch_is_down(s) ((s) == 1)
+#define switch_is_up(s) ((s) == -1)
+#define switch_is_mid(s) ((s) == 0)
+#define OPEN_FRIC_MODE 1
+static int ref_permit, ref_aim, ref_fire;
+static int gimbal_cmd_to_shoot_stop(void) { return !ref_permit; }
+static int get_auto_mode(void) { return ref_aim; }
+static int get_auto_fire_control(void) { return ref_fire; }
 static uint32_t ref_tick;
 static uint32_t HAL_GetTick(void) { return ref_tick; }
 static int gimbal_behaviour = GIMBAL_AUTO;
@@ -50,14 +57,23 @@ static void record_fire_detect_L(void) {}
 static void set_interrupt_flag_end_L(void) {}
 static void get_shooter_now_speed(fp32* speed, uint8_t id) { (void)id; *speed = ref_bullet_speed; }
 typedef struct { int8_t s[4]; } rc_t;
-typedef struct { rc_t rc; } RC_ctrl_t;
+typedef struct { rc_t rc; struct { uint16_t v; } key; } RC_ctrl_t;
 typedef enum { SHOOT_STOP = 0, SHOOT_READY_FRIC, SHOOT_READY_BULLET, SHOOT_READY, SHOOT_BULLET,
                SHOOT_CONTINUE_BULLET } shoot_mode_e;
 typedef struct {
   shoot_mode_e shoot_mode; const RC_ctrl_t* shoot_rc; bool_t press_l;
   fp32 Trigger_Targetspeed, Trigger_Actualspeed, Trigger_FBspeed_filtered;
   uint16_t block_time, reverse_time, shoot_speed_limit;
+  float Fric_Targetspeed, Fric_FBspeed_A, Fric_FBspeed_B, open_fric, heat;
+  uint16_t heat_limit;
+  uint8_t fric_flag;
+  int8_t last_s;
+  int shoot_id;
 } shoot_control_t;
+static void shoot_record_fire_command(shoot_control_t* control) { (void)control; }
+static void get_shoot_heat_limit_and_heat(uint16_t* limit, float* heat, int id)
+{ (void)id; *limit = 260; *heat = 0; }
+static float get_shoot_heat(int id) { (void)id; return 0; }
 typedef struct { float Input; float Output[3]; float Alpha[3]; bool Initialized; } LowPassFilter2p_Info_TypeDef;
 '''
 source = (prefix
@@ -65,6 +81,8 @@ source = (prefix
           + cut(header, '#define SHOOT_RC_MODE_CHANNEL', '/**\n * @brief 发射状态机模式。')
           + cut(shoot, '#define LARGE_ARMOR_WIDTH', '/*******下位机火控开关')
           + cut(shoot, 'static fp32 basic_tarspeed', 'static void shoot_set_mode(')
+          + cut(shoot, 'static void shoot_set_mode(shoot_control_t *shoot_mode_set)\n{',
+                'static void shoot_auto_test_set_mode(shoot_control_t *shoot_mode_set)\n{')
           + cut(shoot, 'static void trigger_motor_turn_back(shoot_control_t *trigger_back)\n{',
                 'static void shoot_bullet_control(shoot_control_t *bullet_control)\n{')
           + cut(shoot, 'static void shoot_speed_control(shoot_control_t *shoot_control)\n{',
@@ -88,6 +106,22 @@ float ref_jam(float target, float feedback)
   trigger_motor_turn_back(&ref_ctrl); return ref_ctrl.Trigger_Actualspeed; }
 void ref_filter(float x, float* latest, float* delayed)
 { LowPassFilter2p_Update(&ref_lpf, x); *latest = ref_lpf.Output[2]; *delayed = ref_lpf.Output[0]; }
+static RC_ctrl_t mode_rc;
+static shoot_control_t mode_ctrl = {.shoot_rc = &mode_rc, .last_s = 1};
+int ref_mode_update(int automatic, int permit, int aim, int position, int fire,
+                    float right_speed, float left_speed, float target)
+{
+  ref_permit = permit; ref_aim = aim; ref_fire = fire;
+  mode_rc.rc.s[1] = position; mode_rc.rc.s[0] = fire ? -1 : 1;
+  mode_ctrl.Fric_FBspeed_A = right_speed; mode_ctrl.Fric_FBspeed_B = left_speed;
+  mode_ctrl.Fric_Targetspeed = target;
+  if (automatic) shoot_auto_set_mode(&mode_ctrl); else shoot_set_mode(&mode_ctrl);
+  if (!permit) mode_ctrl.shoot_mode = SHOOT_STOP;
+  // 冻结源码保持原样；合并无动作阶段后，下一拍直接由READY处理开火。
+  if (mode_ctrl.shoot_mode == SHOOT_READY_BULLET) mode_ctrl.shoot_mode = SHOOT_READY;
+  return mode_ctrl.shoot_mode >= SHOOT_READY ? mode_ctrl.shoot_mode - 1
+                                            : mode_ctrl.shoot_mode;
+}
 ''')
 stubs = [root / 'tests/chassis/stubs', root / 'tests/gimbal/stubs']
 inc = stubs + [modules / n for n in ['Launcher', 'CMD', 'Motor', 'RMMotor', 'ControlAlgorithms', 'ControlAlgorithms/include',
@@ -105,5 +139,5 @@ with tempfile.TemporaryDirectory(prefix='wdr-launcher-') as temp:
                     '-fno-omit-frame-pointer', *['-I' + str(p) for p in inc],
                     str(test / 'test_launcher.cpp'), str(modules / 'Launcher/launcher.cpp'),
                     str(obj), '-o', str(exe)], check=True)
-    for scenario in ['behavior', 'heat', 'speed', 'jam', 'filter']:
+    for scenario in ['behavior', 'ready', 'events', 'modes', 'heat', 'speed', 'jam', 'filter']:
         subprocess.run([str(exe), scenario], check=True)

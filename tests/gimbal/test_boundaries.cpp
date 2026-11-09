@@ -12,11 +12,13 @@ static void near(float actual, float expected, float tolerance = 1e-4f)
 {
   assert(std::fabs(actual - expected) < tolerance);
 }
-static CAN::ClassicPack yaw_pack(uint32_t id)
+static CAN::ClassicPack yaw_pack(uint32_t id, uint16_t encoder = 0)
 {
   CAN::ClassicPack pack{};
   pack.id = id;
   pack.dlc = 8;
+  pack.data[0] = uint8_t(encoder >> 8);
+  pack.data[1] = uint8_t(encoder);
   return pack;
 }
 static CAN::ClassicPack pitch_pack(float angle, bool enabled = true)
@@ -32,15 +34,22 @@ static CAN::ClassicPack pitch_pack(float angle, bool enabled = true)
   pack.data[4] = 8;
   return pack;
 }
+// 原车零力矩MIT帧：位置/速度/力矩按协议量化零，刚度和阻尼字段为零。
+static bool zero_pitch(const CAN::ClassicPack& pack)
+{
+  const uint8_t expected[8] = {0x7F, 0xFF, 0x7F, 0xF0, 0, 0, 0x07, 0xFF};
+  return pack.id == 1 && pack.dlc == 8 &&
+         std::memcmp(pack.data, expected, sizeof(expected)) == 0;
+}
 int main(int argc, char** argv)
 {
   assert(argc == 2);
   const std::string scenario = argv[1];
   Timebase::now = 1000000;
   CAN can;
-  RMMotor inner(
+  RMMotor big_yaw(
       can, {RMMotor::Model::MOTOR_GM6020, false, 0x205, RMMotor::Gm6020Mode::VOLTAGE});
-  RMMotor outer(
+  RMMotor small_yaw(
       can, {RMMotor::Model::MOTOR_GM6020, false, 0x206, RMMotor::Gm6020Mode::VOLTAGE});
   DMMotor motor(can, {DMMotor::Model::MOTOR_DM4310, false, 1});
   DualYaw::Param yaw_param;
@@ -51,22 +60,25 @@ int main(int argc, char** argv)
   param.yaw = yaw_param;
   param.pitch = pitch_param;
   if (scenario == "late_stop") param.init_hold_ms = 0;
+  if (scenario == "launcher" || scenario == "buzzer_complete")
+    param.calibration_hold_ms = 2;
   // 拨弹M2006 0x207与两台yaw同属0x1FF组；只在发射场景注册，避免其他场景组帧缺槽。
   CAN shoot_bus;
   std::optional<RMMotor> fric_right, fric_left, trigger;
   std::optional<Launcher> launcher;
-  if (scenario == "launcher")
+  if (scenario == "launcher" || scenario == "source_switch")
   {
     fric_right.emplace(shoot_bus, RMMotor::Param{RMMotor::Model::MOTOR_M3508, true, 0x205});
     fric_left.emplace(shoot_bus, RMMotor::Param{RMMotor::Model::MOTOR_M3508, false, 0x206});
     trigger.emplace(can, RMMotor::Param{RMMotor::Model::MOTOR_M2006, false, 0x207});
     launcher.emplace(*fric_right, *fric_left, *trigger, Launcher::Param{});
   }
-  Gimbal gimbal(inner, outer, motor, cmd, param, nullptr, "gimbal_yaw_calibration",
+  BuzzerAlarm buzzer;
+  Gimbal gimbal(big_yaw, small_yaw, motor, cmd, param, nullptr, "gimbal_yaw_calibration",
                 "gimbal_cmd", "board_attitude", "dm_attitude",
                 "gimbal_context", "robot_game_ref", "gimbal_chassis_feedback",
                 "gimbal_status", 4096, Thread::Priority::MEDIUM,
-                launcher ? &*launcher : nullptr);
+                launcher ? &*launcher : nullptr, &buzzer);
   auto& task = *Thread::threads.back();
   HostData host(cmd);
   CMD::Data rc{};
@@ -76,11 +88,12 @@ int main(int argc, char** argv)
   auto board_topic = Topic::FindOrCreate<wdr_imu::BoardState>("board_attitude");
   auto dm_topic = Topic::FindOrCreate<wdr_imu::Attitude>("dm_attitude");
   bool pitch_enabled = true;
+  uint16_t big_yaw_encoder = 0, small_yaw_encoder = 0;
   auto fresh = [&](bool with_pitch = true)
   {
     cmd.FeedRC(rc);
-    can.Emit(yaw_pack(0x205));
-    can.Emit(yaw_pack(0x206));
+    can.Emit(yaw_pack(0x205, big_yaw_encoder));
+    can.Emit(yaw_pack(0x206, small_yaw_encoder));
     if (with_pitch) can.Emit(pitch_pack(pitch_param.zero, pitch_enabled));
     board_topic.Publish(board);
     dm_topic.Publish(attitude);
@@ -91,9 +104,121 @@ int main(int argc, char** argv)
     fresh(with_pitch);
     run_thread_once(task);
   };
-  fresh();
-  run_thread_once(task);
-  if (scenario == "late_stop")
+  if (scenario != "power_on")
+  {
+    fresh();
+    run_thread_once(task);
+  }
+  if (scenario == "power_on")
+  {
+    // 无遥控、无Yaw或IMU首帧时仍先使能，随后仅发送零力矩，不被RELAX反向失能。
+    auto cold_tick = [&]
+    {
+      Timebase::now += 1000;
+      run_thread_once(task);
+    };
+    cold_tick();
+    assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
+    assert(gimbal.GetState().input_lost && gimbal.GetState().waiting_for_enable);
+    assert(can.sent.front().id == 1 && can.sent.front().data[7] == 0xFC);
+    assert(zero_pitch(can.sent.back()));
+    auto enables = [&]
+    {
+      unsigned count = 0;
+      for (const auto& pack : can.sent)
+      {
+        if (pack.id != 1) continue;
+        if (pack.data[7] == 0xFC) ++count;
+        else assert(zero_pitch(pack));
+      }
+      return count;
+    };
+    assert(enables() == 1);
+    for (unsigned n = 0; n < 499; ++n) cold_tick();
+    assert(enables() == 1);
+    cold_tick();
+    assert(enables() == 2);
+    // 确认使能反馈后停止重试；无力档继续零力矩。
+    fresh();
+    cold_tick();
+    assert(gimbal.GetState().pitch.enabled);
+    assert(enables() == 2 && zero_pitch(can.sent.back()));
+    // 裁判断电后重新供电，即使仍处于无力档也恢复使能。
+    pitch_enabled = false;
+    for (unsigned n = 0; n < 500; ++n) tick();
+    assert(enables() == 3 && zero_pitch(can.sent.back()));
+    pitch_enabled = true;
+    tick();
+    assert(gimbal.GetState().pitch.enabled);
+  }
+  else if (scenario == "buzzer")
+  {
+    auto event = [&](Gimbal::Event value)
+    { gimbal.GetEvent().Active(static_cast<uint32_t>(value)); };
+    auto advance = [&](uint32_t milliseconds)
+    { for (uint32_t n = 0; n < milliseconds; ++n) tick(); };
+    assert(!buzzer.active && buzzer.starts == 0);
+    event(Gimbal::Event::CALIBRATION_SELECTING);
+    tick();
+    assert(buzzer.active && buzzer.frequency == 4000);
+    near(buzzer.duty, .22f);
+    advance(199);
+    assert(buzzer.active && buzzer.starts == 1);
+    advance(1);
+    assert(!buzzer.active);
+    advance(200);
+    assert(buzzer.active && buzzer.starts == 2);
+    advance(10001);
+    assert(buzzer.active);
+    near(buzzer.duty, .32f);
+    advance(9600);
+    assert(!buzzer.active);  // 选择窗口超过20s，即使取消事件尚未被消费也不继续响。
+    event(Gimbal::Event::CALIBRATION_CANCELLED);
+    tick();
+    event(Gimbal::Event::CALIBRATION_SELECTING);
+    tick();
+    near(buzzer.duty, .22f);
+    event(Gimbal::Event::CALIBRATE);
+    tick();
+    assert(gimbal.GetState().mode == Gimbal::Mode::CALI && buzzer.active);
+    near(buzzer.duty, .32f);
+    advance(250);
+    assert(buzzer.active);  // 扫描期间不沿用选择阶段的200ms停顿。
+    rc.input_online = false;
+    tick();
+    assert(gimbal.GetState().mode == Gimbal::Mode::RELAX && !buzzer.active);
+    assert(gimbal.GetState().calibration_failed);
+    rc.input_online = true;
+    tick();
+    assert(!buzzer.active);
+    event(Gimbal::Event::CALIBRATION_SELECTING);
+    tick();
+    assert(buzzer.active);
+    rc.input_online = false;
+    tick();
+    assert(!buzzer.active);  // 选择阶段失联同样关声。
+  }
+  else if (scenario == "buzzer_complete")
+  {
+    gimbal.GetEvent().Active(static_cast<uint32_t>(Gimbal::Event::CALIBRATE));
+    for (unsigned step = 1; step <= 4; ++step)
+    {
+      big_yaw_encoder = step == 3 ? 1000 : step == 4 ? 7000 : 0;
+      small_yaw_encoder = step == 1 ? 600 : step == 2 ? 7600 : 0;
+      for (unsigned n = 0; n < 3; ++n) tick();
+      if (step != 4)
+      {
+        assert(gimbal.GetState().mode == Gimbal::Mode::CALI && buzzer.active);
+        near(buzzer.duty, .32f);
+      }
+    }
+    assert(gimbal.GetState().calibration_complete && !buzzer.active);
+    assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
+    assert(buzzer.starts == 1 && buzzer.stops == 1);
+    tick();
+    assert(!buzzer.active && zero_pitch(can.sent.back()));
+  }
+  else if (scenario == "late_stop")
   {
     gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::INIT));
     bool fired = false;
@@ -110,7 +235,7 @@ int main(int argc, char** argv)
     tick();
     assert(gimbal.GetState().requested == Gimbal::Mode::RELAX);
     assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
-    assert(can.sent.back().data[7] == 0xFD);
+    assert(zero_pitch(can.sent.back()));
     tick();
     assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   }
@@ -179,9 +304,11 @@ int main(int argc, char** argv)
   else if (scenario == "startup")
   {
     pitch_enabled = false;
-    tick();
-    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
     const auto first = can.sent.size();
+    tick();
+    assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
+    assert(zero_pitch(can.sent.back()));
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
     tick();
     assert(gimbal.GetState().mode == Gimbal::Mode::ABSOLUTE_ANGLE);
     assert(!gimbal.GetState().pitch.enabled);
@@ -306,6 +433,59 @@ int main(int argc, char** argv)
       assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
     }
   }
+  else if (scenario == "source_switch")
+  {
+    auto feed = [&]()
+    {
+      CAN::ClassicPack p{};
+      p.dlc = 8;
+      const int rpm = int(Launcher::Param{}.initial_speed /
+                          Launcher::Param{}.fric_rpm_to_speed);
+      for (auto [id, raw] : {std::pair{0x205u, -rpm}, std::pair{0x206u, rpm}})
+      {
+        p.id = id;
+        p.data[2] = uint8_t(uint16_t(raw) >> 8);
+        p.data[3] = uint8_t(raw);
+        shoot_bus.Emit(p);
+      }
+      p.id = 0x207;
+      p.data[2] = p.data[3] = 0;
+      can.Emit(p);
+    };
+    rc.launcher.isfire = true;
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
+    feed();
+    tick();
+    launcher->GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    for (unsigned i = 0; i < 4; ++i) { feed(); tick(); }
+    assert(launcher->GetState().firing);
+    CMD::Data ai{};
+    ai.gimbal.auto_mode = CMD::GimbalAutoMode::AIM;
+    ai.launcher.isfire = true;
+    cmd.SetCtrlMode(CMD::Mode::CMD_AUTO_CTRL);
+    cmd.FeedAI(CMD::Channel::GIMBAL, ai);
+    cmd.FeedAI(CMD::Channel::LAUNCHER, ai);
+    launcher->GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::AUTO));
+    feed(); tick();
+    assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
+    assert(launcher->GetState().shoot_mode == Launcher::ShootMode::SHOOT_READY_FRIC);
+    assert(!launcher->GetState().firing);
+    for (unsigned i = 0; i < 4; ++i) { feed(); tick(); }
+    assert(launcher->GetState().firing);
+    cmd.SetCtrlMode(CMD::Mode::CMD_OP_CTRL);
+    launcher->GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
+    for (unsigned i = 0; i < 3; ++i)
+    {
+      feed(); tick();
+      assert(!launcher->GetState().fric_request && !launcher->GetState().running);
+      assert(launcher->GetState().trigger_current == 0);
+    }
+    launcher->GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    for (unsigned i = 0; i < 3; ++i) { feed(); tick(); }
+    assert(launcher->GetState().firing);
+  }
   else if (scenario == "launcher")
   {
     // 拨弹由云台线程同拍写入：每拍恰好一帧0x1FF，同时含两路yaw和拨弹槽位。
@@ -334,14 +514,18 @@ int main(int argc, char** argv)
     };
     launcher->GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
     rc.launcher.isfire = true;  // OP开火命令经CMD每帧发布到launcher_cmd。
-    // 云台RELAX：停发射联锁，摩擦轮请求保留但不运行。
+    // 云台RELAX：停止覆盖开启操作；恢复云台后仍需重新拨动摩擦轮开关。
     auto first = can.sent.size();
     feed_shooter(0);
     tick();
     assert(frames(first) == 1);
-    assert(gimbal.GetState().stop_launcher && launcher->GetState().fric_request);
+    assert(gimbal.GetState().stop_launcher && !launcher->GetState().fric_request);
     assert(!launcher->GetState().running);
     gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
+    feed_shooter(0);
+    tick();
+    assert(!launcher->GetState().running);
+    launcher->GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
     feed_shooter(0);
     tick();
     assert(launcher->GetState().running && !launcher->GetState().spun_up);
@@ -366,6 +550,28 @@ int main(int argc, char** argv)
     feed_shooter(Launcher::Param{}.initial_speed);
     tick();
     assert(!launcher->GetState().running && launcher->GetState().trigger_current == 0);
+    // CALI期间收到的开启沿同样被停止模式覆盖，退出后不自行起转。
+    launcher->GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Event::CALIBRATE));
+    for (unsigned step = 1; step <= 4; ++step)
+    {
+      big_yaw_encoder = step == 3 ? 1000 : step == 4 ? 7000 : 0;
+      small_yaw_encoder = step == 1 ? 600 : step == 2 ? 7600 : 0;
+      for (unsigned i = 0; i < 3; ++i)
+      {
+        gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELAX));
+        feed_shooter(0);
+        tick();
+        assert(launcher->GetState().shoot_mode == Launcher::ShootMode::SHOOT_STOP);
+        if (step < 4) assert(gimbal.GetState().mode == Gimbal::Mode::CALI);
+      }
+    }
+    assert(gimbal.GetState().mode == Gimbal::Mode::RELAX &&
+           gimbal.GetState().calibration_complete);
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
+    feed_shooter(0);
+    tick();
+    assert(!launcher->GetState().fric_request && !launcher->GetState().running);
   }
   else
     assert(false);

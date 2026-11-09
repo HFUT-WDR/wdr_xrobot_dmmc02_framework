@@ -15,6 +15,10 @@ extern "C"
   float ref_jam(float target, float feedback);
   /// 调用原车LowPassFilter2p_Update一次；latest为Output[2]，delayed为原车读取的Output[0]。
   void ref_filter(float input, float* latest, float* delayed);
+  /// 直接调用冻结的OP/AUTO发射模式函数；拨杆值按实际方向传入（-1为下拨）。
+  /// 适配层合并READY_BULLET与READY，并映射为当前模块的模式编号。
+  int ref_mode_update(int automatic, int permit, int aim, int position, int fire,
+                      float right_speed, float left_speed, float target);
 #ifdef __cplusplus
 }
 #endif

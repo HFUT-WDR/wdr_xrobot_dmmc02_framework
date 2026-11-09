@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-08",
+  "product": "User/RobotConfig/sentry_remote.yaml",
+  "scope": "校准蜂鸣提示与Pitch上电使能，本地工作树实现及离线验证",
+  "reference": {
+    "calibration": "User/application/module/calibrate/calibrate_task.c: RC_cmd_to_calibrate、cali_gimbal_hook",
+    "buzzer": "User/application/task/buzzer_task.c: 4kHz，calibrate_task.c: 2200/3200 PWM compare (22%/32%)",
+    "pitch": "User/application/task/gimbal/gimbal_task.c: gimbal_task、gimbal_output；pitch_ctrl.c: gimbal_pitch_output"
+  },
+  "behavior": {
+    "selection": "I6x第一阶段完成发送选择事件；20s窗口内响200ms/停200ms，10s后从22%改为32%，4kHz",
+    "calibration": "实际进入CALI后32%持续鸣叫；完成、失败、失联退出后关声",
+    "pitch": "控制线程首拍在模式门控前尝试使能；缺少遥控、Yaw或IMU不阻止使能握手",
+    "pitch_retry_ms": 500,
+    "pitch_relax": "RELAX、CALI及停止联锁发送零刚度/零阻尼/零力矩MIT；保留使能，不发送0xFD",
+    "configuration": "整车YAML与云台增量模板均绑定选择/取消事件，生成入口已更新"
+  },
+  "checks": {
+    "i6x": {
+      "passed": true,
+      "includes": [
+        "真实配置与模板绑定",
+        "1568原车解码向量",
+        "选择/取消/确认事件及超时失联"
+      ]
+    },
+    "gimbal": {
+      "passed": true,
+      "boundary_scenarios": 15,
+      "new_scenarios": [
+        "power_on",
+        "buzzer",
+        "buzzer_complete"
+      ],
+      "includes": [
+        "冷启动无关键输入仍使能",
+        "零力矩MIT与500ms使能重试",
+        "无力档电机断电恢复",
+        "选择提示节奏、档位、超时",
+        "校准期间持续鸣叫，完成及失联关闭"
+      ]
+    },
+    "Debug": {
+      "configure": true,
+      "build": true,
+      "full_robot_elf_and_referee_layout": true
+    },
+    "Release": {
+      "configure": true,
+      "build": true,
+      "full_robot_elf_and_referee_layout": true
+    }
+  },
+  "new_inf_nan_checks": false,
+  "hardware": {
+    "flashed": false,
+    "device_io": false,
+    "closed_loop": false,
+    "buzzer_listened": false
+  },
+  "remaining": [
+    "Flash保存前Yaw零输出未组成完整CAN帧",
+    "IMU首帧到达后断流未退出闭环",
+    "模块改动未提交，锁文件与离线bundle尚未同步"
+  ],
+  "artifacts": {
+    "Debug": {
+      "path": "build/Debug/wdr_xrobot_dmmc02_framework.elf",
+      "sha256": "b9b96778476cde911080b979cbaf9b5c7580470441cd6bfef3059a0470118f32"
+    },
+    "Release": {
+      "path": "build/Release/wdr_xrobot_dmmc02_framework.elf",
+      "sha256": "18e782ef74af4e0d6fe04ceac9d292ac224b3f7720332fb33409d7bcc56d5351"
+    }
+  },
+  "modules": {
+    "Gimbal": {
+      "base_commit": "087b3130fd32acaf6521459354644bcc0bfed8e8",
+      "working_tree_modified": true
+    },
+    "I6x": {
+      "base_commit": "2ccbe3d9ce1f3302fda4cc9174a36bf772d911e9",
+      "working_tree_modified": true
+    }
+  }
+}

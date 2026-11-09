@@ -120,16 +120,18 @@ int main()
   command.GetEvent().Register(CMD::CMD_EVENT_START_CTRL,
       [&](bool, uint32_t) { chassis_probe.mode = 0; });
   using Pos = I6x::SwitchPos;
+  using Hold = I6x::SwitchHold;
   using Chord = I6x::Chord;
+  using ChordHold = I6x::ChordHold;
   EventBinder binder({{"i6x", receiver}, {"cmd", command}, {"chassis", chassis_probe}},
-    {{{{"i6x", Pos::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL},
-       {"i6x", Pos::SW2_UP, "cmd", CMD::Mode::CMD_AUTO_CTRL},
-       {"i6x", Chord::SW2_MID_SW3_UP_ENTER, "chassis", 1},
-       {"i6x", Chord::SW2_UP_SW3_UP_ENTER, "chassis", 1},
-       {"i6x", Chord::SW2_UP_SW3_UP_EXIT, "chassis", 0},
-       {"i6x", Chord::SW2_MID_SW3_UP_EXIT, "chassis", 0}}}});
+    {{{{"i6x", Hold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL},
+       {"i6x", Hold::SW2_DOWN, "cmd", CMD::Mode::CMD_AUTO_CTRL},
+       {"i6x", ChordHold::SW2_MID_SW3_DOWN, "chassis", 1},
+       {"i6x", ChordHold::SW2_DOWN_SW3_DOWN, "chassis", 1},
+       {"i6x", Chord::SW2_DOWN_SW3_DOWN_EXIT, "chassis", 0},
+       {"i6x", Chord::SW2_MID_SW3_DOWN_EXIT, "chassis", 0}}}});
   unsigned friction_edges = 0;
-  receiver.GetEvent().Register(static_cast<uint32_t>(Pos::SW1_UP),
+  receiver.GetEvent().Register(static_cast<uint32_t>(Pos::SW1_DOWN),
                               [&](bool, uint32_t) { ++friction_edges; });
   I6xEvents events;
   I6xInput::State state{};
@@ -146,10 +148,20 @@ int main()
   assert(command.Online() && chassis_probe.mode == 0 && friction_edges == 0);
   // 源选择由真正的 EventBinder 转发，不依赖任何 I6x 专用 CMD 策略。
   state.switches[2] = 0;
-  state.switches[3] = 1;
+  state.switches[3] = -1;
   submit();
   assert(chassis_probe.mode == 1 && chassis().x == .5f * 2.64f && gimbal().yaw == -.5f);
   assert(command.GetCtrlMode() == CMD::Mode::CMD_OP_CTRL);
+  // 摩擦轮开启后须将SW1回上位，SW0实际下拨才产生OP开火电平。
+  state.switches[0] = -1;
+  submit();
+  assert(!fire());
+  state.switches[1] = 1;
+  submit();
+  assert(fire());
+  state.switches[0] = 1;
+  submit();
+  assert(!fire());
   CMD::Data ai{};
   ai.chassis.x = .7f;
   ai.gimbal.yaw = .8f;
@@ -158,7 +170,7 @@ int main()
   command.FeedAI(CMD::Channel::CHASSIS, ai);
   command.FeedAI(CMD::Channel::GIMBAL, ai);
   command.FeedAI(CMD::Channel::LAUNCHER, ai);
-  state.switches[2] = 1;
+  state.switches[2] = -1;
   submit();
   assert(chassis().x == .7f && gimbal().yaw == .8f);
   // AUTO开火不受遥控开火拨杆影响。
@@ -174,7 +186,7 @@ int main()
   state.switches[2] = 0;
   submit();
   assert(chassis().x == .5f * 2.64f && chassis_probe.mode == 1);
-  state.switches[2] = 1;
+  state.switches[2] = -1;
   submit();
   assert(chassis().x == .7f);
   assert(command.GetCtrlMode() == CMD::Mode::CMD_AUTO_CTRL);
@@ -202,19 +214,18 @@ int main()
   state.failsafe = false;
   submit();
   assert(friction_edges == 1);
-  // 离线后恢复保持来源，首帧不凭当前档位重新使能机构。
+  // 离线后恢复保持来源；保持事件按当前档位恢复机构，边沿类开关不重复触发。
   state.online = false;
   submit(false);
   assert(!command.Online() && chassis_probe.mode == 0 && !fire());
   state.online = true;
+  submit();  // 恢复首帧先由 CMD START 清模式，下一拍保持事件重新给出。
   submit();
-  assert(chassis_probe.mode == 0 && friction_edges == 1);
+  assert(chassis_probe.mode == 1 && friction_edges == 1);
   assert(command.GetCtrlMode() == CMD::Mode::CMD_AUTO_CTRL);
   // 保持事件：每个有效帧按当前档位重发，链路恢复后无需拨杆即回到该模式；
   // 边沿类开关（摩擦轮）不因保持事件重复触发。
   {
-    using Hold = I6x::SwitchHold;
-    using ChordHold = I6x::ChordHold;
     ModeProbe hold_probe;
     hold_probe.event.Register(0, [&](bool, uint32_t) { hold_probe.mode = 0; });
     hold_probe.event.Register(1, [&](bool, uint32_t) { hold_probe.mode = 1; });
@@ -303,7 +314,7 @@ int main()
   auto gimbal_topic = LibXR::Topic::CreateTopic<HostData::HostGimbalTarget>("target_euler");
   auto fire_topic = LibXR::Topic::CreateTopic<HostData::LauncherCMD>("host_fire_notify");
   chassis_topic.Publish(target);
-  assert(chassis().x == .6f && gimbal().yaw_dot == 0 && !fire());
+  assert(chassis().x == .6f && chassis().z == .1f && gimbal().yaw_dot == 0 && !fire());
   target.vx = .01f;
   chassis_topic.Publish(target);
   assert(chassis().x == .01f);  // PC低速透传，不套遥控死区。
@@ -327,4 +338,144 @@ int main()
   rc.input_online = false; poll();
   assert(!pc_command.Online() && gimbal().yaw_dot == 0 && !fire());
 
+  // AUTO旋转来源可选RC；平移超时不清旋钮，遥控失联仍清整路命令。
+  CMD local_spin(CMD::Mode::CMD_AUTO_CTRL, "local_chassis", "local_gimbal",
+                 "local_fire", CMD::ChassisWzSource::RC);
+  CMD::Data spin_rc{};
+  spin_rc.input_online = true;
+  auto local = [&]()
+  { return std::any_cast<CMD::ChassisCMD>(LibXR::Topic::values.at("local_chassis")); };
+  for (float knob : {0.0f, 6.0f, 12.0f})
+  {
+    spin_rc.chassis.z = knob;
+    local_spin.FeedRC(CMD::RCInputSource::RC_INPUT_I6X, spin_rc);
+    for (float pc_w : {-7.0f, 0.0f, 7.0f})
+    {
+      CMD::Data pc{};
+      pc.chassis.x = .3f;
+      pc.chassis.y = -.2f;
+      pc.chassis.z = pc_w;
+      local_spin.FeedAI(CMD::Channel::CHASSIS, pc);
+      assert(local().x == .3f && local().y == -.2f && local().z == knob);
+    }
+  }
+  LibXR::Timebase::now += 100;
+  local_spin.FeedRC(CMD::RCInputSource::RC_INPUT_I6X, spin_rc);
+  assert(local().x == 0 && local().y == 0 && local().z == 12);
+  spin_rc.input_online = false;
+  local_spin.FeedRC(CMD::RCInputSource::RC_INPUT_I6X, spin_rc);
+  assert(local().x == 0 && local().z == 0);
+
+  // 无力档两阶段校准手势：保持用ms计时，阈值取统一宏且使用严格比较。
+  I6xEvents gesture_events;
+  I6xInput::State gesture{};
+  gesture.online = true;
+  gesture.switches = {-1, 1, 1, -1};
+  unsigned calibration_requests = 0;
+  auto gesture_tick = [&](uint32_t time)
+  {
+    gesture.received_ms = time;
+    gesture_events.Update(gesture, true, [&](uint32_t id)
+    {
+      if (id == uint32_t(I6x::Gesture::CALIBRATION_CONFIRMED)) ++calibration_requests;
+    });
+  };
+  const std::array<int16_t, 6> unlock{-600, -600, 600, -600, 0, 0};
+  const std::array<int16_t, 6> confirm{600, 600, -600, 600, 0, 0};
+  auto hold = [&](const std::array<int16_t, 6>& pose, uint32_t start)
+  {
+    gesture.channels = pose;
+    for (uint32_t dt = 0; dt <= 2016; dt += 14) gesture_tick(start + dt);
+  };
+  hold(confirm, 0);  // 未解锁不能直接确认。
+  assert(calibration_requests == 0);
+  gesture.channels = unlock;
+  gesture_tick(3000);
+  gesture_tick(5000);  // 恰好2000ms尚未完成。
+  hold(confirm, 5014);
+  assert(calibration_requests == 0);
+  auto short_pose = unlock;
+  short_pose[0] = -I6X_CALIBRATION_GESTURE_THRESHOLD;
+  hold(short_pose, 8000);
+  hold(confirm, 11000);
+  assert(calibration_requests == 0);
+  hold(unlock, 14000);
+  hold(confirm, 17000);
+  assert(calibration_requests == 1);
+  hold(confirm, 20000);
+  assert(calibration_requests == 1);  // 保持确认姿势不重复申请。
+  hold(unlock, 23000);
+  hold(confirm, 46000);  // 选择窗口已超过20s。
+  assert(calibration_requests == 1);
+  hold(unlock, 49000);
+  gesture.online = false;
+  gesture_tick(51500);
+  gesture.online = true;
+  hold(confirm, 52000);
+  assert(calibration_requests == 1);
+  gesture.switches[2] = 0;
+  hold(unlock, 55000);
+  hold(confirm, 58000);
+  assert(calibration_requests == 1);
+  gesture.switches[2] = 1;
+  hold(unlock, UINT32_MAX - 3000);
+  hold(confirm, 100);
+  assert(calibration_requests == 2);  // 单调计时跨32位回绕。
+  gesture.switches[0] = 1;
+  hold(unlock, 5000);
+  hold(confirm, 8000);
+  assert(calibration_requests == 2);
+  gesture.switches[0] = -1;
+  gesture.channels = unlock;
+  gesture_tick(11000);
+  gesture.channels = {};
+  gesture_tick(12000);  // 手势中断，不能累加此前已保持的一秒。
+  hold(confirm, 15000);
+  assert(calibration_requests == 2);
+
+  // 选择提示事件只发一次；失联/超时取消，确认只提交校准而不重复选择。
+  {
+    I6xEvents phases;
+    I6xInput::State selected{};
+    selected.online = true;
+    selected.switches = {-1, 1, 1, 1};
+    unsigned selections = 0, cancellations = 0, confirmations = 0;
+    auto update = [&](uint32_t time, bool fresh = true)
+    {
+      selected.received_ms = time;
+      phases.Update(selected, fresh, [&](uint32_t id)
+      {
+        if (id == uint32_t(I6x::Gesture::CALIBRATION_SELECTING)) ++selections;
+        if (id == uint32_t(I6x::Gesture::CALIBRATION_CANCELLED)) ++cancellations;
+        if (id == uint32_t(I6x::Gesture::CALIBRATION_CONFIRMED)) ++confirmations;
+      });
+    };
+    // 实车内扣快照：第3索引通道只能到-598，仍应识别完整的选择手势。
+    selected.channels = {-652, -660, 651, -598, -660, -660};
+    update(0);
+    update(2001);
+    update(2015);
+    assert(selections == 1 && cancellations == 0);
+    selected.online = false;
+    update(2016, false);
+    update(2017, false);
+    assert(cancellations == 1);
+    selected.online = true;
+    update(3000);
+    update(5001);
+    assert(selections == 2);
+    selected.channels = {};
+    update(25002);
+    assert(cancellations == 2);
+    selected.channels = unlock;
+    update(26000);
+    update(28001);
+    selected.channels = confirm;
+    update(29000);
+    update(31001);
+    assert(selections == 3 && confirmations == 1 && cancellations == 2);
+    selected.online = false;
+    update(31002, false);
+    assert(cancellations == 2);
+  }
 }

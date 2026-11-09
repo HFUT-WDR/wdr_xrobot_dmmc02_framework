@@ -1,6 +1,6 @@
 # I6x 拨杆语义对齐修改规划
 
-状态：仅规划，尚未实施。交由 DeepSeek 完成。
+状态：方向映射已实施（2026-11-08）；CALI入口及切源行为以[i6x控制对齐规划](i6x_control_parity.md)和当前整车操作说明为准。主机回归与 Debug/Release 构建通过；实车复测待完成。
 
 工程：`/home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework`
 
@@ -27,7 +27,7 @@
 
 无有效 AUTO 目标时保留当前无力行为。
 
-当前显式 CALI 快捷组合 SW1_DOWN＋SW3_UP 保留，不机械互换上下，不恢复原车摇杆手势。保留校准请求覆盖普通模式请求的顺序，以及完成后保持 RELAX、退出组合再恢复模式的行为。
+后续确认已取代原CALI快捷组合方案：恢复SW2上位、SW0下位的原车两阶段摇杆手势，以一次性申请进入校准，不再绑定SW1_DOWN＋SW3_UP快捷方式。
 
 ## 修改位置
 
@@ -46,7 +46,7 @@
 - `config/templates/chassis.yaml`
 - `config/templates/gimbal.yaml`
 
-AUTO 来源/模式改为 SW2_DOWN，RELAX 改为 SW2_UP，摩擦轮切换改为 SW1_DOWN。底盘使能与退出改用新增 DOWN 组合。保留现有底盘、发射许可联锁及 CALI 组合。
+AUTO 来源/模式改为 SW2_DOWN，RELAX 改为 SW2_UP，摩擦轮切换改为 SW1_DOWN。底盘使能与退出改用新增 DOWN 组合。保留底盘、发射许可联锁；CALI入口按后续对齐规划更新。
 
 若发现其他 switch_is_up/down 遗留调用，逐处结合接收器类型和实际业务判断，不全局互换宏。
 
@@ -59,7 +59,7 @@ AUTO 来源/模式改为 SW2_DOWN，RELAX 改为 SW2_UP，摩擦轮切换改为 
 - 两种新底盘组合使能、退出停止，旧 EXIT 不覆盖新组合请求。
 - SW1 下位进入沿仅切换一次，保持不重复，恢复首帧不产生假进入沿。
 - SW0 仅下位产生 OP 开火。
-- 断连与恢复行为不变；CALI 组合、覆盖顺序及退出行为不变。
+- 断连与恢复保护保留；CALI手势、一次性申请及完成行为见后续对齐规划。
 - 检查实际 YAML 绑定，不能只修改测试中的手写绑定。
 
 运行现有回归：
@@ -94,3 +94,11 @@ python tools/check_module_snapshots.py
 交付修改清单、最终操作映射、回归与构建结果、模块和框架提交号。
 
 BMI088 温控 PID 尚未对齐是另一项已知问题，不混入本轮；遥控映射修复不代表整车已完全对齐。
+
+## 实施结果（2026-11-08）
+
+- I6x 模块新增 `SW2_MID_SW3_DOWN`、`SW2_DOWN_SW3_DOWN` 及对应 ENTER/EXIT 事件，旧 UP 组合保留原编号；开火条件改为 `switches[0] == -1`，拨杆解码方向注释按实际物理方向修正。
+- `User/RobotConfig/sentry_remote.yaml`、`config/templates/chassis.yaml`、`config/templates/gimbal.yaml` 已改用 DOWN 组合；SW2 下位改为 AUTO，SW2 上位改为云台 RELAX，摩擦轮改为 SW1_DOWN。
+- `tests/i6x/i6x_test.cpp` 已覆盖新组合、开火极性、保持事件和离线恢复；`docs/sentry_remote.md`、`docs/external_modules.md`、底盘/云台说明和 I6x README 已按物理方向更新。
+- 主机回归 `i6x`、`gimbal`、`chassis`、`launcher`、`imu`、`power`、`board_support`、`control_algorithms`、`external_modules` 全部通过；Debug/Release 构建通过。
+- 未验证：I6x 模块提交/推送、`xrobot.lock` 与离线 bundle 更新、实车拨杆物理方向复测。当前 J-Link 未连接，整车固件尚未重新烧录。

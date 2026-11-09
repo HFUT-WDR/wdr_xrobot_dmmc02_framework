@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 static void* allocations[256];
@@ -66,6 +67,30 @@ int main()
   assert(c.count == 0);
   stream.push(bytes, 4, 3, received, &c);
   assert(c.count == 1 && c.time == UINT32_MAX - 2);
+  // 现场旧固件整帧：CRC 为设备表驱动算法，冻结厂商帧格式和量纲。
+  static const uint8_t vendor_frame[80] = {
+      0x55, 0xaa, 0x01, 0x01, 0x0d, 0x47, 0xb3, 0xc0, 0x5f, 0xe3, 0x38, 0x3e,
+      0x8e, 0x67, 0x00, 0x41, 0xe4, 0x12, 0x0a, 0x55, 0xaa, 0x01, 0x02, 0x38,
+      0xe7, 0x22, 0xbc, 0x6a, 0x6e, 0xe8, 0xbc, 0x68, 0xfb, 0x5d, 0xbb, 0x74,
+      0xc6, 0x0a, 0x55, 0xaa, 0x01, 0x03, 0xd8, 0xb4, 0xdd, 0x3f, 0x00, 0xd5,
+      0x0a, 0x42, 0xd3, 0x40, 0x94, 0xc1, 0x8f, 0x41, 0x0a, 0x55, 0xaa, 0x01,
+      0x04, 0x0d, 0xf2, 0x70, 0x3f, 0xdd, 0x03, 0x7f, 0x3d, 0x6d, 0x84, 0x95,
+      0x3e, 0x93, 0xe9, 0x21, 0xbe, 0xf7, 0x3e, 0x0a,
+  };
+  dm_imu_t vendor_imu;
+  assert(vendor_imu.init({dm_imu_t::transport_e::RS485, 1, 0x11, 235.2f}));
+  dm_imu_rs485_stream_assembler_t vendor_stream(vendor_imu);
+  Capture vendor_capture;
+  vendor_stream.push(vendor_frame, sizeof(vendor_frame), 400, received,
+                     &vendor_capture);
+  assert(vendor_capture.count == 1);
+  const auto& decoded = vendor_imu.get_state();
+  assert(decoded.valid_mask == 0x0f);
+  assert(std::fabs(decoded.accel[0] + 5.602423f) < 1e-4f);
+  assert(std::fabs(decoded.accel[2] - 8.025282f) < 1e-4f);
+  assert(std::fabs(decoded.gyro[1] + 0.028373f) < 1e-5f);
+  assert(std::fabs(decoded.euler[1] - 34.708008f) < 1e-4f);
+  assert(std::fabs(decoded.quaternion[0] - 0.9411934f) < 1e-5f);
   const Installation r = {0, -1, 0, 1, 0, 0, 0, 0, 1};
   assert(CheckInstallation(r));
   assert(!CheckInstallation({-1, 0, 0, 0, 1, 0, 0, 0, 1}));

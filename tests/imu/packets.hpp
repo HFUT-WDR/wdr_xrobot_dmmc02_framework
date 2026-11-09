@@ -1,6 +1,19 @@
 #pragma once
+#include <array>
 #include <cstdint>
 #include <cstring>
+static constexpr std::array<uint16_t, 256> CRC16_TABLE = [] {
+  std::array<uint16_t, 256> table{};
+  for (size_t i = 0; i < table.size(); ++i)
+  {
+    uint16_t value = uint16_t(i << 8);
+    for (unsigned bit = 0; bit < 8; ++bit)
+      value = (value & 0x8000) ? uint16_t((value << 1) ^ 0x1021)
+                               : uint16_t(value << 1);
+    table[i] = value;
+  }
+  return table;
+}();
 static void putfloat(uint8_t* p, float f)
 {
   uint32_t u;
@@ -18,9 +31,8 @@ static void packet(uint8_t* p, unsigned reg, const float* v, unsigned n)
   uint16_t crc = 0xffff;
   for (unsigned i = 0; i < len; ++i)
   {
-    crc ^= uint16_t(p[i]) << 8;
-    for (unsigned b = 0; b < 8; ++b)
-      crc = uint16_t(crc & 0x8000 ? (crc << 1) ^ 0x1021 : crc << 1);
+    const uint8_t index = uint8_t((crc >> 8) ^ p[i]);
+    crc = uint16_t((crc << 1) ^ CRC16_TABLE[index]);
   }
   p[len] = uint8_t(crc);
   p[len + 1] = uint8_t(crc >> 8);

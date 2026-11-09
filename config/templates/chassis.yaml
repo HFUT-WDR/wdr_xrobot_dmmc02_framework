@@ -7,6 +7,7 @@ modules:
       - chassis_cmd_topic_name: "chassis_cmd"
       - gimbal_cmd_topic_name: "gimbal_cmd"
       - launcher_cmd_topic_name: "launcher_cmd"
+      - auto_chassis_wz_source: CMD::ChassisWzSource::RC
   # 沿用26_sentry裁判串口USART1，仅作未启用组合的编译模板。
   - module: HFUT-WDR/Referee
     id: referee
@@ -164,4 +165,4 @@ modules:
     id: input_events
     args:
       - modules: '{{"i6x", i6x}, {"cmd", cmd}, {"chassis", chassis}}'
-      - event_binding_groups: '{{{{"i6x", I6x::SwitchHold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL}, {"i6x", I6x::SwitchHold::SW2_UP, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::ChordHold::SW2_MID_SW3_UP, "chassis", Chassis<Omni>::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::ChordHold::SW2_UP_SW3_UP, "chassis", Chassis<Omni>::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::Chord::SW2_MID_SW3_UP_EXIT, "chassis", Chassis<Omni>::Mode::RELAX}, {"i6x", I6x::Chord::SW2_UP_SW3_UP_EXIT, "chassis", Chassis<Omni>::Mode::RELAX}}}}'
+      - event_binding_groups: '{{{{"i6x", I6x::SwitchHold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL}, {"i6x", I6x::SwitchHold::SW2_DOWN, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::ChordHold::SW2_MID_SW3_DOWN, "chassis", Chassis<Omni>::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::ChordHold::SW2_DOWN_SW3_DOWN, "chassis", Chassis<Omni>::Mode::NO_FOLLOW_YAW}, {"i6x", I6x::Chord::SW2_MID_SW3_DOWN_EXIT, "chassis", Chassis<Omni>::Mode::RELAX}, {"i6x", I6x::Chord::SW2_DOWN_SW3_DOWN_EXIT, "chassis", Chassis<Omni>::Mode::RELAX}}}}'

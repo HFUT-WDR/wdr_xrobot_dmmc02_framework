@@ -36,6 +36,13 @@ static int voltage(const CAN::ClassicPack& p, unsigned slot)
 {
   return int16_t((uint16_t(p.data[slot * 2]) << 8) | p.data[slot * 2 + 1]);
 }
+// 原车零力矩MIT帧：位置/速度/力矩按协议量化零，刚度和阻尼字段为零。
+static bool zero_pitch(const CAN::ClassicPack& pack)
+{
+  const uint8_t expected[8] = {0x7F, 0xFF, 0x7F, 0xF0, 0, 0, 0x07, 0xFF};
+  return pack.id == 1 && pack.dlc == 8 &&
+         std::memcmp(pack.data, expected, sizeof(expected)) == 0;
+}
 int main()
 {
   static_assert(sizeof(HostData::HostGimbalTarget) == 9 * sizeof(float));
@@ -73,9 +80,9 @@ int main()
   }
   Timebase::now = 1000000;
   CAN can;
-  RMMotor inner(
+  RMMotor big_yaw(
       can, {RMMotor::Model::MOTOR_GM6020, false, 0x205, RMMotor::Gm6020Mode::VOLTAGE});
-  RMMotor outer(
+  RMMotor small_yaw(
       can, {RMMotor::Model::MOTOR_GM6020, false, 0x206, RMMotor::Gm6020Mode::VOLTAGE});
   DMMotor dm(can, {DMMotor::Model::MOTOR_DM4310, false, 1});
   Database database;
@@ -87,7 +94,7 @@ int main()
   gp.init_hold_ms = 3;
   gp.yaw = yp;
   gp.pitch = pp;
-  Gimbal gimbal(inner, outer, dm, cmd, gp, &database);
+  Gimbal gimbal(big_yaw, small_yaw, dm, cmd, gp, &database);
   auto& task = *Thread::threads.back();
   assert(can.sent.empty());
   assert(Thread::threads.size() == 1);
@@ -107,7 +114,7 @@ int main()
   refresh();
   run_thread_once(task);
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
-  assert(can.sent.back().data[7] == 0xFD);
+  assert(zero_pitch(can.sent.back()));
   gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::ABSOLUTE_ANGLE));
   Timebase::now += 1000;
   refresh();
@@ -144,8 +151,8 @@ int main()
   // 同26_sentry：AI失效只令本拍无力，有效指令恢复后按原请求自动继续。
   assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
   assert(!gimbal.GetState().ai_lost);
-  inner.SetVoltage(30000);
-  outer.SetVoltage(-30000);
+  big_yaw.SetVoltage(30000);
+  small_yaw.SetVoltage(-30000);
   assert(can.sent.back().id == 0x1FF);
   assert(voltage(can.sent.back(), 0) == 30000);
   assert(voltage(can.sent.back(), 1) == -30000);
@@ -165,7 +172,8 @@ int main()
   assert(gimbal.GetState().mode == Gimbal::Mode::AUTO);
 
   // 完整双yaw端点扫描；结果更新零位/限位，不发送电机设零帧。
-  gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::CALI));
+  gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELAX));
+  gimbal.GetEvent().Active(uint32_t(Gimbal::Event::CALIBRATE));
   for (unsigned step = 1; step <= 4; ++step)
   {
     const uint16_t a = step == 3 ? 1000 : step == 4 ? 7000 : 0;
@@ -173,27 +181,37 @@ int main()
     for (unsigned n = 0; n < 3; ++n)
     {
       Timebase::now += 1000;
+      gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELAX));
       refresh(a, b);
       run_thread_once(task);
+      if (step < 4) assert(gimbal.GetState().mode == Gimbal::Mode::CALI);
     }
   }
   assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
   assert(gimbal.GetState().calibration_complete && gimbal.GetState().calibration_saved);
-  assert(gimbal.GetState().calibration.inner_offset == 8096);
-  assert(gimbal.GetState().calibration.outer_offset == 4);
+  assert(gimbal.GetState().calibration.big_yaw_offset == 8096);
+  assert(gimbal.GetState().calibration.small_yaw_offset == 4);
   assert(database.values.contains("gimbal_yaw_calibration"));
+  for (unsigned i = 0; i < 3; ++i)
+  {
+    Timebase::now += 1000;
+    gimbal.GetEvent().Active(uint32_t(Gimbal::Mode::RELAX));
+    refresh();
+    run_thread_once(task);
+    assert(gimbal.GetState().mode == Gimbal::Mode::RELAX);
+  }
   // 存储内容损坏（零位越界、NaN限位）时上电不断言，沿用YAML标定。
   {
     Database corrupt;
     corrupt.values["gimbal_yaw_calibration"] = DualYaw::Calibration{
         9000, 4, std::nanf(""), 1, -1, 1};
-    DualYaw fallback(inner, outer, yp, &corrupt);
+    DualYaw fallback(big_yaw, small_yaw, yp, &corrupt);
     assert(!fallback.CalibrationLoaded());
-    assert(fallback.GetCalibration().inner_offset == yp.inner.offset_ecd);
-    near(fallback.GetCalibration().inner_max, yp.inner.maximum);
-    DualYaw loaded(inner, outer, yp, &database);
+    assert(fallback.GetCalibration().big_yaw_offset == yp.big_yaw.offset_ecd);
+    near(fallback.GetCalibration().big_yaw_max, yp.big_yaw.maximum);
+    DualYaw loaded(big_yaw, small_yaw, yp, &database);
     assert(loaded.CalibrationLoaded());
-    assert(loaded.GetCalibration().inner_offset == 8096);
+    assert(loaded.GetCalibration().big_yaw_offset == 8096);
   }
   // CALI请求保持期间不重复扫描端点。
   for (unsigned i = 0; i < 5; ++i)
@@ -271,7 +289,7 @@ int main()
   {
     DualYaw::Param gain_param{};
     gain_param.align_alpha = 0;
-    DualYaw gain_yaw(inner, outer, gain_param);
+    DualYaw gain_yaw(big_yaw, small_yaw, gain_param);
     wdr_imu::BoardState gain_board{};
     wdr_imu::Attitude gain_dm{};
     auto relative_voltage = [&](bool scheduled)
@@ -288,17 +306,17 @@ int main()
       gain_yaw.SetPath(DualYaw::Path::RELATIVE, false);
       gain_yaw.SetRelative(0, .05f);
       gain_yaw.ControlLoop(.001f);
-      return gain_yaw.GetState().axes[DualYaw::OUTER_YAW].voltage;
+      return gain_yaw.GetState().axes[DualYaw::SMALL_YAW].voltage;
     };
     const auto clean = relative_voltage(false);
     assert(relative_voltage(true) == clean);
   }
   DualYaw::Param planning_param{};
   planning_param.align_alpha = 0;
-  planning_param.inner.angle = planning_param.inner.auto_angle = {1, 0, 0, 0, 0, 100, 0};
-  planning_param.outer.angle = planning_param.outer.auto_angle = {1, 0, 0, 0, 0, 100, 0};
-  planning_param.outer_min_kp = 1;
-  DualYaw planning(inner, outer, planning_param);
+  planning_param.big_yaw.angle = planning_param.big_yaw.auto_angle = {1, 0, 0, 0, 0, 100, 0};
+  planning_param.small_yaw.angle = planning_param.small_yaw.auto_angle = {1, 0, 0, 0, 0, 100, 0};
+  planning_param.small_yaw_min_kp = 1;
+  DualYaw planning(big_yaw, small_yaw, planning_param);
   wdr_imu::BoardState planning_board{};
   wdr_imu::Attitude planning_dm{};
   refresh();
@@ -316,8 +334,8 @@ int main()
     planning.SetAbsolute(target, target);
     float big_error, small_error;
     reference_plan(planning.GetState().axes[1].relative, planning_dm.yaw,
-                   planning_board.yaw, target, planning_param.outer.minimum,
-                   planning_param.outer.maximum, &drag, &big_error, &small_error);
+                   planning_board.yaw, target, planning_param.small_yaw.minimum,
+                   planning_param.small_yaw.maximum, &drag, &big_error, &small_error);
     planning.ControlLoop(.001f);
     near(planning.GetState().drag_target, drag);
     near(planning.GetState().axes[0].velocity_target, wdr_control::wrap_angle(big_error));
@@ -365,14 +383,15 @@ int main()
   range_bus.Emit(range_pack);
   ranged_dm.Update();
   assert(!ranged_dm.FeedbackFresh(uint32_t(Timebase::now / 1000), 20));
-  // 两路yaw零输出与DM失能分别验证，不能将MIT零力矩等同RELAX。
-  bool zero_yaw = false, disabled = false;
+  // 两路yaw零输出与Pitch零力矩MIT分别验证；云台无力不关闭DM使能。
+  bool zero_yaw = false, pitch_relaxed = false;
   for (const auto& p : can.sent)
   {
     if (p.id == 0x1FF && voltage(p, 0) == 0 && voltage(p, 1) == 0) zero_yaw = true;
-    if (p.id == 1 && p.data[7] == 0xFD) disabled = true;
+    if (zero_pitch(p)) pitch_relaxed = true;
+    assert(!(p.id == 1 && p.data[7] == 0xFD));
   }
-  assert(zero_yaw && disabled);
+  assert(zero_yaw && pitch_relaxed);
   std::cout << "PASS: no constructor TX, single thread, voltage mode, DM unsigned "
                "decode, AI expiry/recovery, RC loss/auto-resume, STOP->AIM resume, motor-loss resume, "
                "SMALL_FIRST gain restore, complete "

@@ -48,6 +48,7 @@ int main(int argc, char** argv)
   auto fire_topic = Topic::FindOrCreate<CMD::LauncherCMD>("launcher_cmd");
   auto referee_topic = Topic::FindOrCreate<RefereeTypes::RobotGameRefereePack>("robot_game_ref");
   const auto& state = launcher.GetState();
+  using Mode = Launcher::ShootMode;
   // 逻辑速度→原始rpm：右轮reverse，原始值取反。
   float fric_speed = 0, trigger_speed = 0;
   int fric_current = 0;
@@ -85,7 +86,9 @@ int main(int argc, char** argv)
     assert(!state.firing && state.trigger_current == 0);
     fric_speed = param.initial_speed;
     tick(op);
-    assert(state.spun_up && state.firing);
+    assert(state.shoot_mode == Mode::SHOOT_READY && !state.firing);
+    tick(op);
+    assert(state.shoot_mode == Mode::SHOOT_BULLET && state.firing);
     near(state.trigger_target, param.fire_speed);
     assert(state.trigger_current > 0 && slot(trigger_bus.sent.back(), 2) > 0);
     // 射击时转速下跌不打断连发。
@@ -102,22 +105,31 @@ int main(int argc, char** argv)
     fire_topic.Publish(CMD::LauncherCMD{true});
     fric_speed = param.initial_speed;
     tick({.permit = false});
-    assert(!state.running && state.fric_request && state.trigger_current == 0);
+    assert(state.shoot_mode == Mode::SHOOT_STOP && !state.fric_request &&
+           !state.running && state.trigger_current == 0);
     assert(state.fric_current[0] < 0 && state.fric_current[1] < 0);
     fric_speed = .05f;
     tick({.permit = false});
     assert(state.fric_current[0] == 0 && state.fric_current[1] == 0);
-    // 许可恢复：请求仍在，自动重新起转，到速后才再次放行拨弹。
+    // 停止期间拨动开关不留请求；许可恢复必须重新产生开启沿。
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    tick({.permit = false});
     tick(op);
-    assert(state.running && !state.spun_up && !state.firing);
+    assert(state.shoot_mode == Mode::SHOOT_STOP && !state.running);
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    tick(op);
+    assert(state.shoot_mode == Mode::SHOOT_READY_FRIC && !state.firing);
     fric_speed = param.initial_speed;
+    tick(op);
+    tick(op);
     tick(op);
     assert(state.firing);
     // AUTO：摩擦轮只跟随AIM，OP切换状态不起作用。
     tick({.permit = true, .automatic = true, .aim = false});
     assert(!state.fric_request && !state.running && state.trigger_current == 0);
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
     tick({.permit = true, .automatic = true, .aim = true});
-    assert(state.running);
+    assert(state.shoot_mode == Mode::SHOOT_READY_FRIC && state.running);
     // 拨弹掉线：拨弹无输出，摩擦轮继续。
     trigger_online = false;
     for (unsigned i = 0; i < 25; ++i) tick(op);
@@ -151,6 +163,76 @@ int main(int argc, char** argv)
     launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
     tick(op);
     assert(!state.fric_request && !state.running && state.trigger_current == 0);
+  }
+  else if (scenario == "ready")
+  {
+    const Launcher::Request aim{.permit = true, .automatic = true, .aim = true};
+    fric_speed = param.initial_speed;
+    tick(aim);
+    assert(state.shoot_mode == Mode::SHOOT_READY_FRIC);
+    tick(aim);
+    assert(state.shoot_mode == Mode::SHOOT_READY && state.spun_up && !state.firing);
+    fire_topic.Publish(CMD::LauncherCMD{true});
+    tick(aim);
+    assert(state.shoot_mode == Mode::SHOOT_BULLET && state.firing);
+    for (unsigned i = 0; i < 10; ++i) tick(aim);
+    assert(state.shoot_mode == Mode::SHOOT_CONTINUE_BULLET && state.trigger_current > 0);
+    // 连发转待发须清掉拨弹积分；零反馈、零目标时不能残留送弹电流。
+    fire_topic.Publish(CMD::LauncherCMD{false});
+    tick(aim);
+    assert(state.shoot_mode == Mode::SHOOT_READY && !state.firing);
+    assert(state.trigger_current == 0);
+    // 新开火命令直接响应，不再经过无动作的准备拍。
+    fire_topic.Publish(CMD::LauncherCMD{true});
+    tick(aim);
+    assert(state.shoot_mode == Mode::SHOOT_BULLET && state.firing);
+  }
+  else if (scenario == "events")
+  {
+    // 消费前同拍到达多次事件，保持操作次序；消费后不留第二套开关状态。
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    tick(op);
+    assert(state.shoot_mode == Mode::SHOOT_STOP);
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_ON));
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    tick(op);
+    assert(state.shoot_mode == Mode::SHOOT_STOP);
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_OFF));
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+    tick(op);
+    assert(state.shoot_mode == Mode::SHOOT_READY_FRIC);
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_OFF));
+    tick(op);
+    launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_ON));
+    tick({.permit = false});
+    tick(op);
+    assert(state.shoot_mode == Mode::SHOOT_STOP && !state.running);
+  }
+  else if (scenario == "modes")
+  {
+    // 对照冻结原车模式函数；适配层合并无动作的READY_BULLET阶段。
+    int previous_switch = 1;
+    for (unsigned i = 0; i < 6000; ++i)
+    {
+      const bool automatic = i >= 3000;
+      const unsigned phase = i % 300;
+      const bool permit = phase < 230;
+      const bool aim = phase < 200;
+      const int position = (phase / 25) % 2 == 0 ? 1 : -1;
+      if (position == -1 && previous_switch != -1)
+        launcher.GetEvent().Active(uint32_t(Launcher::Event::FRIC_TOGGLE));
+      previous_switch = position;
+      const bool fire = (phase / 17) % 2 == 0;
+      fire_topic.Publish(CMD::LauncherCMD{fire});
+      fric_speed = phase % 25 < 7 ? 0 : phase % 25 < 20 ? param.initial_speed
+                                                                     : param.initial_speed + 1;
+      tick({.permit = permit, .automatic = automatic, .aim = aim});
+      const int expected = ref_mode_update(automatic, permit, aim, position, fire,
+                                           state.fric_speed[0], state.fric_speed[1],
+                                           state.speed_setpoint);
+      assert(static_cast<int>(state.shoot_mode) == expected);
+    }
   }
   else if (scenario == "heat")
   {

@@ -7,6 +7,7 @@ modules:
   - chassis_cmd_topic_name: '"chassis_cmd"'
   - gimbal_cmd_topic_name: '"gimbal_cmd"'
   - launcher_cmd_topic_name: '"launcher_cmd"'
+  - auto_chassis_wz_source: CMD::ChassisWzSource::HOST
 - module: HFUT-WDR/RMMotor
   id: rmmotor
   args:

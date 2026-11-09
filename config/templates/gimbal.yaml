@@ -9,6 +9,7 @@ modules:
   - chassis_cmd_topic_name: '"chassis_cmd"'
   - gimbal_cmd_topic_name: '"gimbal_cmd"'
   - launcher_cmd_topic_name: '"launcher_cmd"'
+  - auto_chassis_wz_source: CMD::ChassisWzSource::RC
 - module: HFUT-WDR/I6x
   id: i6x
   args:
@@ -29,7 +30,7 @@ modules:
   - host_fire_topic_name: '"host_fire_notify"'
   - host_gimbal_command_topic_name: '"host_gimbal_command"'
 - module: HFUT-WDR/RMMotor
-  id: inner_yaw_motor
+  id: big_yaw_motor
   args:
   - can_bus: can3
   - param:
@@ -38,7 +39,7 @@ modules:
       feedback_id: 517
       gm6020_mode: RMMotor::Gm6020Mode::VOLTAGE
 - module: HFUT-WDR/RMMotor
-  id: outer_yaw_motor
+  id: small_yaw_motor
   args:
   - can_bus: can3
   - param:
@@ -139,6 +140,7 @@ modules:
         out_limit: 10000
       trigger_filter: '{1.725709860247969f, -0.75594777109163436f, 0.030237910843665373f}'
       spin_up_tolerance: 0.3
+      auto_spin_up_tolerance: 0.1
       brake_speed: 0.1
       fire_speed: 20
       jam_speed: 1
@@ -174,8 +176,8 @@ modules:
 - module: HFUT-WDR/Gimbal
   id: gimbal
   args:
-  - inner_yaw: inner_yaw_motor
-  - outer_yaw: outer_yaw_motor
+  - big_yaw: big_yaw_motor
+  - small_yaw: small_yaw_motor
   - pitch_motor: pitch_motor
   - cmd: cmd
   - param:
@@ -193,7 +195,7 @@ modules:
       calibration_hold_ms: 2000
       calibration_step_timeout_ms: 15000
       yaw:
-        inner:
+        big_yaw:
           offset_ecd: 0
           minimum: -3
           maximum: 3
@@ -237,7 +239,7 @@ modules:
             integral_limit: 10000
             output_limit: 30000
             integral_zone: 0
-        outer:
+        small_yaw:
           offset_ecd: 0
           minimum: -0.785398
           maximum: 0.785398
@@ -285,8 +287,8 @@ modules:
         align_alpha: 0.001
         velocity_feedforward: 0.9
         accel_feedforward: 120
-        outer_min_kp: 10
-        outer_min_velocity_kp: 7000
+        small_yaw_min_kp: 10
+        small_yaw_min_velocity_kp: 7000
         scan_speed: 1.5
         scan_low_speed: 1
         motor_timeout_ms: 10
@@ -354,6 +356,6 @@ modules:
   - modules: '{{"i6x", i6x}, {"cmd", cmd}, {"gimbal", gimbal}, {"launcher", launcher}}'
   - event_binding_groups: '{{{{"i6x", I6x::SwitchHold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL},
       {"i6x", I6x::SwitchHold::SW2_MID, "gimbal", Gimbal::Mode::ABSOLUTE_ANGLE}, {"i6x",
-      I6x::SwitchHold::SW2_UP, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::SwitchHold::SW2_UP,
-      "gimbal", Gimbal::Mode::AUTO}, {"i6x", I6x::SwitchHold::SW2_DOWN, "gimbal", Gimbal::Mode::RELAX},
-      {"i6x", I6x::SwitchPos::SW1_UP, "launcher", Launcher::Event::FRIC_TOGGLE}}}}'
+      I6x::SwitchHold::SW2_DOWN, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::SwitchHold::SW2_DOWN,
+      "gimbal", Gimbal::Mode::AUTO}, {"i6x", I6x::SwitchHold::SW2_UP, "gimbal", Gimbal::Mode::RELAX},
+      {"i6x", I6x::SwitchPos::SW1_DOWN, "launcher", Launcher::Event::FRIC_TOGGLE}, {"i6x", I6x::Gesture::CALIBRATION_CONFIRMED, "gimbal", Gimbal::Event::CALIBRATE}, {"i6x", I6x::Gesture::CALIBRATION_SELECTING, "gimbal", Gimbal::Event::CALIBRATION_SELECTING}, {"i6x", I6x::Gesture::CALIBRATION_CANCELLED, "gimbal", Gimbal::Event::CALIBRATION_CANCELLED}}}}'

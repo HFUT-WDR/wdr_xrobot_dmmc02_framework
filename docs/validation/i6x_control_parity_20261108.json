@@ -1,0 +1,87 @@
+{
+  "date": "2026-11-08",
+  "product": "User/RobotConfig/sentry_remote.yaml",
+  "scope": "本地工作树实现与离线验证",
+  "changes": [
+    "OP/AUTO互切同拍复位发射模式和旧操作，保留热量与弹速",
+    "AUTO平移来自PC，wz来自本车遥控旋钮",
+    "SW2上位、SW0下位，两阶段摇杆手势申请一次CALI",
+    "CALI不被普通RELAX保持事件打断，完成后不重复扫描",
+    "OP拨弹要求SW1上位且SW0下位"
+  ],
+  "checks": {
+    "i6x": {
+      "passed": true,
+      "cases": [
+        "实际整车与模板绑定",
+        "1568解码对照",
+        "旋钮端点、中位及PCw忽略",
+        "PC平移超时与RC失联",
+        "两阶段手势、严格阈值、计时、窗口超时、失联、回绕"
+      ]
+    },
+    "launcher": {
+      "passed": true,
+      "cases": [
+        "状态机、事件交接、待发PID清零",
+        "6000拍适配原车模式对照",
+        "热量、弹速、卡弹与滤波"
+      ]
+    },
+    "gimbal": {
+      "passed": true,
+      "cases": [
+        "一次性校准申请与持续RELAX保持",
+        "完整端点扫描与完成保持",
+        "带Launcher校准完成后不自行起转",
+        "OP/AUTO双向切换与同帧旧操作清理",
+        "既有控制及边界回归"
+      ]
+    },
+    "chassis": {
+      "passed": true,
+      "cases": [
+        "1000轮系对照",
+        "真实模块、失联恢复及云台停止联锁"
+      ]
+    },
+    "Debug": {
+      "configure": true,
+      "build": true,
+      "full_robot_link_and_referee_layout": true
+    },
+    "Release": {
+      "configure": true,
+      "build": true,
+      "full_robot_link_and_referee_layout": true
+    }
+  },
+  "modules": {
+    "CMD": {
+      "base_commit": "1157192f71f0cbb17972d00b6a4b7613a05d57ff",
+      "working_tree_modified": true
+    },
+    "I6x": {
+      "base_commit": "2ccbe3d9ce1f3302fda4cc9174a36bf772d911e9",
+      "working_tree_modified": true
+    },
+    "Gimbal": {
+      "base_commit": "087b3130fd32acaf6521459354644bcc0bfed8e8",
+      "working_tree_modified": true
+    },
+    "Launcher": {
+      "base_commit": "c667772492f311f5c3ccf6d876a219f79164bc6d",
+      "working_tree_modified": true
+    }
+  },
+  "new_inf_nan_checks": false,
+  "hardware": {
+    "flashed": false,
+    "device_io": false,
+    "closed_loop": false
+  },
+  "limits": [
+    "模块源码仍在各子仓库工作树，未提交或推送；锁文件与离线bundle未更新到本轮改动",
+    "Flash保存前Yaw零输出尚未组成完整CAN帧的问题仍为独立待办"
+  ]
+}

@@ -7,7 +7,7 @@
 - 上电保持 RELAX。构造阶段不发送电机控制或使能帧。
 - 故障按拍判定、不锁定（2026-11-07按26_sentry赛场行为修订）：遥控断连、AI失效、自瞄STOP、任一yaw掉线、异常拍只令本拍无力；条件恢复后回到当前请求的模式并重新捕获目标。比赛开始后无法操作遥控器，阵亡断电复活后必须自行恢复。
 - 模式跟随拨杆电平：模板绑定 I6x 保持事件（`SwitchHold`/`ChordHold`），每个有效帧按当前档位重发；边沿事件保留给开关类动作。
-- Pitch 掉线或失能时按周期重发使能、不下发 MIT 控制，yaw 照常闭环（同原车）。
+- Pitch在控制线程首拍使能，不受模式门控；掉线或失能时按配置周期重发使能，闭环指令等待使能确认，无力期间发送零力矩MIT，yaw照常闭环。
 - 覆盖归中、校准、绝对角遥控、相对角、静止及AUTO；AUTO仅保留STOP/AIM/SCAN。
 - 删除AUTO_TEST及DETECT/TRACK/CONFIRM搜寻状态机；遥控Pitch路径命名为REMOTE_CONTROL，自瞄力矩路径命名为AIM。
 - AI导航仅控制底盘速度，速度在大yaw坐标系表达；不提供AI大yaw角度目标或导航云台模式。
@@ -17,7 +17,7 @@
 
 `Gimbal`：读命令/姿态快照 → 更新两个控制模块反馈 → 选择模式/处理模式切换 → 生成目标 → 调用双 yaw 与 pitch 控制 → 更新发射机构 → 发送 → 发布状态。
 
-`DualYaw` 持有两台 RMMotor 的引用，处理机械相对角、双 IMU 航向对齐、pitch 下的 yaw 角速度投影、大 yaw 优先/小 yaw 优先规划、扫描速度和串级控制。按原车保留 INNER_YAW/OUTER_YAW 编号，前者是底盘所用机械角，后者参与小 yaw 机械限位。Pitch 的实际机械角由 Gimbal 显式传入，不互相读取控制类内部状态。
+`DualYaw` 持有两台 RMMotor 的引用，处理机械相对角、双 IMU 航向对齐、pitch 下的 yaw 角速度投影、大 yaw 优先/小 yaw 优先规划、扫描速度和串级控制。按原车保留 BIG_YAW/SMALL_YAW 编号，前者是底盘所用机械角，后者参与小 yaw 机械限位。Pitch 的实际机械角由 Gimbal 显式传入，不互相读取控制类内部状态。
 
 `Pitch` 持有 DMMotor 引用，处理编码器/DM IMU 反馈、MIT 目标、TD、跟踪力矩与 J/B/G/摩擦前馈、扫描。手动模式按原车实际发送最终编码器目标和 TD 速度，发送的附加力矩为零；不将原车计算后未使用的手动力矩误认为已参与输出。
 
@@ -25,7 +25,7 @@
 
 两个内部控制组件不创建线程、不重复订阅 CMD。Gimbal callback 仅提交原子模式请求，控制线程只读该请求、从不改写。INIT/CALI 结束后记录本次请求：请求不变期间 INIT 按当前命令来源映射为 AUTO 或绝对角，CALI 保持 RELAX，不重复扫描端点；标定被故障打断即结束本次请求并置 `calibration_failed`，不在恢复后自动重新驱动到端点。
 
-IMU 首帧到达前 `waiting_for_enable` 置位并保持无力。命令来源与模式不匹配时 `waiting_for_source` 置位、本拍无力，来源匹配即继续，不设等待时限。CALI独立驱动yaw并保持Pitch失能。
+IMU 首帧到达前 `waiting_for_enable` 置位并保持无力。命令来源与模式不匹配时 `waiting_for_source` 置位、本拍无力，来源匹配即继续，不设等待时限。CALI独立驱动yaw，Pitch保留使能并输出零力矩MIT。
 
 ## 命令与失效
 
@@ -59,19 +59,19 @@ AIM/SCAN共用惯性到机械目标约束：先限惯性角，再用“当前机
 | 相对角零点 | yaw 的 offset_ecd 是电机逻辑方向、8192 计数单圈编码器偏置；Pitch 的 zero 单位 rad |
 | 时间/方向 | 输出角度 rad，角速度 rad/s；方向由电机 reverse 和 IMU installation 共同确定 |
 
-`RMMotor::SetVoltage()` 接收协议整数，不能将电压量通过归一化电流接口传入；电压模式不接受 MODE_CURRENT/MODE_TORQUE。其 Relax 为零协议输出。DMMotor 的 Relax 发送 0xFD 失能，不能以 MIT 零力矩代替。
+`RMMotor::SetVoltage()` 接收协议整数，不能将电压量通过归一化电流接口传入；电压模式不接受 MODE_CURRENT/MODE_TORQUE。其 Relax 为零协议输出。DMMotor驱动的Relax仍发送0xFD失能；云台内部Pitch::Relax按原车ZERO_FORCE语义发送零刚度、零阻尼、零力矩MIT，保留使能。
 
-修正 DMMotor 原 16 位位置原码的有符号转换，避免半圈分界后出现错误负位置。真实 CAN 接收记录时效；错误长度/ID 不刷新在线状态。Pitch失能或掉线期间限频重发使能帧，不发送MIT控制，yaw仍可闭环；任一yaw掉线时本拍整云台无力，反馈恢复后自动继续。
+修正 DMMotor 原 16 位位置原码的有符号转换，避免半圈分界后出现错误负位置。真实 CAN 接收记录时效；错误长度/ID 不刷新在线状态。Pitch失能或掉线期间限频重发使能帧，运行模式不发送闭环MIT，无力模式发送零力矩MIT，yaw仍可闭环；任一yaw掉线时本拍整云台无力，反馈恢复后自动继续。
 
 ## 标定结果与存储
 
-CALI 先扫描 OUTER_YAW 正/反端点，再扫描 INNER_YAW 正/反端点。仅单轴在线时跳过另一轴，保留其既有校准参数。Pitch 保持无力。
+CALI 先扫描 SMALL_YAW 正/反端点，再扫描 BIG_YAW 正/反端点。仅单轴在线时跳过另一轴，保留其既有校准参数。Pitch 保持无力。
 
 端点低角速度持续超过 2 s 后记录编码器值。按单圈正向弧的中点求 offset_ecd，计算相对角上下限，再各留 0.1 rad 余量。端点重合/跨度不足不覆盖原参数。每步 15 s 超时退出，避免一直顶住机械端点；这是新增的关键校准超时，不声称与旧无限等待逐拍等价。
 
 完成后先提交零输出，再应用标定并回到 RELAX。`gimbal_status.calibration` 导出两轴偏置/限位；`calibration_complete` 和 `calibration_saved` 分别表示完成、存储成功。
 
-Gimbal 可通过 `calibration_database` 注入 `LibXR::Database*`，以 `gimbal_yaw_calibration` 为默认键加载/保存结果。数据库必须比模块存活更久；Flash 后端写入只在已停止输出后执行。`database=nullptr` 时结果只在 RAM，复位后使用 YAML，不能声称掉电保存成功。当前模板保留此默认值，尚未接入实际 Flash 后端。
+Gimbal 可通过 `calibration_database` 注入 `LibXR::Database*`，以 `gimbal_yaw_calibration` 为默认键加载/保存结果。数据库必须比模块存活更久；Flash后端同步写入前会请求Yaw零输出；此前审查确认，整车的拨弹槽位尚未写入时该请求不能单独组成完整CAN帧，保存期间的零输出保证仍待独立修复。`database=nullptr` 时结果只在 RAM，复位后使用 YAML，不能声称掉电保存成功。当前模板保留此默认值，尚未接入实际 Flash 后端。
 
 > 2026-11-07 更新：整车配置和增量模板已把 `calibration_database` 指向生成的 Flash 数据库 `database`；`nullptr` 仅作为不持久化的备选。存储布局、写入代价和未验证项见[Flash 数据库与标定持久化](flash_database_20261107.md)。
 
@@ -79,13 +79,13 @@ Yaw编码器零位通过CALI获取，模板初始偏置不视为校准结果。P
 
 ## 对外联动与组合
 
-`gimbal_chassis_feedback` 发布实际 INNER_YAW 相对角、时间戳、序号和 `stop_chassis` 电平许可，使用从 Chassis 控制头拆出的同一消息类型。
+`gimbal_chassis_feedback` 发布实际 BIG_YAW 相对角、时间戳、序号和 `stop_chassis` 电平许可，使用从 Chassis 控制头拆出的同一消息类型。
 
 停止许可为电平：RELAX/INIT/CALI/MOTIONLESS 置 `stop_chassis`，RELAX/INIT/CALI 置 `stop_launcher`（位于 `gimbal_status`）。底盘每拍读取并作为 `faults.gimbal_stop` 无力，撤销后自动继续；不再用事件改写底盘模式请求，避免与每帧重发的拨杆保持事件互相覆盖。可选 `Launcher` 由Gimbal在同一线程内调用，运行许可直接取本拍 `stop_launcher`，不增加独立发射线程。
 
 当前增量模板已接入两台摩擦轮和一台拨弹电机，Gimbal的 `launcher` 参数绑定该实例。CAN3的两台yaw（0x205/0x206）和拨弹（0x207）共用0x1FF组帧，均在Gimbal线程同拍更新后发送；CAN2摩擦轮单独组帧。主机组合测试检查每拍仅一帧0x1FF及拨弹槽位。构造阶段不发送，默认板级YAML仍不实例化这些设备。
 
-`config/templates/gimbal.yaml` 为增量模板，默认 User/xrobot.yaml 保持板级配置。模板接入 I6x SW2 中位→OP/手动、上位→AUTO、下位→RELAX，均使用保持事件；首次上线和链路恢复后按当前拨杆档位直接给出模式。INIT/CALI 等操作通过显式模式事件触发，模板不绑定会误触发的校准手势。
+`config/templates/gimbal.yaml` 为增量模板，默认 User/xrobot.yaml 保持板级配置。模板接入 I6x SW2 中位→OP/手动、下位→AUTO、上位→RELAX，均使用保持事件；首次上线和链路恢复后按当前拨杆档位直接给出模式。INIT通过显式模式事件触发；CALI使用无力档下两阶段摇杆手势，提交一次性申请并维持扫描至结束，普通RELAX保持事件不打断。原SW1/SW3校准快捷组合已移除。
 
 比赛阶段/剩余时间订阅 `robot_game_ref`；敌方前哨站状态通过 `Gimbal::Context` Topic 注入，当前 Referee 摘要尚不提供该字段。未注入时不声称完成实车比赛状态联动。原车编译单元中实际使用的扫描参数以 pitch_ctrl/dual_yaw_ctrl 可见的参数为准，例如 yaw 常速 1.5 rad/s，不能误取 gimbal_task.c 中另一个编译单元的局部宏。
 
@@ -94,7 +94,7 @@ Yaw编码器零位通过CALI获取，模板初始偏置不视为校准结果。P
 - 框架与订阅/事件方式参考 QDU；双 yaw 和 pitch 算法来自本地 26_sentry，未用 QDU 普通两轴闭环替代。
 - 云台角度 PID 使用原车显式角速度 D、积分分离及速度环回算语义，独立于现有底盘公共 PID；1 ms 下有冻结代码逐步对照，变 dt 的积分/差分按原标称周期换算。
 - 反馈统一在周期入口采集；与旧任务“模式→切换→反馈”存在一拍时序差异。
-- 上电无力、DM 明确失能为已确认行为。故障恢复语义与原车一致（按拍无力、恢复自动继续、Pitch 离线重发使能），2026-11-07 起取代早期的锁定 RELAX 方案。
+- 上电无力、Pitch由线程主动使能，无力时保留使能并发送零力矩MIT（2026-11-08修正）。故障恢复语义与原车一致（按拍无力、恢复自动继续、Pitch 离线重发使能），2026-11-07 起取代早期的锁定 RELAX 方案。
 - 原车RELATIVE/MOTIONLESS的pitch输出分支未明确发送，本次提供显式MIT相对位置保持；此处不能声称发送序列等价。
 - 按本次确认删去AUTO_TEST状态机和导航/过点云台模式；原车导航Pitch归中分支随模式一起删除。底盘导航与云台AIM/SCAN独立，AI不直接控制大yaw。
 - Pitch扫描将原车直接发送惯性角的位置输出改为编码器坐标，AIM/SCAN新增统一机械可达目标约束；不声称限位场景与冻结原车逐拍等价。未触限位的力矩算法仍对照冻结参考。
@@ -107,8 +107,12 @@ Yaw编码器零位通过CALI获取，模板初始偏置不视为校准结果。P
 
 ## 发射机构接入与验证入口（2026-11-07）
 
-OP摩擦轮开关使用I6x边沿事件SW1_UP，保持事件仅用于模式跟随；AUTO按AIM/STOP/SCAN决定摩擦轮请求。开火命令来自 `launcher_cmd`，RELAX/INIT/CALI不许可发射，MOTIONLESS仍可许可。撤销许可时拨弹立停，摩擦轮闭环降速至阈值后撤电流。参数、卡弹反转、热量及弹速管理见模块README。
+OP摩擦轮开关使用I6x边沿事件SW1_DOWN（实际下拨），保持事件仅用于模式跟随；AUTO按AIM/STOP/SCAN决定摩擦轮请求。开火命令来自 `launcher_cmd`，RELAX/INIT/CALI不许可发射，MOTIONLESS仍可许可。撤销许可时拨弹立停，摩擦轮闭环降速至阈值后撤电流。参数、卡弹反转、热量及弹速管理见模块README。
 
-`python3 tests/launcher/run_tests.py` 覆盖行为、热量、弹速、卡弹和滤波，并与冻结26_sentry源码逐拍对照；云台边界测试覆盖发射联锁和同拍组帧。测试不代表实际发射、弹速、热量或机构闭环验证。
+OP/AUTO实际模式互切时，Gimbal同拍复位发射阶段和旧操作，保留热量与弹速管理结果；退出AUTO后须重新开启摩擦轮。
+
+发射模式由Launcher控制线程持有；无力、INIT、CALI直接进入`SHOOT_STOP`，不保留停止期间的摩擦轮开启操作，恢复OP后须重新操作SW1。AUTO仍按当前AIM电平重新起转。
+
+`python3 tests/launcher/run_tests.py` 覆盖行为、事件交接、OP/AUTO模式转换、热量、弹速、卡弹和滤波，并与冻结26_sentry源码逐拍对照；云台边界测试覆盖发射联锁、CALI退出不自行起转和同拍组帧。测试不代表实际发射、弹速、热量或机构闭环验证。
 
 本次框架同步的验证结果见[2026-11-07验证记录](validation/framework_sync_20261107.json)。
