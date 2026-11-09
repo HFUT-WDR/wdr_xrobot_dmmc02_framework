@@ -1,6 +1,0 @@
-{
-  "algorithm/PID.c": "709dff85c23ac3c6d1b437080a9a30280de5cf74e35b585b18365860c27f9d31",
-  "algorithm/PID.h": "65438f2f859d4d3f613eb4a7e4a4bd608e17aee5c2957fb7c908ff76fbb05cc0",
-  "algorithm/LPF.c": "0f5d060d29d383549b3cba7bb7b271b9f948d0207f54ad1b951910f4b6314b67",
-  "algorithm/translation_filter.c": "c1872ba8bbd85b35f666a0906b8f06c9d71c8a052a6c2bdd24c4a9d7a568275e"
-}

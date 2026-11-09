@@ -11,12 +11,12 @@
    重新执行 `libxr stm32 setup -d . --xrobot`。生成的 `User/app_main.cpp` 加入
    `STM32Flash` 和 `DatabaseRaw<STM32Flash::MIN_WRITE_SIZE>`，并以 `database`
    名称注册为 `LibXR::Database`。
-3. `User/xrobot.yaml` 和 `User/RobotConfig/sentry_remote.yaml` 中 BMI088 的
-   `database` 参数由 `imu_ram_database` 改为 `database`；整车配置的
-   `gimbal.calibration_database` 由 `nullptr` 改为 `&database`。云台和 IMU 的
-   模块实现未改动，仍通过 `LibXR::Database::Key<T>` 读写。
+3. `User/xrobot.yaml` 中 BMI088 的 `database` 参数由 `imu_ram_database` 改为
+   `database`。云台配置已随整车工程迁出本仓库，其 `gimbal.calibration_database`
+   同步改为 `&database`。云台和 IMU 的模块实现未改动，仍通过
+   `LibXR::Database::Key<T>` 读写。
 4. `User/imu_ram_database.hpp` 及其主机回归保留，作为 RAM 后端参考；
-   当前两份机器人配置不再注入它。
+   板级配置不再注入它。
 
 ## 存储布局
 
@@ -53,9 +53,8 @@
 
 ## 验证范围
 
-- 通过（主机）：`default` 和 `sentry_remote` 配置的 Debug/Release 构建；
-  `board_support`、`imu`、`gimbal`、`chassis`、`control_algorithms`、`i6x`、
-  `launcher`、`power`、`external_modules` 主机回归。
+- 通过（主机）：本仓库 `default` 配置的 Debug/Release 构建与 `board_support` 回归；
+  整车配置的构建与机构回归记录随 27_sentry 工程维护。
 - 通过（2026-11-07 板测，`default` Debug，J-Link + OpenOCD 烧录校验）：
   - 首次上电在 0x080C0000 写入主块头 0x1234567B，备份块保持擦除态；
   - `bmi088_gyro_data` 键自动建立，键名长度 17、数据长度 12、初值全零；

@@ -1,8 +1,3 @@
 namespace: xrobot-org
-modules:
-- id: xrobot-org/SharedTopicClient
-  repo: ./SharedTopicClient.bundle
-  status: community
-- id: xrobot-org/SharedTopic
-  repo: ./SharedTopic.bundle
-  status: community
+# 产品模块从官方索引拉取；本目录不再保存离线镜像。
+modules: []

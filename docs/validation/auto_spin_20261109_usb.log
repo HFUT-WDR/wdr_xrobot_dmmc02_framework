@@ -1,5 +1,0 @@
-[33mW [0](/home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/system/linux/libxr_system.cpp:57) STDIO.read_: stdin is not a TTY, parking thread forever[m
-[32mP [24](/home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/driver/linux/linux_uart.hpp:217) Found USB TTY: /dev/ttyACM2[m
-[32mP [10145](/home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/driver/linux/linux_uart.hpp:656) Open UART device: /dev/serial/by-path/pci-0000:67:00.3-usb-0:1.3:1.2[m
-Host sync=0 a=1.000000000 RTT=0us residual=0.0us
-Host sync=0 a=1.000000000 RTT=0us residual=0.0us

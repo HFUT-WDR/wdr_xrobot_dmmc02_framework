@@ -1,6 +1,0 @@
-{
- "LPF.c": "0f5d060d29d383549b3cba7bb7b271b9f948d0207f54ad1b951910f4b6314b67",
- "heat_control.c": "5404bce374bae67122f82be7a24b917792e04872df422b2ce127bab683895bd2",
- "shoot_task.c": "258ba8b1b2a87fbe5bcf209b4c38e09ab7f470b7f0e55f0ad0e1a7ab57e0f4f7",
- "shoot_task.h": "600dc2e2a9f08ca9026b7090f155c1abc0c6caf2189c289e0f73e62edb1e60fc"
-}

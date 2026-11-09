@@ -1,4 +1,6 @@
 namespace: HFUT-WDR
+# ModuleIndex 的离线镜像：优先使用本地 bundle，canonical 仍记录 GitHub 地址。
+mirror_of: HFUT-WDR
 modules:
 - id: HFUT-WDR/BMI088
   repo: ./BMI088.bundle
@@ -9,51 +11,6 @@ modules:
 - id: HFUT-WDR/BuzzerAlarm
   repo: ./BuzzerAlarm.bundle
   status: community
-- id: HFUT-WDR/CMD
-  repo: ./CMD.bundle
-  status: community
-- id: HFUT-WDR/Chassis
-  repo: ./Chassis.bundle
-  status: community
-- id: HFUT-WDR/ControlAlgorithms
-  repo: ./ControlAlgorithms.bundle
-  status: community
-- id: HFUT-WDR/DMMotor
-  repo: ./DMMotor.bundle
-  status: community
-- id: HFUT-WDR/DR16
-  repo: ./DR16.bundle
-  status: community
-- id: HFUT-WDR/DmImu
-  repo: ./DmImu.bundle
-  status: community
-- id: HFUT-WDR/EventBinder
-  repo: ./EventBinder.bundle
-  status: community
-- id: HFUT-WDR/Gimbal
-  repo: ./Gimbal.bundle
-  status: community
-- id: HFUT-WDR/HostData
-  repo: ./HostData.bundle
-  status: community
-- id: HFUT-WDR/I6x
-  repo: ./I6x.bundle
-  status: community
 - id: HFUT-WDR/ImuFusion
   repo: ./ImuFusion.bundle
-  status: community
-- id: HFUT-WDR/Launcher
-  repo: ./Launcher.bundle
-  status: community
-- id: HFUT-WDR/Motor
-  repo: ./Motor.bundle
-  status: community
-- id: HFUT-WDR/PowerControl
-  repo: ./PowerControl.bundle
-  status: community
-- id: HFUT-WDR/RMMotor
-  repo: ./RMMotor.bundle
-  status: community
-- id: HFUT-WDR/Referee
-  repo: ./Referee.bundle
   status: community

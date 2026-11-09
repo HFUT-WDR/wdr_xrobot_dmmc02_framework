@@ -82,4 +82,3 @@ endfunction()
 print_section_sizes(${PROJECT_NAME})
 
 # Verify external-device dependencies without starting or linking their instances.
-include(cmake/ExternalModules.cmake)
