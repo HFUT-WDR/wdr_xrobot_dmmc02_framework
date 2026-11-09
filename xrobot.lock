@@ -41,148 +41,148 @@ requests:
   ref: same-or-dev
 modules:
   HFUT-WDR/BMI088:
-    repo: https://github.com/HFUT-WDR/BMI088.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/BMI088.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 72cb7b0efe84057c16772a7922e8ee171eba80fa
   HFUT-WDR/BoardAttitude:
-    repo: https://github.com/HFUT-WDR/BoardAttitude.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/BoardAttitude.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 21fcd42496693e84aaef0052c38e3f7ac742991d
   HFUT-WDR/BuzzerAlarm:
-    repo: https://github.com/HFUT-WDR/BuzzerAlarm.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/BuzzerAlarm.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 7990ff2c23dfc49e939802eb181aea93fd16deb6
   HFUT-WDR/CMD:
-    repo: https://github.com/HFUT-WDR/CMD.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/CMD.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 1157192f71f0cbb17972d00b6a4b7613a05d57ff
+    commit: 73650efe164ace0a46f02f81f136c0dc196c9e19
   HFUT-WDR/Chassis:
-    repo: https://github.com/HFUT-WDR/Chassis.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/Chassis.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 45299004945aac4d41018f3feef48aa28b19cacd
+    commit: f0b9f279457a4fc528a52f2d47ff60bf1d0b9a15
   HFUT-WDR/ControlAlgorithms:
-    repo: https://github.com/HFUT-WDR/ControlAlgorithms.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/ControlAlgorithms.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: b5addd7383fbfe69e4ba25bbe48fe06b6d422d30
   HFUT-WDR/DMMotor:
-    repo: https://github.com/HFUT-WDR/DMMotor.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/DMMotor.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 548143b8b93fdac0f609685922658ed97570beb8
   HFUT-WDR/DR16:
-    repo: https://github.com/HFUT-WDR/DR16.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/DR16.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 3334fdad5a02e01923fe77eb2a69436e8c46eb35
   HFUT-WDR/DmImu:
-    repo: https://github.com/HFUT-WDR/DmImu.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/DmImu.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 041c66b8f51e739770cbec9c50c163d8a5f8ed64
   HFUT-WDR/EventBinder:
-    repo: https://github.com/HFUT-WDR/EventBinder.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/EventBinder.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 82f3c702fd6a8d01a9c02cc52f934f28bcd92a9f
   HFUT-WDR/Gimbal:
-    repo: https://github.com/HFUT-WDR/Gimbal.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/Gimbal.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 087b3130fd32acaf6521459354644bcc0bfed8e8
+    commit: 2b15759fd05e785f5994efbb268b5267c240e057
   HFUT-WDR/HostData:
-    repo: https://github.com/HFUT-WDR/HostData.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/HostData.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: b9d0c4998b366677ba9152e92a30aff751b83c43
+    commit: 859dfb8e831da0bacc896656c46d50841aa2bd90
   HFUT-WDR/I6x:
-    repo: https://github.com/HFUT-WDR/I6x.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/I6x.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 2ccbe3d9ce1f3302fda4cc9174a36bf772d911e9
+    commit: f5edce1dfc72f59ce387f37135109604573366e6
   HFUT-WDR/ImuFusion:
-    repo: https://github.com/HFUT-WDR/ImuFusion.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/ImuFusion.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: bd22eedd3aff788d23c7ab1ca5434ef2fc1ce539
+    commit: 3a5149e3c1bd4d1e9936ed36137a0d10093b0182
   HFUT-WDR/Launcher:
-    repo: https://github.com/HFUT-WDR/Launcher.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/Launcher.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: c667772492f311f5c3ccf6d876a219f79164bc6d
+    commit: b5af3bb4f256a83567bb3bbff4e65f0a5be757df
   HFUT-WDR/Motor:
-    repo: https://github.com/HFUT-WDR/Motor.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/Motor.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 23b4d9f1c7f44d646c24913dbb8366b1312e9de4
   HFUT-WDR/PowerControl:
-    repo: https://github.com/HFUT-WDR/PowerControl.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/PowerControl.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 6d360dc3766c091b0bccc3da7a1bb0777c5789c2
   HFUT-WDR/RMMotor:
-    repo: https://github.com/HFUT-WDR/RMMotor.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/RMMotor.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: d1e558ab398b2cd57234f7796cc3615b3ee8b4b0
+    commit: b26df95c94918ad33006d780f9e9304e7490edc7
   HFUT-WDR/Referee:
-    repo: https://github.com/HFUT-WDR/Referee.git
-    source: ModuleIndex/index.yaml
+    repo: module_sources/HFUT-WDR/Referee.bundle
+    source: module_sources/HFUT-WDR/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: b0c34bf75725c901c13339269049a9d4f8fe4b85
+    commit: e1eae87707a50fc77d0a7fa3ba704e66fe7cbab9
   xrobot-org/SharedTopic:
-    repo: https://github.com/xrobot-org/SharedTopic.git
-    source: https://xrobot.work/xrobot-modules/index.yaml
+    repo: module_sources/xrobot-org/SharedTopic.bundle
+    source: module_sources/xrobot-org/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
     commit: 6005712610dc754e842482f52fd2c5a335f67d99
   xrobot-org/SharedTopicClient:
-    repo: https://github.com/xrobot-org/SharedTopicClient.git
-    source: https://xrobot.work/xrobot-modules/index.yaml
+    repo: module_sources/xrobot-org/SharedTopicClient.bundle
+    source: module_sources/xrobot-org/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch

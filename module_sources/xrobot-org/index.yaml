@@ -1,0 +1,8 @@
+namespace: xrobot-org
+modules:
+- id: xrobot-org/SharedTopicClient
+  repo: ./SharedTopicClient.bundle
+  status: community
+- id: xrobot-org/SharedTopic
+  repo: ./SharedTopic.bundle
+  status: community

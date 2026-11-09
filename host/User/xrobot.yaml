@@ -1,0 +1,8 @@
+modules:
+  - module: HFUT-WDR/HostLink
+    id: host_link
+    args:
+      - uart: host_uart
+      - enable_control: false
+settings:
+  monitor_sleep_ms: 1000

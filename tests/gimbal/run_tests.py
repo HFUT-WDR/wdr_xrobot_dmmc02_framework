@@ -93,10 +93,10 @@ float reference_pitch(float angle,float gyro,float target,float velocity,float a
  obj=temp/'reference.o'
  subprocess.run(['cc','-std=gnu11','-O1','-I'+str(test),'-I'+str(test/'reference'),'-c',str(source),'-o',str(obj)],check=True)
  exe=Path(temp)/'gimbal'
- subprocess.run(['c++','-std=c++20','-DLIBXR_DEFAULT_SCALAR=float','-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer',*['-I'+str(p) for p in inc],str(test/'test_gimbal.cpp'),str(obj),*[str(modules/n/f) for n,f in [('Gimbal','components/dual_yaw.cpp'),('Gimbal','components/pitch.cpp'),('Launcher','launcher.cpp'),('Gimbal','gimbal.cpp')]],'-o',str(exe)],check=True)
+ subprocess.run(['c++','-std=c++20','-DLIBXR_DEFAULT_SCALAR=float','-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer',*['-I'+str(p) for p in inc],str(test/'test_gimbal.cpp'),str(test/'stubs/host_telemetry.cpp'),str(obj),*[str(modules/n/f) for n,f in [('Gimbal','components/dual_yaw.cpp'),('Gimbal','components/pitch.cpp'),('Launcher','launcher.cpp'),('Gimbal','gimbal.cpp')]],'-o',str(exe)],check=True)
  subprocess.run([str(exe)],check=True)
 
  boundary=temp/'boundaries'
- subprocess.run(['c++','-std=c++20','-DLIBXR_DEFAULT_SCALAR=float','-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer',*['-I'+str(p) for p in inc],str(test/'test_boundaries.cpp'),*[str(modules/n/f) for n,f in [('Gimbal','components/dual_yaw.cpp'),('Gimbal','components/pitch.cpp'),('Launcher','launcher.cpp'),('Gimbal','gimbal.cpp')]],'-o',str(boundary)],check=True)
+ subprocess.run(['c++','-std=c++20','-DLIBXR_DEFAULT_SCALAR=float','-O1','-g','-fsanitize=address,undefined','-static-libasan','-fno-omit-frame-pointer',*['-I'+str(p) for p in inc],str(test/'test_boundaries.cpp'),str(test/'stubs/host_telemetry.cpp'),*[str(modules/n/f) for n,f in [('Gimbal','components/dual_yaw.cpp'),('Gimbal','components/pitch.cpp'),('Launcher','launcher.cpp'),('Gimbal','gimbal.cpp')]],'-o',str(boundary)],check=True)
  for scenario in ['late_stop','mode_loss','revive','init','startup','scan_zero','scan_limits','aim_limits','boundary_feedforward','navigation','launcher','source_switch','power_on','buzzer','buzzer_complete']:
   subprocess.run([str(boundary),scenario],check=True)

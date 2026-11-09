@@ -14,7 +14,7 @@ cmake --build --preset Release -j4
 
 整车 ELF、HEX、BIN 位于 `build/Debug/` 和 `build/Release/`，文件名均为 `wdr_xrobot_dmmc02_framework`。该路径与板级固件共用，烧录前核对生成头首行和所选配置；选择整车配置后生成入口会调用全部机构构造，而不是只做未启用模块编译检查。
 
-`User/xrobot.yaml` 保留为板级配置；CI 同时构建 `default` 和 `sentry_remote` 的 Debug/Release。当前整车配置使用 I6x 的 OP 路径，上位机协议尚未接入。
+`User/xrobot.yaml` 保留为板级配置；CI 同时构建 `default` 和 `sentry_remote` 的 Debug/Release。当前整车配置使用 I6x 的 OP 路径，Host Topic通信已接入，实机USB与自动控制仍待验证。
 
 ## 零位与校准
 

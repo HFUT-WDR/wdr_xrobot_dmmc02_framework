@@ -48,9 +48,10 @@ with tempfile.TemporaryDirectory(prefix='wdr-i6x-test-') as temp:
     subprocess.run(['g++', '-std=c++20', '-Wall', '-Wextra', '-Werror',
                     '-fsanitize=address,undefined', '-static-libasan', '-g',
                     '-I' + str(root / 'tests/i6x/stubs'),
+                    '-I' + str(root / 'Middlewares/Third_Party/LibXR/src/utils'),
                     '-I' + str(modules / 'I6x'),
                     '-I' + str(modules / 'CMD'), '-I' + str(modules / 'HostData'),
                     '-I' + str(modules / 'EventBinder'), '-I' + str(reference), str(root / 'tests/i6x/i6x_test.cpp'),
-                    str(obj), '-o', str(exe)], check=True)
+                    str(root / "tests/gimbal/stubs/host_telemetry.cpp"), str(obj), '-o', str(exe)], check=True)
     subprocess.run([str(exe)], check=True)
 print('PASS: actual robot/template bindings; 1568 reference vectors; framing, failsafe, OP fire switches, local AUTO spin, PC expiry, two-stage calibration gesture and recovery')

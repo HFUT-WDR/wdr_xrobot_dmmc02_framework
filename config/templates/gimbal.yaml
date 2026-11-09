@@ -29,6 +29,8 @@ modules:
   - host_chassis_data_topic_name: '"host_chassis_data"'
   - host_fire_topic_name: '"host_fire_notify"'
   - host_gimbal_command_topic_name: '"host_gimbal_command"'
+  - telemetry: false
+  - boot_id: 0
 - module: HFUT-WDR/RMMotor
   id: big_yaw_motor
   args:

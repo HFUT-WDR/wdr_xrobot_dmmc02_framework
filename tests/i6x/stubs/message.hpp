@@ -26,6 +26,8 @@ struct Topic
     return {name};
   }
   void RegisterCallback(Callback cb) { callbacks[name] = cb; }
+  template <typename T, typename Stamp>
+  void Publish(const T& data, Stamp) { Publish(data); }
   template <typename T> void Publish(const T& value)
   {
     values[name] = value;

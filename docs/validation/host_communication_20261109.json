@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-09",
+  "checkpoint": "aa460c8",
+  "scope": "HostData + Linux C++ LibXR/XRobot HostLink + optional HostRos",
+  "protocol": {
+    "host_command_payload": 64,
+    "robot_aim_state_payload": 174,
+    "robot_nav_state_payload": 152,
+    "valid_modes": [
+      0,
+      1,
+      2
+    ],
+    "tracking": false,
+    "uplink_mode": false
+  },
+  "passed": [
+    "MCU sentry_remote Debug/Release with external-module compile checks",
+    "Real Linux LibXR golden frames: exact length, CRC, bytewise parsing, fixed layouts",
+    "CMD mask/mode/100ms timeout and concurrent RC/AI coherent publication",
+    "I6x 1568 reference vectors and switch/gesture/timeout regression",
+    "Gimbal frozen 1000 yaw plans, 1000 pitch samples and 15 boundary scenarios",
+    "Root frozen offline restore: 19 snapshots / 21 modules",
+    "Linux C++ host Debug/Release builds",
+    "C++ clock drift/offset/continuous anchor and expiry test",
+    "Real LinuxUART PTY: handshake, independent vision/navigation expiry, MCU restart, device reconnect without replaying fire",
+    "ROS2 Jazzy interface generation and C++ bridge build",
+    "ROS C++ topic round trip: intent to LibXR, same-source ROS/steady TimedImu",
+    "Fresh host BSP restores both module Git repositories from local bundles"
+  ],
+  "not_validated": [
+    "Real USB CDC transport",
+    "Physical time synchronization accuracy and camera timestamp meaning",
+    "Flashed image, CAN or actuator control loops",
+    "sp_vision CBoard migration"
+  ],
+  "mcu_debug_dtcm_bytes": 131024,
+  "mcu_dtcm_capacity": 131072,
+  "notes": [
+    "Boot short id is not persistently unique; MCU source clock rollback also resets mapping",
+    "Unsupported old tactical metadata is published on host_metadata and does not silently drive mechanisms",
+    "LibXR modifications are retained as a reproducible patch; no remote push"
+  ],
+  "module_commits": {
+    "CMD": "73650efe164ace0a46f02f81f136c0dc196c9e19",
+    "HostData": "859dfb8e831da0bacc896656c46d50841aa2bd90",
+    "Referee": "e1eae87707a50fc77d0a7fa3ba704e66fe7cbab9",
+    "HostLink": "b389f195af86710db7496b1ba40c11c34449e8e2",
+    "HostRos": "176a296770db607b01b82b209cfed3edc45de444"
+  }
+}

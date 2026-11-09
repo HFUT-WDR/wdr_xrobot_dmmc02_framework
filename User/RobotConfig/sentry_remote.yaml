@@ -1,4 +1,4 @@
-# 26_sentry整车遥控配置：直接实例化底盘、云台和发射，不接入上位机通信。
+# 26_sentry整车遥控配置：实例化底盘、云台、发射和Host Topic通信。
 # Pitch使用DM4310电机零位，软件zero=0；Yaw通过CALI校准获取编码器零位。
 # SW2上位、SW0下位，通过两阶段摇杆手势申请Yaw校准；选择间歇鸣叫，扫描持续鸣叫。
 # Yaw校准结果写入Flash数据库，重启后自动加载；不发送电机设零命令。
@@ -523,5 +523,30 @@ modules:
     args:
       - modules: '{{"i6x", i6x}, {"cmd", cmd}, {"gimbal", gimbal}, {"launcher", launcher}}'
       - event_binding_groups: '{{{{"i6x", I6x::SwitchHold::SW2_MID, "cmd", CMD::Mode::CMD_OP_CTRL}, {"i6x", I6x::SwitchHold::SW2_MID, "gimbal", Gimbal::Mode::ABSOLUTE_ANGLE}, {"i6x", I6x::SwitchHold::SW2_DOWN, "cmd", CMD::Mode::CMD_AUTO_CTRL}, {"i6x", I6x::SwitchHold::SW2_DOWN, "gimbal", Gimbal::Mode::AUTO}, {"i6x", I6x::SwitchHold::SW2_UP, "gimbal", Gimbal::Mode::RELAX}, {"i6x", I6x::SwitchPos::SW1_DOWN, "launcher", Launcher::Event::FRIC_TOGGLE}, {"i6x", I6x::Gesture::CALIBRATION_CONFIRMED, "gimbal", Gimbal::Event::CALIBRATE}, {"i6x", I6x::Gesture::CALIBRATION_SELECTING, "gimbal", Gimbal::Event::CALIBRATION_SELECTING}, {"i6x", I6x::Gesture::CALIBRATION_CANCELLED, "gimbal", Gimbal::Event::CALIBRATION_CANCELLED}}}}'
+  - module: HFUT-WDR/HostData
+    id: host_data
+    args:
+      - cmd: cmd
+      - host_gimbal_topic_name: '"target_euler"'
+      - host_chassis_data_topic_name: '"host_chassis_data"'
+      - host_fire_topic_name: '"host_fire_notify"'
+      - host_gimbal_command_topic_name: '"host_gimbal_command"'
+      - telemetry: true
+      - boot_id: 0
+  - module: xrobot-org/SharedTopic
+    id: host_rx
+    args:
+      - uart: usb_otg_hs_cdc2
+      - ramfs: ramfs
+      - uart_name: '"host"'
+      - buffer_size: 256
+      - topic_configs: '{"host_command", "host_time_sync"}'
+  - module: xrobot-org/SharedTopicClient
+    id: host_tx
+    args:
+      - uart: usb_otg_hs_cdc2
+      - slot_count: 16
+      - topic_configs: '{"robot_aim_state", "robot_nav_state", "robot_time_sync"}'
+
 settings:
   monitor_sleep_ms: 1000
