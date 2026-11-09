@@ -321,7 +321,6 @@ python tests/imu/run_tests.py
 | LibXR / XRobot 环境、模块管理与生成工具 | [XRobot 官方文档](https://xrobot.work/)、[项目管理](https://xrobot.work/docs/proj_man)、[配置说明](https://xrobot.work/docs/proj_man/proj-man-config) |
 | 从板级程序到机器人配置的学习路线 | [QDU-Robomaster 文档](https://qdu-robomaster.github.io/)、[快速上手](https://qdu-robomaster.github.io/电控组/quick-start) |
 | 板级资源及验收记录 | [板级模块](docs/board_modules.md)、[基座迁移与验收](docs/wdr_base_bringup.md) |
-| 控制算法与诊断 | [公共控制算法](docs/control_algorithms_20261106.md)、[底盘故障快照](docs/chassis_faults_20261106.md) |
 | 模块 README、协议与迁移文档维护 | [模块文档约定](docs/module_documentation.md) |
 | 开发规范 | [AGENTS.md](AGENTS.md) |
 | 第三方来源与许可证 | [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)、[LICENSE](LICENSE)、[NOTICE](NOTICE) |
