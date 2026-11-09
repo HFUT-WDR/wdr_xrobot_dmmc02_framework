@@ -65,7 +65,7 @@ USB重连或MCU姿态时间回退时清理旧意图与映射。无启动唯一�
 
 ## 封装与集成
 
-LibXR Topic帧额外17 B，payload采用小端固定宽度整数与IEEE754 float32。串口一次只提交一个在途帧，aim/nav轮流获得发送机会。协议头为HostData/host_protocol.hpp，两端直接共用。
+LibXR Topic帧额外17 B，payload采用小端固定宽度整数与IEEE754 float32。串口一次只提交一个在途帧，aim/nav轮流获得发送机会。协议头为HostData/host_protocol.hpp；上位机工程已移到独立仓库`../host_connection/host`，内嵌协议头副本并由`tools/check_protocol.py`校验与下位机模块一致。上位机自持串口传输：100ms未完成即断连重开，断开不重放旧帧。
 
 ROS桥接只转换本地Topic，不拥有USB。姿态同时提供MCU时间、换算steady时间和ROS时间；本地sync_valid表示换算是否就绪，不进入线上业务包。sp_vision的CBoard适配和相机时间域未在本次实现。
 

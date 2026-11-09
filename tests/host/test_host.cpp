@@ -82,7 +82,9 @@ int main(int argc, char** argv)
   std::vector<uint8_t> bytes((std::istreambuf_iterator<char>(input)), {});
   const auto before = capture.count;
   for (auto byte : bytes) parser.ParseData({&byte, 1});
-  assert(capture.count == before + 2);
+  // 上游解析器对短/长payload按固定Topic大小截断或保留前缀后仍发布；
+  // 尾部CRC错误包被丢弃。严格长度校验由上位机HostLink负责。
+  assert(capture.count == before + 4);
   assert(capture.gimbal.yaw == 1.25f);
   std::thread remote([&] { for (unsigned i = 0; i < 1000; ++i) cmd.FeedRC(rc); });
   std::thread ai([&] { for (unsigned i = 0; i < 1000; ++i) host.ReceiveAim(aim); });
