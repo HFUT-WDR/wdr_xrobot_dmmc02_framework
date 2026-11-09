@@ -30,14 +30,13 @@ int main(int argc, char** argv)
       "/wdr/timed_imu", rclcpp::SensorDataQoS(),
       [&](wdr_interfaces::msg::TimedImu::ConstSharedPtr input)
       {
-        assert(input->mcu_time_us == 987654 && input->boot_id == 7);
+        assert(input->mcu_time_us == 987654);
         assert(input->sync_valid && input->imu.orientation.w == 1);
         assert(input->steady_time_ns != 0 && input->imu.header.stamp.sec > 0);
         received_imu.store(true);
       });
   LibXR::Topic telemetry(LibXR::Topic::Find("aim_state"));
   const auto end = wdr_host::steady_us() + 3000000;
-  unsigned seq = 0;
   while ((!received_intent.load() || !received_imu.load()) && wdr_host::steady_us() < end)
   {
     wdr_interfaces::msg::AimIntent intent;
@@ -48,10 +47,7 @@ int main(int argc, char** argv)
     intent.fire_control = true;
     publisher->publish(intent);
     wdr_host::TimedAimState state{};
-    state.data.boot_id = 7;
-    state.data.sample_seq = ++seq;
     state.data.imu_time_us = 987654;
-    state.data.valid_mask = 1;
     state.steady_time_ns = intent.steady_time_ns;
     state.sync_valid = true;
     telemetry.Publish(state);

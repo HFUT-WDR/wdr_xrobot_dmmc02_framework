@@ -230,8 +230,56 @@ static void assert_zero(const LibXR::CAN::ClassicPack& p)
     assert(v == 0);
   }
 }
+static void auto_spin_tests()
+{
+  AutoSpinParam param;
+  AutoSpin spin(param);
+  auto calculate = [&](float vx, bool aim, float distance, uint8_t progress,
+                        float buffer, uint32_t time)
+  { return spin.Calculate(vx, 0, aim, distance, progress, buffer, time); };
+  near(calculate(0, false, 0, 4, 60, 0), -2);
+  near(calculate(0, true, 5, 4, 60, 0), 0);
+  near(calculate(0, true, 4, 4, 60, 0), -3.5f);
+  near(calculate(.3f, true, 5, 4, 60, 0), -2);
+  spin.UpdateReferee(400, 0, 4, 10);
+  spin.UpdateReferee(390, 0, 4, 100);
+  near(calculate(0, true, 5, 4, 60, 100), -7);
+  near(calculate(0, false, 0, 4, 60, 6100), -7);
+  near(calculate(0, false, 0, 4, 60, 6101), -2);
+  near(calculate(0, false, 0, 1, 60, 100), -1);
+  near(calculate(0, false, 0, 3, 60, 100), -1);
+  near(calculate(0, false, 0, 2, 60, 100), 0);
+  near(calculate(0, false, 0, 4, 29, 100), 0);
+  near(calculate(0, false, 0, 4, 30, 100), -7);
+  AutoSpin other(param);
+  other.UpdateReferee(400, 0, 4, 0);
+  other.UpdateReferee(390, 2, 4, 100);
+  near(other.Calculate(0, 0, false, 0, 4, 60, 100), -2);
+  other.UpdateReferee(380, 2, 0, 200);
+  near(other.Calculate(0, 0, false, 0, 0, 60, 200), -7);
+  // 缩减在滤波、坐标转换之后执行一次；普通移动姿态跳过，强化移动不跳过。
+  Param control_param;
+  Control control(control_param);
+  control.SetMode(Mode::NO_FOLLOW_YAW);
+  control.ModeTransition();
+  Command command{2, 0, -7, Frame::BODY};
+  for (unsigned i = 0; i < 2000; ++i) control.SetControl(command);
+  near(control.GetState().wz_set, -2.1f, 1e-4f);
+  command.moving_posture = true;
+  control.SetControl(command);
+  near(control.GetState().wz_set, -7);
+  // 冻结原车0x020D前6字节的真实布局，覆盖强化移动姿态标志。
+  const uint8_t wire[]{0, 0, 0, 0, 0, 0xB0};
+  RefereeTypes::SentryInfo info{};
+  static_assert(sizeof(info) == 6);
+  std::memcpy(&info, wire, sizeof(info));
+  assert(info.current_state == 3 && info.enhanced);
+  std::puts("PASS: automatic spin branches, priority, attack hold, posture scaling and referee bit layout");
+}
+
 int main()
 {
+  auto_spin_tests();
   // 每项故障可单独触发总判据；发送前合并不能清掉本拍已有故障。
   bool Faults::* fields[]{&Faults::input_lost, &Faults::motor_lost,
                           &Faults::invalid_target, &Faults::invalid_feedback};
@@ -430,6 +478,37 @@ int main()
   reversed_bus.Emit(reversed_frame);
   reversed.Update();
   assert(reversed.GetFeedbackCurrent() == 32768);
+  // 实际模块订阅链路：本地自动旋转消费目标距离、裁判血量和功率缓冲。
+  chassis.GetEvent().Active(uint32_t(Mode::NO_FOLLOW_YAW));
+  RefereeTypes::RobotGameRefereePack game{};
+  game.game_status.game_progress = 4;
+  game.robot_status.remain_hp = 400;
+  game.sentry_info.current_state = 3;
+  Topic::FindOrCreate<RefereeTypes::RobotGameRefereePack>("robot_game_ref").Publish(game);
+  RefereeTypes::ChassisPower energy{};
+  energy.buffer_j = 60;
+  energy.buffer_seen = true;
+  Topic::FindOrCreate<RefereeTypes::ChassisPower>("chassis_power_ref").Publish(energy);
+  CMD::ChassisCMD local{};
+  local.local_spin = local.aiming = true;
+  local.target_distance = 6;
+  auto spin_step = [&]()
+  {
+    for (unsigned i = 0; i < 4; ++i) feed_can(can, 0x201 + i);
+    Topic::FindOrCreate<CMD::ChassisCMD>("chassis_cmd").Publish(local);
+    task->Run(1);
+    return std::any_cast<State>(Topic::values.at("chassis_status")).wz_set;
+  };
+  near(spin_step(), 0);
+  local.target_distance = 2;
+  near(spin_step(), -3.5f);
+  game.robot_status.remain_hp = 390;
+  Topic::FindOrCreate<RefereeTypes::RobotGameRefereePack>("robot_game_ref").Publish(game);
+  near(spin_step(), -7);
+  energy.buffer_j = 29;
+  Topic::FindOrCreate<RefereeTypes::ChassisPower>("chassis_power_ref").Publish(energy);
+  near(spin_step(), 0);
+  std::puts("PASS: module auto-spin distance, referee damage and buffer wiring");
   puts(
       "PASS: real Chassis/CMD/RMMotor integration, no constructor TX, held angle snapshots, "
       "motor expiry, RC loss/auto-resume, gimbal stop gate, RAW guard, four-slot zero output");

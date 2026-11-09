@@ -66,8 +66,8 @@ alignas(32) static uint8_t usart3_rx_buf[256] __attribute__((section(".axi_ram")
 alignas(32) static uint8_t usart3_tx_buf[256] __attribute__((section(".axi_ram")));
 alignas(32) static uint8_t usart10_rx_buf[512] __attribute__((section(".axi_ram")));
 alignas(32) static uint8_t usart10_tx_buf[512] __attribute__((section(".axi_ram")));
-alignas(32) static uint8_t usb_otg_hs_ep0_in_buf[32] __attribute__((section(".axi_ram")));
-alignas(32) static uint8_t usb_otg_hs_ep0_out_buf[32]
+alignas(32) static uint8_t usb_otg_hs_ep0_in_buf[64] __attribute__((section(".axi_ram")));
+alignas(32) static uint8_t usb_otg_hs_ep0_out_buf[64]
     __attribute__((section(".axi_ram")));
 alignas(32) static uint8_t usb_otg_hs_ep1_in_buf[128]
     __attribute__((section(".axi_ram")));
@@ -151,13 +151,13 @@ extern "C" void app_main(void)
       USB::Endpoint::EPNumber::EP4, 256, 256, 8, "Host", "Host");
   static STM32USBDeviceOtgHS usb_otg_hs(
       &hpcd_USB_OTG_HS, 512,
-      {{usb_otg_hs_ep0_out_buf, 8}, usb_otg_hs_ep1_out_buf, usb_otg_hs_ep2_out_buf},
-      {{{usb_otg_hs_ep0_in_buf, 8}, 8},
+      {usb_otg_hs_ep0_out_buf, usb_otg_hs_ep1_out_buf, usb_otg_hs_ep2_out_buf},
+      {{usb_otg_hs_ep0_in_buf, 64},
        {usb_otg_hs_ep1_in_buf, 256},
        {{usb_otg_hs_ep2_in_buf, 16}, 16},
        {usb_otg_hs_ep3_in_buf, 256},
        {{usb_otg_hs_ep4_in_buf, 16}, 16}},
-      USB::DeviceDescriptor::PacketSize0::SIZE_8, 0x1D50, 0x6199, 0x100,
+      USB::DeviceDescriptor::PacketSize0::SIZE_64, 0x1D50, 0x6199, 0x100,
       {&usb_otg_hs_strings}, {{&usb_otg_hs_cdc, &usb_otg_hs_cdc2}},
       {reinterpret_cast<void*>(UID_BASE), 12});
   usb_otg_hs.Init(false);

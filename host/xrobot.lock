@@ -12,11 +12,11 @@ modules:
     requested: dev
     resolved_ref: dev
     ref_kind: branch
-    commit: b389f195af86710db7496b1ba40c11c34449e8e2
+    commit: 11fb44db2b42f85c0d9997592847e57bc5dcbdc2
   HFUT-WDR/HostRos:
     repo: module_sources/HostRos.bundle
     source: module_sources/index.yaml
     requested: dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 176a296770db607b01b82b209cfed3edc45de444
+    commit: 24168eb8f603971cf3620b51950e4a5d2afa7883

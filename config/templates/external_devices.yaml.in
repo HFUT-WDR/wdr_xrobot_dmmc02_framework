@@ -67,7 +67,6 @@ modules:
   - host_fire_topic_name: '"host_fire_notify"'
   - host_gimbal_command_topic_name: '"host_gimbal_command"'
   - telemetry: true
-  - boot_id: 0
 - module: xrobot-org/SharedTopic
   id: host_rx
   args:
@@ -75,7 +74,7 @@ modules:
   - ramfs: ramfs
   - uart_name: '"host"'
   - buffer_size: 256
-  - topic_configs: '{"host_command", "host_time_sync"}'
+  - topic_configs: '{"host_aim", "host_nav", "host_time_sync"}'
 - module: xrobot-org/SharedTopicClient
   id: host_tx
   args:

@@ -9,7 +9,7 @@ modules:
   - chassis_cmd_topic_name: '"chassis_cmd"'
   - gimbal_cmd_topic_name: '"gimbal_cmd"'
   - launcher_cmd_topic_name: '"launcher_cmd"'
-  - auto_chassis_wz_source: CMD::ChassisWzSource::RC
+  - auto_chassis_wz_source: CMD::ChassisWzSource::LOCAL
 - module: HFUT-WDR/I6x
   id: i6x
   args:
@@ -30,7 +30,6 @@ modules:
   - host_fire_topic_name: '"host_fire_notify"'
   - host_gimbal_command_topic_name: '"host_gimbal_command"'
   - telemetry: false
-  - boot_id: 0
 - module: HFUT-WDR/RMMotor
   id: big_yaw_motor
   args:

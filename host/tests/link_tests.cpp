@@ -12,8 +12,9 @@ struct Board
 {
   int master;
   uint64_t origin{wdr_host::steady_us()};
-  uint32_t boot{7};
-  wdr_host::Command command{};
+  wdr_host::AimCommand aim{};
+  wdr_host::NavCommand nav{};
+  uint64_t aim_rx{}, nav_rx{};
   unsigned command_count{};
   bool forbid_fire{};
   LibXR::Topic::Server parser{512};
@@ -33,23 +34,28 @@ struct Board
     auto request_cb = LibXR::Topic::Callback::Create(
         [](bool, Board* self, const wdr_host::TimeRequest& request)
         {
-          wdr_host::TimeResponse response{request.seq, self->boot, request.t1_host_us,
+          wdr_host::TimeResponse response{request.seq, request.t1_host_us,
                                           self->Mcu(), self->Mcu()};
           self->Send(response, "robot_time_sync");
         },
         this);
-    auto command_cb = LibXR::Topic::Callback::Create(
-        [](bool, Board* self, const wdr_host::Command& command)
+    auto aim_cb = LibXR::Topic::Callback::Create(
+        [](bool, Board* self, const wdr_host::AimCommand& aim)
         {
-          assert(!self->forbid_fire || command.aim.fire_control == 0);
-          self->command = command;
+          assert(!self->forbid_fire || !aim.fire_control);
+          self->aim = aim;
+          self->aim_rx = wdr_host::steady_us();
           ++self->command_count;
-        },
-        this);
+        }, this);
+    auto nav_cb = LibXR::Topic::Callback::Create(
+        [](bool, Board* self, const wdr_host::NavCommand& nav)
+        { self->nav = nav; self->nav_rx = wdr_host::steady_us(); }, this);
     LibXR::Topic(LibXR::Topic::Find("host_time_sync")).RegisterCallback(request_cb);
-    LibXR::Topic(LibXR::Topic::Find("host_command")).RegisterCallback(command_cb);
+    LibXR::Topic(LibXR::Topic::Find("host_aim")).RegisterCallback(aim_cb);
+    LibXR::Topic(LibXR::Topic::Find("host_nav")).RegisterCallback(nav_cb);
     parser.Register(LibXR::Topic::Find("host_time_sync"));
-    parser.Register(LibXR::Topic::Find("host_command"));
+    parser.Register(LibXR::Topic::Find("host_aim"));
+    parser.Register(LibXR::Topic::Find("host_nav"));
   }
   void Pump(unsigned milliseconds, bool aim_on, bool nav_on)
   {
@@ -63,10 +69,7 @@ struct Board
       if (now >= next)
       {
         wdr_host::AimState state{};
-        state.boot_id = boot;
         state.imu_time_us = Mcu();
-        state.sample_seq = state.imu_time_us;
-        state.valid_mask = 1;
         Send(state, "robot_aim_state");
         if (aim_on)
         {
@@ -111,20 +114,22 @@ int main()
   new HostLink(*uart, true);
   Board board(master);
   board.Pump(1400, true, true);
-  assert(board.command_count > 100 && board.command.valid_mask == 7);
-  assert(board.command.aim.mode == 2 && board.command.aim.fire_control == 1);
-  assert(board.command.nav.vx == 2 && board.command.target_time_mcu_us > 0);
-  board.Pump(160, true, false);
-  assert(board.command.valid_mask == 5 && board.command.nav.vx == 0);
-  board.Pump(160, false, true);
-  assert(board.command.valid_mask == 2 && board.command.aim.mode == 0);
-  assert(board.command.aim.fire_control == 0);
-  board.boot = 8;
+  assert(board.command_count > 50);
+  assert(board.aim.mode == 2 && board.aim.fire_control == 1);
+  assert(board.nav.vx == 2 && board.aim.target_time_mcu_us > 0);
+  board.Pump(220, true, false);
+  assert(wdr_host::steady_us() - board.nav_rx > 100000);
+  assert(wdr_host::steady_us() - board.aim_rx < 30000);
+  board.Pump(220, false, true);
+  assert(wdr_host::steady_us() - board.aim_rx > 100000);
+  assert(wdr_host::steady_us() - board.nav_rx < 30000);
   board.origin = wdr_host::steady_us();
   board.Pump(30, false, false);
-  assert(board.command.valid_mask == 0 && board.command.aim.fire_control == 0);
-  board.Pump(1100, true, true);
-  assert(board.command.aim.fire_control == 1);
+  const auto stopped_count = board.command_count;
+  board.Pump(150, false, false);
+  assert(board.command_count == stopped_count);
+  board.Pump(1200, true, true);
+  assert(wdr_host::steady_us() - board.aim_rx < 30000);
   const auto generation = uart->ConnectionGeneration();
   close(master);
   close(slave);
@@ -141,7 +146,7 @@ int main()
   board.forbid_fire = true;
   board.command_count = 0;
   board.Pump(350, false, false);
-  assert(board.command_count > 5 && board.command.valid_mask == 0);
+  assert(board.command_count == 0);
   unlink(stable.c_str());
   std::puts("PASS: LinuxUART PTY, LibXR frames, time sync, independent expiry, reboot");
   std::fflush(stdout);

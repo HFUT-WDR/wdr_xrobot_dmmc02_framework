@@ -53,7 +53,7 @@ modules:
       - chassis_cmd_topic_name: "chassis_cmd"
       - gimbal_cmd_topic_name: "gimbal_cmd"
       - launcher_cmd_topic_name: "launcher_cmd"
-      - auto_chassis_wz_source: CMD::ChassisWzSource::RC
+      - auto_chassis_wz_source: CMD::ChassisWzSource::LOCAL
   - module: HFUT-WDR/Referee
     id: referee
     args:
@@ -200,6 +200,18 @@ modules:
             deadband: 0.0
             i_limit: 0.5
             out_limit: 12.0
+          auto_spin:
+            low_speed: 2.0
+            mid_speed: 3.5
+            high_speed: 7.0
+            prepare_speed: 1.0
+            stationary_speed: 0.3
+            far_distance: 4.0
+            minimum_buffer: 30.0
+            translation_low: 0.5
+            translation_high: 2.0
+            minimum_scale: 0.3
+            attacked_hold_ms: 6000
           motor_timeout_ms: 10
       - command_topic_name: "chassis_cmd"
       - attitude_topic_name: "board_attitude"
@@ -207,6 +219,7 @@ modules:
       - output_topic_name: "chassis_status"
       - task_stack_depth: 4096
       - thread_priority: LibXR::Thread::Priority::MEDIUM
+      - referee_topic_name: "robot_game_ref"
   - module: HFUT-WDR/EventBinder
     id: input_events
     args:
@@ -532,7 +545,6 @@ modules:
       - host_fire_topic_name: '"host_fire_notify"'
       - host_gimbal_command_topic_name: '"host_gimbal_command"'
       - telemetry: true
-      - boot_id: 0
   - module: xrobot-org/SharedTopic
     id: host_rx
     args:
@@ -540,7 +552,7 @@ modules:
       - ramfs: ramfs
       - uart_name: '"host"'
       - buffer_size: 256
-      - topic_configs: '{"host_command", "host_time_sync"}'
+      - topic_configs: '{"host_aim", "host_nav", "host_time_sync"}'
   - module: xrobot-org/SharedTopicClient
     id: host_tx
     args:

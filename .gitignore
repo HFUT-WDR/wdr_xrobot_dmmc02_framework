@@ -30,3 +30,4 @@ __pycache__/
 *.jdebug
 *.jdebug.user
 config/ozoneConfig/
+.archify/

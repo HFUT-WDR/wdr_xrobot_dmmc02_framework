@@ -28,7 +28,7 @@ def crc32(data):
 
 def frame(payload):
     header = (b'\x5a' + len(payload).to_bytes(3, 'little')
-              + crc32(b'host_command').to_bytes(4, 'little')
+              + crc32(b'host_aim').to_bytes(4, 'little')
               + (7654321).to_bytes(6, 'little') + b'\x01')
     packet = header + bytes([crc8(header)]) + payload
     return packet + bytes([crc8(packet)])
@@ -39,8 +39,8 @@ with tempfile.TemporaryDirectory(prefix='wdr-host-test-') as directory:
     subprocess.run(['cmake', '-S', str(root/'tests/host'), '-B', str(stage/'build'),
                     '-DCMAKE_BUILD_TYPE=Debug'], check=True)
     subprocess.run(['cmake', '--build', str(stage/'build'), '-j4'], check=True)
-    payload = struct.pack('<Q8f5B3f3B4B', 1234567, 1.25, 2, 3, -.25, 4, 5, 6, 7,
-                          2, 1, 1, 3, 4, 2, -1, .5, 1, 2, 3, 7, 0, 0, 0)
+    payload = struct.pack('<Q8f5B', 1234567, 1.25, 2, 3, -.25, 4, 5, 6, 7,
+                          2, 1, 1, 3, 4)
     golden = frame(payload)
     corrupted = bytearray(golden)
     corrupted[-1] ^= 1
@@ -49,4 +49,4 @@ with tempfile.TemporaryDirectory(prefix='wdr-host-test-') as directory:
                        + corrupted + golden)
     subprocess.run([str(stage/'build/host_tests'), str(source), str(output)], check=True)
     assert output.read_bytes() == golden
-print('PASS: real LibXR bidirectional golden frame, malformed lengths, CRC, CMD mode/mask/timeout')
+print('PASS: real LibXR bidirectional golden frame, malformed lengths, CRC, independent aim/nav timeout')
