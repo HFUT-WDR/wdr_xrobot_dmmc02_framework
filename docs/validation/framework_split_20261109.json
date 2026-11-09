@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-09",
+  "scope": "framework 收敛为纯板级基座，哨兵整车拆到 HFUT-WDR/27_sentry",
+  "framework": {
+    "modules": ["HFUT-WDR/BuzzerAlarm", "HFUT-WDR/BMI088", "HFUT-WDR/BoardAttitude"],
+    "lock_modules": ["HFUT-WDR/BMI088", "HFUT-WDR/BoardAttitude", "HFUT-WDR/BuzzerAlarm", "HFUT-WDR/ImuFusion"],
+    "source": "module_sources/HFUT-WDR 作为 ModuleIndex 的离线镜像，canonical 仍为 GitHub",
+    "removed": [
+      "User/RobotConfig/sentry_remote.yaml",
+      "config/templates/*",
+      "产品模块 bundle、锁条目与 external_module_checks",
+      "chassis/gimbal/launcher/power/i6x/host/imu/external_modules 产品测试",
+      "产品文档、plans、archive 与产品验证记录"
+    ],
+    "board_change": "User/board_commands.cpp 移除 chassis 命令，板级代码不再依赖底盘模块"
+  },
+  "sentry": {
+    "repository": "https://github.com/HFUT-WDR/27_sentry",
+    "visibility": "private",
+    "branch": "dev",
+    "commit": "eef3b9a",
+    "changes": ["CMake/CubeMX 工程名、固件前缀与 CI project 改为 27_sentry"]
+  },
+  "passed": [
+    "framework xrobot setup --frozen 解析 4 个模块",
+    "framework Debug/Release 构建",
+    "board_support 回归",
+    "删除 Modules 后冻结离线恢复并重新构建",
+    "27_sentry xrobot setup --frozen 解析 21 个模块",
+    "27_sentry Debug 构建产出 27_sentry.elf"
+  ],
+  "unverified": [
+    "纯框架尚未在真实板卡上烧录验证",
+    "27_sentry 改名后的固件未烧录、未做机构闭环",
+    "27_sentry CI 首次运行结果待确认"
+  ]
+}

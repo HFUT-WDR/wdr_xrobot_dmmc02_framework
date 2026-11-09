@@ -60,8 +60,13 @@ RAM_D1 (xrw)      : ORIGIN = 0x24000000, LENGTH = 320K
 RAM_D2 (xrw)      : ORIGIN = 0x30000000, LENGTH = 32K
 RAM_D3 (xrw)      : ORIGIN = 0x38000000, LENGTH = 16K
 ITCMRAM (xrw)      : ORIGIN = 0x00000000, LENGTH = 64K
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 1024K
+/* 末尾两个 128 KB 扇区 0x080C0000-0x080FFFFF 保留给 LibXR DatabaseRaw 的主块和
+   备份块，固件不得占用。修改 Flash 容量或扇区表时需同步 User/flash_map.hpp。 */
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 768K
 }
+
+ASSERT(ORIGIN(FLASH) + LENGTH(FLASH) <= 0x080C0000,
+       "FLASH must not overlap the LibXR database sectors")
 
 /* Highest address of the user mode stack */
 _estack = ORIGIN(DTCMRAM) + LENGTH(DTCMRAM);    /* end of RAM */

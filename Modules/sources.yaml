@@ -1,4 +1,5 @@
 sources:
+# 官方与组织索引；板级模块另有本地 bundle 离线镜像。
 - url: https://xrobot.work/xrobot-modules/index.yaml
   priority: 0
 - url: ../ModuleIndex/index.yaml

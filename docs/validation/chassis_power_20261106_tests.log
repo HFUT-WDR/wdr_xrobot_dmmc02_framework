@@ -1,7 +1,0 @@
-PASS: power allocation, offline fallback, RLS sample freshness, STOP and supercap CAN
-PASS: 1000 frozen wheel mixes, original filter/source history, mode edge capture, zero targets and fault reset
-PASS: real Chassis/CMD/RMMotor integration, no constructor TX, missing/stale yaw, motor expiry, RC loss, RAW guard, four-slot zero output
-PASS: frozen defects reproduced; 5000 sp LPF + 5000 sp PID comparisons; dt, anti-windup, reset, derivative kick, cyclic error, invalid input, Butterworth frequency response
-PASS: frozen angle Inf nontermination reproduced in isolated child; new PID rejects Inf
-PASS: 1568 frozen-reference vectors; framing, failsafe threshold, CMD routing, HostData zero targets, independent PC expiry and STOP
-RAM zero-offset lifecycle and invalid-key checks passed

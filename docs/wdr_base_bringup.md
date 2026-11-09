@@ -9,6 +9,8 @@
 - LibXR 子模块 `5161373dbe6d9d9fb1904d90e0ebd4344a44047a`，保持上游基线。
 - 生成器 6.0.1，XRobot 1.0.1。
 - `xrobot.lock` 锁定首个模块 BuzzerAlarm：`a7c17cf7b1d10409848c32bd420cb393515e7f27`。
+
+> 2026-11-07 更新：BuzzerAlarm 与 BMI088 已迁移到 HFUT-WDR 自维护，见[xrobot-org 模块迁移](module_migration_20261107.md)。
 - 旧 WDR 工程没有被覆盖。本工程直接继承 MC02 基座的引脚和板级资源组织，包括 USART2/3 RS485、更多 PWM 和 SPI6 BDMA；这些外设的接线和实际功能仍需逐项验收。
 
 ## 必要适配
@@ -21,6 +23,8 @@
 6. 沿用 MC02 基座的 `.axi_ram`、`.ram_d3`、`.ram_d1` 分段，去掉重复 `.ram_d3` 定义，增加 32 字节对齐和 DMA scratch 边界符号。NOLOAD scratch 在 main 的 USER CODE 区清零并清理 Cache；USB 句柄保持上游位于 `.ram_d1` 的实现，不在 scratch 清零时覆盖它。
 7. 默认 Flash 数据库关闭：上游 `DatabaseRaw` 构造会初始化存储，而当前生成的 Flash 区域覆盖整个芯片，未划分独立数据区。没有迁入数据库写入或校准存储功能。
 8. 引入 MC02 基座的命名/格式规范，增加 `status` 和 `echo token` 诊断命令；没有自研 USB 驱动或终端解析。
+
+> 2026-11-07 更新：已把末尾两个 128 KB 扇区划为数据库区并启用 Flash 数据库，见[Flash 数据库与标定持久化](flash_database_20261107.md)。
 
 ## CPU_FREQ_BOOST
 

@@ -3,7 +3,6 @@
 #include "FreeRTOS.h"
 #include "ImuFusion.hpp"
 #include "adc.h"
-#include "chassis_control.hpp"
 #include "libxr.hpp"
 #include "main.h"
 #include "message.hpp"
@@ -99,47 +98,6 @@ int attitude_command(void* context, int, char**)
   return -1;
 }
 
-// 按需读取一份新底盘状态；命令不会切换模式或下发运动目标。
-int chassis_command(void*, int, char**)
-{
-  static LibXR::Topic::ASyncSubscriber<wdr_chassis::State> subscriber(
-      LibXR::Topic(LibXR::Topic::FindOrCreate<wdr_chassis::State>("chassis_status")));
-  if (subscriber.Available())
-  {
-    subscriber.GetData();
-  }
-  subscriber.StartWaiting();
-  for (unsigned i = 0; i < 100; ++i)
-  {
-    if (subscriber.Available())
-    {
-      const auto state = subscriber.GetData();
-      LibXR::STDIO::Print<
-          "chassis seq={} requested={} mode={} yaw_rad={:.3f} "
-          "current=[{},{},{},{}]\r\n">(
-          state.sequence, static_cast<unsigned>(state.requested),
-          static_cast<unsigned>(state.mode), state.chassis_yaw,
-          state.current[0], state.current[1], state.current[2], state.current[3]);
-      const auto& faults = state.faults;
-      LibXR::STDIO::Print<
-          "faults: input_lost={} motor_lost={} invalid_target={} invalid_feedback={}\r\n">(
-          unsigned(faults.input_lost), unsigned(faults.motor_lost),
-          unsigned(faults.invalid_target), unsigned(faults.invalid_feedback));
-      const auto& power = state.power;
-      LibXR::STDIO::Print<
-          "power enabled={} cap_online={} referee_online={} budget_w={:.2f} "
-          "estimated_w={:.2f} limited={} unreachable={} k1={:.5f} k2={:.2f}\r\n">(
-          unsigned(power.enabled), unsigned(power.cap_online), unsigned(power.referee_online),
-          power.budget_w, power.estimated_w, unsigned(power.limited),
-          unsigned(power.budget_unreachable), power.k1, power.k2);
-      return 0;
-    }
-    LibXR::Thread::Sleep(1);
-  }
-  LibXR::STDIO::Print<"chassis no fresh sample within 100ms\r\n">();
-  return -1;
-}
-
 int echo_command(void*, int argc, char** argv)
 {
   if (argc != 2)
@@ -170,9 +128,6 @@ void register_board_commands(LibXR::RamFS& ramfs)
       "dm_attitude", attitude_command<wdr_imu::Attitude>, static_cast<void*>(dm_topic));
   ramfs.Add(attitude);
   ramfs.Add(dm_attitude);
-  static auto chassis =
-      LibXR::RamFS::CreateFile("chassis", chassis_command, static_cast<void*>(nullptr));
-  ramfs.Add(chassis);
   ramfs.Add(health);
   ramfs.Add(imu);
   ramfs.Add(status);

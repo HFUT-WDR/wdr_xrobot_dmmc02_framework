@@ -1,21 +1,6 @@
 xrobot: 1.0.1
+# 纯板级基座：只请求板载模块。产品模块由使用者自行 xrobot module add。
 modules:
-- xrobot-org/BuzzerAlarm@same-or-dev
-- xrobot-org/BMI088@e4e64d705f5b61685e629a91e123ad2febe75fc7
-- xrobot-org/SharedTopic@same-or-dev
-- xrobot-org/SharedTopicClient@same-or-dev
-- HFUT-WDR/CMD@same-or-dev
-- HFUT-WDR/Motor@same-or-dev
-- HFUT-WDR/RMMotor@same-or-dev
-- HFUT-WDR/DMMotor@same-or-dev
-- HFUT-WDR/DR16@same-or-dev
-- HFUT-WDR/Referee@same-or-dev
-- HFUT-WDR/HostData@same-or-dev
-- HFUT-WDR/I6x@same-or-dev
-- HFUT-WDR/EventBinder@same-or-dev
+- HFUT-WDR/BuzzerAlarm@same-or-dev
+- HFUT-WDR/BMI088@same-or-dev
 - HFUT-WDR/BoardAttitude@same-or-dev
-- HFUT-WDR/DmImu@same-or-dev
-- HFUT-WDR/Chassis@same-or-dev
-- HFUT-WDR/PowerControl@same-or-dev
-- HFUT-WDR/Launcher@same-or-dev
-- HFUT-WDR/Gimbal@same-or-dev

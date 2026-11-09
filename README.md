@@ -6,17 +6,17 @@
 
 本文使用本工程的文件名和命令。XRobot 的通用机制见 [XRobot 官方文档](https://xrobot.work/)，学习路线可参考 [QDU-Robomaster 战队文档](https://qdu-robomaster.github.io/)。QDU 部分页面使用旧版工具命令，本工程以 `requirements-tools.txt` 固定的版本和本文命令为准。
 
-## 整车遥控构建
+## 板级基座与产品工程
 
-完整配置已提供：[26_sentry整车遥控说明](docs/sentry_remote.md)。直接选择并构建全部机构：
+本仓库是**纯板级基座**：只包含 MC02 板级代码、板载模块（蜂鸣器、BMI088、板载姿态）和构建/CI 基座。底盘、云台、发射、遥控、裁判、上位机通信等产品模块不在本仓库锁定，按需自行加入：
 
 ```sh
-xrobot gen -c User/RobotConfig/sentry_remote.yaml
-cmake --preset Debug
-cmake --build --preset Debug -j4
+xrobot module add HFUT-WDR/Chassis
+xrobot module add HFUT-WDR/Gimbal
+xrobot setup
 ```
 
-云台统一使用Gimbal模块，DualYaw/Pitch作为内部组件，两轴参数在 `gimbal.param.yaw` / `gimbal.param.pitch`。Pitch使用DM4310电机提供的零位，软件偏置为0；Yaw通过CALI校准获取零位。校准绑定、完整实例和验证范围见上述说明。板级配置仍保留在 `User/xrobot.yaml`，两种配置共用构建产物路径。
+整车工程以本仓库为基座，各自维护独立 BSP 仓库；当前哨兵整车见 [HFUT-WDR/27_sentry](https://github.com/HFUT-WDR/27_sentry)。需要多份完整配置时放在 `User/RobotConfig/` 下，用 `xrobot gen -c User/RobotConfig/你的配置.yaml` 选择。
 
 ## 目录
 
@@ -205,7 +205,7 @@ echo WDR_READY
 | `imu` | 新陀螺仪和加速度数据，单位分别为 rad/s、g |
 | `attitude` | 板载姿态序号和时间更新，角度单位为 rad |
 
-默认固件没有外置 DM IMU 或底盘实例，`dm_attitude`、`chassis` 等待不到新数据属于预期现象。上电后的 BMI088 零偏仅保存于 RAM，复位后清除；温控 PID 为零，默认不加热，内部 Flash 数据库未启用。
+默认固件没有外置 DM IMU 或底盘实例，`dm_attitude`、`chassis` 等待不到新数据属于预期现象。`bmi088 cali` 成功后的零偏写入内部 Flash 数据库，复位后保留；温控 PID 为零，默认不加热。Flash 数据区占用末尾两个 128 KB 扇区，布局和维护要求见 [Flash 数据库与标定持久化](docs/flash_database_20261107.md)。
 
 构建成功、烧录校验成功、设备数据收发正常和机构闭环正常是不同验证层次。板级状态通过后，再按具体模块文档进行外接设备测试。
 
@@ -222,7 +222,7 @@ echo WDR_READY
 | `Modules/modules.yaml` | 模块依赖及 XRobot 工具版本 |
 | `Modules/sources.yaml`、`ModuleIndex/` | 模块来源和索引 |
 | `xrobot.lock` | 模块锁定提交，由工具维护 |
-| `config/templates/` | 未启用设备的增量配置与参数参考 |
+| `module_sources/HFUT-WDR/` | 板级模块（BMI088、BuzzerAlarm、BoardAttitude、ImuFusion）的离线 bundle |
 | `Modules/<组织>/<模块名>/` | 独立模块仓库的实现代码 |
 
 电机型号、CAN 总线、ID、方向、PID、零位和几何参数放在机器人 YAML；模块中维护可复用功能。资源名称必须与 `User/app_main.cpp` 中的注册名称一致，例如 `can1`、`spi2`、`pwm_tim12_ch2`。
@@ -241,22 +241,15 @@ cmake --build --preset Debug -j4
 
 ### 5.3 接入外接设备与机构
 
-仓库已声明多种模块依赖，但默认板级配置只启动其中一部分。接入顺序为：
+本仓库只锁定板级模块，产品模块需要自行加入。接入顺序为：
 
-1. 阅读对应模块的 README 和下表中的接入说明，确认初始化是否发送报文、控制模式及失控行为。
-2. 按实际硬件核对总线、ID、方向、单位、限位和超时参数。
-3. 将所需实例从增量模板整理到 `User/xrobot.yaml`，并填写真实参数。依赖实例应排在使用它的实例之前。
-4. 重新生成、编译，先观察反馈和状态，再验证输出与闭环。
+1. 用 `xrobot module add <组织>/<模块名>` 添加所需模块，再执行 `xrobot setup`。
+2. 阅读模块 README，确认初始化是否发送报文、控制模式及失控行为。
+3. 按实际硬件核对总线、ID、方向、单位、限位和超时参数。
+4. 在 `User/xrobot.yaml` 中实例化模块并填写真实参数。依赖实例应排在使用它的实例之前。
+5. 重新生成、编译，先观察反馈和状态，再验证输出与闭环。
 
-| 功能 | 参数参考与说明 |
-| --- | --- |
-| 电机、DR16 / I6x、裁判系统、HostData、CMD | [基础模块接入](docs/external_modules.md)、`config/templates/external_devices.yaml.in` |
-| 板载 / 外置姿态 | [IMU 接入](docs/imu_modules_20261105.md)、[DM 协议说明](docs/dm_imu_complete_20261105.md)、`config/templates/dm_imu.yaml` |
-| 全向底盘 | [底盘接入](docs/chassis_module_20261105.md)、[命令单位与契约](docs/chassis_contract_20261105.md)、`config/templates/chassis.yaml` |
-| 底盘功率控制、超电 | [功率控制接入](docs/chassis_power_20261106.md) |
-| 双 yaw + pitch 云台 | [云台接入](docs/gimbal_modules_20261106.md)、`config/templates/gimbal.yaml` |
-
-`config/templates/` 是增量参数，部分内容还包含编译占位绑定，**不能直接作为完整机器人配置生成或作为实机参数烧录**。例如Yaw编码器初始零位需要通过CALI获取，Pitch则使用DM4310电机提供的零位。
+模块的完整说明和整车接线记录维护在各产品 BSP 仓库（如 27_sentry），基座仓库只保留板级接入说明。
 
 如需多份完整配置，可放在 `User/RobotConfig/` 下，通过 `xrobot gen -c User/RobotConfig/你的配置.yaml` 选择。`xrobot setup` 会检查 `User/` 下的机器人配置，不要把未填写完整的草稿放入该目录。
 
