@@ -1,6 +1,6 @@
 # 上下位机Topic通信
 
-当前方案：自瞄与导航上下行均独立分包，共用第二路Host USB CDC。上位机采用C++20、LibXR与XRobot；ROS适配独立于通信模块。
+当前方案：自瞄与导航上下行均独立分包，共用第二路Host USB CDC。上位机采用C++20、LibXR与XRobot；通信、时钟对齐与ROS桥接统一在HostLink模块内，ROS适配按构建选项启用。
 
 ```mermaid
 flowchart LR
