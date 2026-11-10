@@ -48,13 +48,18 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN Variables */
-
+/* RTOS 堆池固定在 DTCM：任务栈全部从这里分配，需零等待与确定性。DTCM 放不下的全局
+   变量按 ST AN4891 放到 AXI SRAM，而不是把堆或栈搬出 DTCM。
+   The RTOS heap pool is pinned in DTCM: every task stack is carved from it, so it needs
+   zero-wait deterministic access. Globals that do not fit in DTCM go to AXI SRAM per
+   ST AN4891, rather than moving the heap or stacks out of DTCM. */
+uint8_t ucHeap[configTOTAL_HEAP_SIZE] __attribute__((section(".dtcmram"), aligned(8)));
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
-  .stack_size = 4096 * 4,
+  .stack_size = 2048 * 4,
   .priority = (osPriority_t) osPriorityRealtime,
 };
 

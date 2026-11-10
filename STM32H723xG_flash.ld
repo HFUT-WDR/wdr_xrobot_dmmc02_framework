@@ -178,7 +178,7 @@ SECTIONS
     *(.RamFunc*)       /* .RamFunc* sections */
 
     . = ALIGN(4);
-  } >DTCMRAM AT> FLASH
+  } >RAM_D1 AT> FLASH
 
  /* Initialized TLS data section */
   .tdata : ALIGN(4)
@@ -188,7 +188,7 @@ SECTIONS
     _edata = .;        /* define a global symbol at data end */
     PROVIDE(__data_end = .);
     PROVIDE(__tdata_end = .);
-  } >DTCMRAM AT> FLASH
+  } >RAM_D1 AT> FLASH
 
   PROVIDE( __tdata_start = ADDR(.tdata) );
   PROVIDE( __tdata_size = __tdata_end - __tdata_start );
@@ -212,7 +212,7 @@ SECTIONS
     *(.tbss .tbss.*)
     . = ALIGN(4);
     PROVIDE( __tbss_end = . );
-  } >DTCMRAM
+  } >RAM_D1
   .ram_d3 (NOLOAD) :
   {
     . = ALIGN(32);
@@ -253,11 +253,25 @@ SECTIONS
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
       PROVIDE( __bss_end = .);
-  } >DTCMRAM
+  } >RAM_D1
   PROVIDE( __non_tls_bss_start = ADDR(.bss) );
 
   PROVIDE( __bss_start = __tbss_start );
   PROVIDE( __bss_size = __bss_end - __bss_start );
+
+  /* RTOS 堆固定在 DTCM：任务栈从该池分配，需零等待与确定性。DTCM 放不下全局变量时
+     按 ST AN4891 把 .data/.bss 放到 AXI SRAM（D-Cache 可缓存），而不是搬走堆栈。
+     RTOS heap stays in DTCM so task stacks keep zero-wait deterministic access. When
+     DTCM cannot hold globals, ST AN4891 moves .data/.bss to AXI SRAM (D-cacheable)
+     instead of moving the heap or stacks. */
+  .dtcmram (NOLOAD) :
+  {
+    . = ALIGN(8);
+    __dtcmram_start__ = .;
+    *(.dtcmram .dtcmram.*)
+    . = ALIGN(8);
+    __dtcmram_end__ = .;
+  } >DTCMRAM
 
   /* User_heap_stack section, used to check that there is enough RAM left */
   ._user_heap_stack (NOLOAD) :

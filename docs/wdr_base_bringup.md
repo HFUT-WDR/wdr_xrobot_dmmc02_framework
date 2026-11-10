@@ -17,7 +17,7 @@
 
 1. 工程和 IOC 改名为 `wdr_xrobot_dmmc02_framework`，同步 CI、Ozone 工程路径。
 2. 用官方工具切换到本机可用的 ARM GCC。Debug 应用 -Og、库 -O2，Release -O2。
-3. 保留 MC02 基座的 550/275/137.5 MHz 时钟树、TIM4 时基和 98 KB RTOS heap；修正 CAN SJW，使其不超过 TimeSeg2，保持 1 Mbps 仲裁、5 Mbps 数据相位。未测试 CAN 总线收发。
+3. 保留 MC02 基座的 550/275/137.5 MHz 时钟树、TIM4 时基和 90 KB RTOS heap（固定在 DTCM，任务栈从中分配）；全局变量按 ST AN4891 放在 AXI SRAM；修正 CAN SJW，使其不超过 TimeSeg2，保持 1 Mbps 仲裁、5 Mbps 数据相位。未测试 CAN 总线收发。
 4. USB 从一路 CDC 扩为 Log / Host 两路，采用 WDR 设备字符串。Log 由生成器绑定 STDIO 和独立 2048 字节终端线程，Host 供以后协议使用。
 5. 增加 ADC3 温度/VREFINT 两路连续扫描，用 BDMA_Channel1（Channel0 保留给上游 SPI6_TX），缓冲位于 SRAM4 的 `.ram_d3`。
 6. 沿用 MC02 基座的 `.axi_ram`、`.ram_d3`、`.ram_d1` 分段，去掉重复 `.ram_d3` 定义，增加 32 字节对齐和 DMA scratch 边界符号。NOLOAD scratch 在 main 的 USER CODE 区清零并清理 Cache；USB 句柄保持上游位于 `.ram_d1` 的实现，不在 scratch 清零时覆盖它。

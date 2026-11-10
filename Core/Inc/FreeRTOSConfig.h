@@ -69,7 +69,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_SB_COMPLETED_CALLBACK          ( 0 )
 #define configUSE_MINI_LIST_ITEM                ( 1 )
 #define configMINIMAL_STACK_SIZE                 ((uint16_t)128)
-#define configTOTAL_HEAP_SIZE                    ((size_t)0x18800)
+#define configTOTAL_HEAP_SIZE                    ((size_t)0x16800)
 #define configMAX_TASK_NAME_LEN                  ( 16 )
 #define configHEAP_CLEAR_MEMORY_ON_FREE          0
 #define configUSE_TRACE_FACILITY                 1
@@ -168,6 +168,10 @@ standard names. */
 
 /* USER CODE BEGIN Defines */
 /* Section where parameter definitions can be added (for instance, to override default ones in FreeRTOS.h) */
+/* 由应用提供 ucHeap，以便放进独立段（本工程固定在 DTCM）。heap_4.c 据此改用 extern 声明。
+   The application provides ucHeap so it can live in a dedicated section (DTCM here);
+   heap_4.c switches to an extern declaration when this is set. */
+#define configAPPLICATION_ALLOCATED_HEAP 1
 /* 不使用 FreeRTOS 软件定时器（CMSIS-RTOS V2 下 CubeMX 总是打开它），同时关掉依赖它的
    CMSIS-RTOS2 osTimer 接口和中断中设置事件标志。
    No FreeRTOS software timers (CubeMX always enables them with CMSIS-RTOS V2); the CMSIS-RTOS2

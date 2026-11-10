@@ -38,7 +38,7 @@ python3 tests/board_support/run_tests.py
 - Debug 和 Release 构建通过，现有 VS Code 任务继续使用这两个预设及原产物路径，无需更换入口。
 - 已检查 LibXR 再生成保留 USER CODE 中的 BoardIO 和 RAM 数据库注册；XRobot 从 YAML 生成 BMI088 实例及监控调用，不手改生成头。
 - RAM 存储主机测试使用真实 LibXR Database 接口，ASan/UBSan 通过：默认零偏、同次上电保存/读取、模拟重启清除，以及错误键名/数据长度不覆盖已有数据。使用静态 ASan 解决本机安全软件预加载库的加载顺序问题。
-- 构建后 DTCMRAM 约 116.5 KB / 128 KB，其中含既有 RTOS heap；这不是运行时堆或线程栈余量测量。
+- 构建后 DTCMRAM 静态占用约 92.5 KB / 128 KB（94720 B，余 36352 B），只剩 90 KB RTOS heap 与 2.5 KB 堆栈预留；全局变量按 ST AN4891 放在 AXI SRAM（.data/.bss，可缓存）。这是链接期静态占用，不是运行时堆或线程栈余量测量。
 - 初次模块接入时未烧录；启动故障修复后的新板测见下节。此前 `docs/validation/` 中的 550 MHz、USB 和蜂鸣器板测只对应上一版固件，不能当成本轮 BMI088、LED、按键的板测证据。
 
 ## 烧录后验收
