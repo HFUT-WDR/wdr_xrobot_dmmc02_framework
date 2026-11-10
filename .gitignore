@@ -22,6 +22,9 @@ __pycache__/
 # CI临时生成结果
 .ci-tools/
 
+# AI agent 工作区，不入库
+.agents/
+
 # IDE 与调试器的个人配置，不入库
 .vscode/
 .settings/
