@@ -1,12 +1,12 @@
 modules:
-  - module: HFUT-WDR/BuzzerAlarm
+  - module: WDR-Xrobot-org/BuzzerAlarm
     id: buzzer
     args:
       - pwm: pwm_tim12_ch2
       - alarm_freq: 1500
       - alarm_duration: 300
       - alarm_delay: 300
-  - module: HFUT-WDR/BMI088
+  - module: WDR-Xrobot-org/BMI088
     id: imu
     args:
       - accl_cs: ACC_CS
@@ -35,7 +35,7 @@ modules:
           accl_topic_name: "bmi088_accl"
           target_temperature: 45
           task_stack_depth: 2048
-  - module: HFUT-WDR/BoardAttitude
+  - module: WDR-Xrobot-org/BoardAttitude
     id: board_attitude
     args:
       - gyro_topic_name: "bmi088_gyro"

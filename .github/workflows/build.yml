@@ -14,7 +14,7 @@ jobs:
   build:
     permissions:
       contents: write
-    uses: HFUT-WDR/xrobot-ci/.github/workflows/bsp-stm32-ci.yml@dev
+    uses: WDR-Xrobot-org/xrobot-ci/.github/workflows/bsp-stm32-ci.yml@dev
     with:
       project: wdr_xrobot_dmmc02_framework
       # 纯框架只构建板级默认配置；产品配置在各自 BSP 仓库构建。
@@ -24,4 +24,4 @@ jobs:
         Debug
         Release
     secrets:
-      WDR_MODULES_READ_TOKEN: ${{ secrets.WDR_MODULES_READ_TOKEN }}
+      WDR_APP_PRIVATE_KEY: ${{ secrets.WDR_APP_PRIVATE_KEY }}

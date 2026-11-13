@@ -1,9 +1,9 @@
-# WDR模块冻结快照
+# 模块源补充
 
-当前仅维护HFUT-WDR命名空间。HFUT-WDR目录保存17个自维护模块的Git bundle和本地索引；正式模块仓库、ModuleIndex和CI均由组织维护。
-Modules/sources.yaml优先读取组织索引，并保留HFUT-WDR本地快照源用于冻结恢复。xrobot.lock记录实际提交。
+`xrobot` 的索引来源由 `Modules/sources.yaml` 决定：官方索引与 `ModuleIndex/index.yaml`。
+本目录不再保存离线快照；旧 `HFUT-WDR/` 下的 Git bundle 已删除，模块统一从组织仓库拉取。
 
-运行python3 tools/check_module_snapshots.py可在临时目录检查17个快照与21个模块的冻结离线恢复。
-维护模块时同步更新组织仓库、对应bundle和锁文件。构建、烧录及机构闭环验证范围分别记录。
+`YunMo-yanyu/` 为个人 ESKF 模块的本地索引与 bundle，不属于 WDR-Xrobot-org，
+目前未登记进 `Modules/modules.yaml`，保留供后续评估。
 
-旧Modules/YunMo-yanyu目录及个人快照已移出工程，不再参与构建或维护；个人GitHub仓库保留历史。
+`xrobot-org/` 只留一个空索引，说明官方产品模块直接从官方索引拉取。
