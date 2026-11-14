@@ -18,7 +18,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: c01060f53702ec66058b5ca6ed45d48a53484a90
+    commit: 822efcc16b6e993b872738df83fba356842d7899
   WDR-Xrobot-org/BMI088:
     repo: https://github.com/WDR-Xrobot-org/BMI088.git
     source: ModuleIndex/index.yaml
