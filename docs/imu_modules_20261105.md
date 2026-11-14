@@ -1,5 +1,7 @@
 # IMU模块接入（2026-11-05）
 
+> **2026-11-14 起板载解算改为 `AttitudeFusion` + 单一 EKF，`BoardAttitude` 已删除，`ImuFusion` 更名为 `ImuEkfFusion`。**
+>
 > 以下保留首版接入记录。外置DM的当前协议、功能与配置以[模块补全记录](dm_imu_complete_20261105.md)为准；首版“仅RS485旧连续流”不再代表当前实现。
 
 ## 范围

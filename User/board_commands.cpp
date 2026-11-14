@@ -1,7 +1,7 @@
 #include "board_commands.hpp"
 
 #include "FreeRTOS.h"
-#include "ImuFusion.hpp"
+#include "ImuEkfFusion.hpp"
 #include "adc.h"
 #include "libxr.hpp"
 #include "main.h"
@@ -123,7 +123,7 @@ void register_board_commands(LibXR::RamFS& ramfs)
   static char board_topic[] = "board_attitude";
   static char dm_topic[] = "dm_attitude";
   static auto attitude = LibXR::RamFS::CreateFile(
-      "attitude", attitude_command<wdr_imu::BoardState>, static_cast<void*>(board_topic));
+      "attitude", attitude_command<wdr_imu::Attitude>, static_cast<void*>(board_topic));
   static auto dm_attitude = LibXR::RamFS::CreateFile(
       "dm_attitude", attitude_command<wdr_imu::Attitude>, static_cast<void*>(dm_topic));
   ramfs.Add(attitude);

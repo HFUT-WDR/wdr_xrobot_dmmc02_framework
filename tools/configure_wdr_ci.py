@@ -11,8 +11,8 @@ import urllib.request
 ORG = 'HFUT-WDR'
 SECRET = 'WDR_MODULES_READ_TOKEN'
 REPOSITORIES = [
-    'BoardAttitude', 'CMD', 'Chassis', 'ControlAlgorithms', 'DMMotor', 'DR16',
-    'DmImu', 'EventBinder', 'Gimbal', 'HostData', 'I6x', 'ImuFusion',
+    'AttitudeFusion', 'CMD', 'Chassis', 'ControlAlgorithms', 'DMMotor', 'DR16',
+    'DmImu', 'EventBinder', 'Gimbal', 'HostData', 'I6x', 'ImuEkfFusion',
     'Launcher', 'Motor', 'PowerControl', 'RMMotor', 'Referee',
     'wdr_xrobot_dmmc02_framework',
 ]

@@ -3,7 +3,7 @@ version: 1
 requests:
 - id: WDR-Xrobot-org/BMI088
   ref: same-or-dev
-- id: WDR-Xrobot-org/BoardAttitude
+- id: WDR-Xrobot-org/AttitudeFusion
   ref: same-or-dev
 - id: WDR-Xrobot-org/BuzzerAlarm
   ref: same-or-dev
@@ -14,14 +14,14 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 40542fa6dc5aa8aa545ac7e2678935e732693a32
-  WDR-Xrobot-org/BoardAttitude:
-    repo: https://github.com/WDR-Xrobot-org/BoardAttitude.git
+    commit: e3c37dc4a7eaee322270b53ec2bb2aaca748c8b9
+  WDR-Xrobot-org/AttitudeFusion:
+    repo: https://github.com/WDR-Xrobot-org/AttitudeFusion.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: a12bcafe734ecbf7270cf5fca70e9cec6e36d800
+    commit: 92a9df3227db8166db892c856f165cb0479c5355
   WDR-Xrobot-org/BuzzerAlarm:
     repo: https://github.com/WDR-Xrobot-org/BuzzerAlarm.git
     source: ModuleIndex/index.yaml
@@ -29,10 +29,10 @@ modules:
     resolved_ref: dev
     ref_kind: branch
     commit: a6f70132d657ae5d83dd6ebc1c0d6c4a68c71ab4
-  WDR-Xrobot-org/ImuFusion:
-    repo: https://github.com/WDR-Xrobot-org/ImuFusion.git
+  WDR-Xrobot-org/ImuEkfFusion:
+    repo: https://github.com/WDR-Xrobot-org/ImuEkfFusion.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 3069e3199fe42246a2fc3c65ede7a49a412f32ec
+    commit: fb51c6b83b2d22787fe2289362729956c2abd956
