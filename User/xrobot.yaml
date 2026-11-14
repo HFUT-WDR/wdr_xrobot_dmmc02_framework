@@ -47,5 +47,7 @@ modules:
           dt_source: wdr_imu::DtSource::MEASURED
           nominal_period_s: 0.001f
           task_stack_depth: 4096
+      - ramfs: ramfs
+      - command_name: "attitude"
 settings:
   monitor_sleep_ms: 1000
