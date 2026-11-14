@@ -13,11 +13,11 @@
 ## IMU移植
 
 新增 HFUT-WDR/ImuFusion、BoardAttitude、DmImu。
-> 2026-11-14：ImuFusion 更名为 ImuEkfFusion（只剩一套 EKF）；BoardAttitude 由 AttitudeFusion 取代。
+> 2026-11-14：板载解算统一为 `AttitudeEkf`（EKF 算法 + 融合骨架同仓），BoardAttitude/AttitudeFusion/ImuEkfFusion 均已删除。
 原始行为参考26_sentry的板载与DM专用EKF、DM协议；本次复用MC02_Framework_CPP修正后的移植，保留原作者及来源，未把旧HAL入口搬入XRobot模块。
 代码基线、修复和文件散列见各组件THIRD_PARTY_NOTICES.md与tests/imu/reference。
 引用的26_sentry快照未附工程根许可证，本工程不替其推定新的许可；组件LICENSE只覆盖WDR新增部分。
-ImuEkfFusion模块内保留与基座Drivers/CMSIS同版本的CMSIS源码和原许可证，以支持模块独立编译；算法未改写。
+AttitudeEkf模块内保留与基座Drivers/CMSIS同版本的CMSIS源码和原许可证，以支持模块独立编译；算法未改写。
 
 ## 发射机构参考代码
 

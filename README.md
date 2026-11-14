@@ -222,7 +222,7 @@ echo WDR_READY
 | `Modules/modules.yaml` | 模块依赖及 XRobot 工具版本 |
 | `Modules/sources.yaml`、`ModuleIndex/` | 模块来源和索引 |
 | `xrobot.lock` | 模块锁定提交，由工具维护 |
-| `module_sources/HFUT-WDR/` | 板级模块（BMI088、BuzzerAlarm、AttitudeFusion、ImuEkfFusion）的离线 bundle |
+| `module_sources/HFUT-WDR/` | 板级模块（BMI088、BuzzerAlarm、AttitudeEkf）的离线 bundle |
 | `Modules/<组织>/<模块名>/` | 独立模块仓库的实现代码 |
 
 电机型号、CAN 总线、ID、方向、PID、零位和几何参数放在机器人 YAML；模块中维护可复用功能。资源名称必须与 `User/app_main.cpp` 中的注册名称一致，例如 `can1`、`spi2`、`pwm_tim12_ch2`。

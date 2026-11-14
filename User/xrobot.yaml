@@ -35,10 +35,8 @@ modules:
           accl_topic_name: "bmi088_accl"
           target_temperature: 45
           task_stack_depth: 2048
-  # 板载融合实例：算法取 ImuEkfFusion 的 AttitudeEkf，输入为 BMI088 的两个 Vector。
-  - module: WDR-Xrobot-org/AttitudeFusion
-    template_args:
-      - wdr_imu::AttitudeEkf
+  # 板载融合实例：AttitudeEkf 订阅 BMI088 的两个 Vector，解算并发布 board_attitude。
+  - module: WDR-Xrobot-org/AttitudeEkf
     id: board_attitude
     args:
       - gyro_topic_name: "bmi088_gyro"

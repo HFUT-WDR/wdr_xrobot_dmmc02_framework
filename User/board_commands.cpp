@@ -1,7 +1,7 @@
 #include "board_commands.hpp"
 
 #include "FreeRTOS.h"
-#include "ImuEkfFusion.hpp"
+#include "imu_types.hpp"
 #include "adc.h"
 #include "libxr.hpp"
 #include "main.h"
