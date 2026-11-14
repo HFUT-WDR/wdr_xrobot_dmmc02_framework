@@ -16,3 +16,14 @@
 - 构建使用 cmake --preset Debug/Release 和 cmake --build --preset Debug/Release -j4。
 - 构建、烧录校验、设备收发和机构闭环是不同验证层次，记录范围及未验证项。
 - 当前为板级基座阶段；新增电机模块前明确初始化是否发送、控制模式及失控行为。
+
+## XRobot 构造与 YAML 契约
+
+- 引用型与外设依赖（`LibXR::RamFS&`、`LibXR::CAN*`、`LibXR::UART&`）必须排在所有带默认值的参数之前，
+  否则 XRobot 拒绝实例化；依赖本身不宜带默认值时，去掉其后参数的默认值而不是给依赖加默认值。
+- 类内不要用 `{}` 或 `Param{}` 作为参数默认实参：GCC 要求默认成员初始化器在本类范围内完成。
+  需要“可省略”的形式时另写一个转发构造。
+- YAML 中引用型参数写对象名（`ramfs: ramfs`），不加 `&`；Topic 名与命令名必须带引号，
+  生成器靠引号识别 `const char*`，靠无引号识别对象引用。
+- 模块新增构造参数或依赖后，同步更新主机测试替身（`tests/*/stubs`）、测试里的构造调用，
+  以及 `tools/generate_external_checks.py` 的引号与对象引用规则。
