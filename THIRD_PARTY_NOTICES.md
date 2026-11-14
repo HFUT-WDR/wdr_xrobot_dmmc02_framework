@@ -7,21 +7,21 @@
 
 ## EventBinder
 
-私有组件 `HFUT-WDR/EventBinder` 基于 [原始 EventBinder](https://github.com/QDU-Robomaster/EventBinder)，
+私有组件 `WDR-Xrobot-org/EventBinder` 基于 [原始 EventBinder](https://github.com/QDU-Robomaster/EventBinder)，
 迁移基线为 `3d4adde3a7c10152a6a0b6c67738b88c972bd675`。原许可证与 Git 历史保留在组件仓库。
 
 ## IMU移植
 
-新增 HFUT-WDR/ImuFusion、BoardAttitude、DmImu。
-> 2026-11-14：板载解算统一为 `AttitudeEkf`（EKF 算法 + 融合骨架同仓），BoardAttitude/AttitudeFusion/ImuEkfFusion 均已删除。
-原始行为参考26_sentry的板载与DM专用EKF、DM协议；本次复用MC02_Framework_CPP修正后的移植，保留原作者及来源，未把旧HAL入口搬入XRobot模块。
-代码基线、修复和文件散列见各组件THIRD_PARTY_NOTICES.md与tests/imu/reference。
+新增 WDR-Xrobot-org/AttitudeEkf、DmImu。原始行为参考26_sentry的板载与DM专用EKF、DM协议；
+本次复用MC02_Framework_CPP修正后的移植，保留原作者及来源，未把旧HAL入口搬入XRobot模块。
+代码基线、修复和文件散列见各组件THIRD_PARTY_NOTICES.md与 AttitudeEkf 的 tests/reference。
 引用的26_sentry快照未附工程根许可证，本工程不替其推定新的许可；组件LICENSE只覆盖WDR新增部分。
-AttitudeEkf模块内保留与基座Drivers/CMSIS同版本的CMSIS源码和原许可证，以支持模块独立编译；算法未改写。
+AttitudeEkf模块内保留与基座Drivers/CMSIS同版本的CMSIS源码和原许可证，以支持模块独立编译；
+板载与外置两份EKF在AttitudeEkf内合并为一份（沿用DM源的复位行为），移植差异见该模块tests/run_regression.py。
 
 ## 发射机构参考代码
 
-HFUT-WDR/Launcher 的发射状态、虚拟热量、弹速与卡弹流程参考26_sentry。
+WDR-Xrobot-org/Launcher 的发射状态、虚拟热量、弹速与卡弹流程参考26_sentry。
 主机回归使用的原始 shoot_task、heat_control 和 LPF 文件冻结在 tests/launcher/reference，
 SHA-256 记录于同目录 hashes.json；保留原文件内容，不将其重新声明为WDR原创。
 模块重组、设备接入和行为差异见 Launcher 仓库的 README 与来源说明。

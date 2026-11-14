@@ -2,10 +2,12 @@
 
 ## 仓库与可见性
 
-HFUT-WDR下新建框架、18个自维护模块和xrobot-ci，共20个私有仓库；个人仓库继续保留。
-组织成员通过组织默认Read权限读取，维护者保留管理权限。依赖和冻结快照统一使用HFUT-WDR命名空间。
-ModuleIndex子模块指向HFUT-WDR/xrobot-ci；其中index.yaml提供模块HTTPS地址。
-module_sources/HFUT-WDR保存本次锁定版本的Git bundle，可用tools/check_module_snapshots.py离线验证。
+2026-11-13 起，19 个自维护模块与共享 CI 仓库迁到 WDR-Xrobot-org，均为私有仓库。
+框架仓库（wdr_xrobot_dmmc02_framework、27_sentry）仍在 HFUT-WDR，但调用新组织的共享 CI。
+例外：SharedTopic 与 SharedTopicClient 继续使用官方 xrobot-org 源，源码未改动。
+依赖与索引统一使用 WDR-Xrobot-org 命名空间；ModuleIndex 子模块指向 WDR-Xrobot-org/xrobot-ci。
+本地 Git bundle 快照已移除，离线恢复依赖已检出的 Modules/ 与 xrobot.lock，
+可用 tools/check_module_snapshots.py 在临时目录验证。
 
 ## 自动运行的位置和流程
 
@@ -21,14 +23,49 @@ BSP仓库调用bsp-stm32-ci.yml：校验LibXR生成入口、YAML布局和锁文�
 
 ## 私有依赖凭据
 
-GITHUB_TOKEN通常只能读取当前仓库，无法拉取另一个私有模块。专用Fine-grained Token为此提供Contents Read-only。
-资源所有者为HFUT-WDR，仅选本次20个新仓库；Metadata保持默认Read-only。
-Token作为WDR_MODULES_READ_TOKEN存储到18个模块和框架的Actions Secrets，通过workflow_call显式传给共享工作流。
-共享工作流仓库需允许组织内私有仓库调用。ci/credential_helper.py仅对github.com/HFUT-WDR的HTTPS Git读取返回凭据，不把Token写进Git配置或日志。
+GITHUB_TOKEN通常只能读取当前仓库，无法拉取另一个私有模块。现在改用组织 GitHub App：
+安装范围为组织全部仓库，权限只有 Contents 与 Metadata 的只读。
 
-更新凭据：在工程终端执行python3 tools/configure_wdr_ci.py，在隐藏输入中粘贴Token。
-检查名称：python3 tools/configure_wdr_ci.py --check。此检查无法验证Token权限或有效期，需实际CI拉取成功才能确认。
-令牌到期、撤销或新增模块时需要更新选择范围及各调用仓库Secret。不要将Token写入文件、提交或聊天。
+每个 job 由 actions/create-github-app-token@v2 铸造一小时有效的安装令牌，
+经 credential.helper 从环境变量提供给 git，不写进 git 配置、命令行参数或日志。
+令牌自动过期，不需要手工轮换，也不再需要分发工作流。
+
+调用方只需要一处配置：仓库级 Secret WDR_APP_PRIVATE_KEY（App 私钥 PEM）。
+免费组织的组织级 Secret 不能被私有仓库读取，所以私钥按仓库配置。
+App ID 不是密钥，已经写成共享工作流的 app-id 输入默认值，不再需要组织变量。
+
+新增模块仓库时运行一次：
+
+    tools/provision_module.py --key <私钥 PEM> --repo <仓库名>
+
+脚本写入标准 build.yml、配置 Secret，并在 ModuleIndex/index.yaml 补一行；幂等，可重复运行。
+`--all` 遍历已有检出做巡检，`--check` 只报告缺失项。App 私钥长期有效，
+仅在泄露时重新生成并更新各仓库 Secret；私钥不要写入文件、提交或聊天。
+
+xrobot-ci 是公开仓库。GitHub 免费版只允许同一组织内的私有可复用工作流互相调用，
+公开仓库则不受组织限制，因此位于 HFUT-WDR 的 27_sentry 与 wdr_xrobot_dmmc02_framework
+可以直接调用它。索引里的内容只有模块名与仓库地址，模块代码仍在私有仓库；
+拉取时用调用方 job 铸造的安装令牌，所以私有模块不会因此泄露。
+
+## 2026-11-13归档
+
+HFUT-WDR 的 19 个模块仓库与 DualYaw 已归档（只读，历史保留），旧 dev 均为新 org dev 的祖先。
+HFUT-WDR 剩余的 XRobot 仓库只有 27_sentry 与 wdr_xrobot_dmmc02_framework 两个框架，
+以及已归档的 xrobot-ci 副本。
+
+module_sources/HFUT-WDR 的 Git bundle 快照已删除；离线恢复改由已检出的 Modules/ 完成。
+20 个模块仓库的 Module CI 全部通过（含 DmAttitude；2026-11-14 该模块被 AttitudeFusion 取代），两个框架仓库的 BSP CI 也通过。
+框架跨组织调用公开的 WDR-Xrobot-org/xrobot-ci 已验证可用。
+
+## 2026-11-13补充迁移
+
+27_Sentry_Host、rm_decision、HostLink 迁入 WDR-Xrobot-org，连同其依赖一并收归本组织。
+三者均保留完整历史，Module CI 通过；27_Sentry_Host 新增 Host CI，在 Linux 镜像内
+执行 setup、Debug 构建与 ctest，本地 4 项测试与云端构建均通过。
+HostLink 与 rm_decision 已登记进 ModuleIndex，总数 22。
+
+HFUT-WDR 侧的 HostLink 已归档；27_Sentry_Host 与 rm_decision 的旧仓库需要仓库管理员
+归档，当前账号没有 admin 权限。
 
 ## 验证边界
 
@@ -46,4 +83,5 @@ CI沿用xrobot-org/XRobot v1共享工作流，WDR维护私有索引、认证和�
 ## 本地维护入口
 
 仅维护Modules/HFUT-WDR与module_sources/HFUT-WDR；旧个人模块目录及旧索引不再参与构建。
+Modules/xrobot-org 仅保留 SharedTopic 与 SharedTopicClient 两个跟随官方源的模块，不由本组织维护。
 个人GitHub仓库保留历史，不再同步维护。已有个人检出的默认origin现指向组织框架；个人远端保留为personal-archive，仅用于追溯。

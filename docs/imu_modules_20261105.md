@@ -1,6 +1,6 @@
 # IMU模块接入（2026-11-05）
 
-> **2026-11-14 起板载解算改为 `AttitudeEkf`（算法与融合同仓），`BoardAttitude`、`AttitudeFusion`、`ImuEkfFusion` 均已删除。**
+> **2026-11-14 起板载与外置解算合并为 `AttitudeEkf`（一个仓库一种算法），`BoardAttitude`、`DmAttitude`、`AttitudeFusion`、`ImuEkfFusion` 均已删除。**
 >
 > 以下保留首版接入记录。外置DM的当前协议、功能与配置以[模块补全记录](dm_imu_complete_20261105.md)为准；首版“仅RS485旧连续流”不再代表当前实现。
 
@@ -24,8 +24,8 @@ ImuFusion继承了MC02_Framework_CPP已做过冻结源对照的移植。必要�
 
 ## 数据契约
 
-- BoardAttitude输出 `wdr_imu::BoardState`，默认Topic `board_attitude`。
-- DmImu输出 `wdr_imu::Attitude`，默认Topic `dm_attitude`。
+- 板载实例输出 `wdr_imu::Attitude`，默认Topic `board_attitude`。
+- DmImu输出 `wdr_imu::DmMeasurement`（默认Topic `dm_measurement`），姿态由 AttitudeEkf 实例订阅后发布 `dm_attitude`。
 - yaw/pitch/roll单位rad，gyro三轴rad/s，accel三轴m/s²（含重力），四元数顺序w,x,y,z。
 - BoardState另带yaw_total与原算法定义的机体/导航系运动加速度。
 - time_us与sequence同姿态一起发布；Topic新消息只代表新计算结果，消费者仍需检查时效与机构条件。
@@ -76,8 +76,9 @@ User/xrobot_imu.yaml只实例化一颗DM，启用需执行 `xrobot gen -c User/x
 主机矩阵使用测试替身，ARM使用基座CMSIS-DSP；主机数值对照不等价于真实DSP/RTOS性能验收。
 另执行既有I6x、板级存储与默认ELF隔离回归，完整结果见validation/imu_modules_20261105.json。
 
-日志终端新增attitude与dm_attitude，只等待一份新数据后输出，不持续刷屏。
-未启用外置DM时dm_attitude会提示没有新样本。status/health/imu原命令保持。
+姿态命令由 `AttitudeEkf` 实例在构造时按 `command_name` 注册，只等待一份新数据后输出，不持续刷屏。
+原板级 `attitude`/`dm_attitude`/`imu` 命令已删除，板级 `board_commands` 只保留 `status/health/echo`；
+采样观察改由模块自带的 `bmi088` 命令提供（见 [AGENTS.md](../AGENTS.md) 的模块职责边界）。
 本次未烧录，新模块启动、线程栈余量、4Mbps连续接收、姿态实际轴向与温控/零偏标定均未板测。
 当前BMI088零偏仍使用RAM数据库，持久校准与恢复在后续校准阶段接入，不宣称已完成。
 

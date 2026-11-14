@@ -23,6 +23,8 @@
 
 `status/echo` 保持原接口。新增 `key/led/imu/health`，`imu` 在命令线程等待下一次陀螺仪和加速度 Topic 消息，最多约 100 ms；不是周期刷屏，不阻塞采样线程。两个消息各自取得下一帧，不保证严格同一帧配对。`health` 提供堆历史最小余量、SPI2/SPI6/ADC3 HAL 错误和 CFSR，不表示整机健康。
 
+> **2026-11-14 更新：板级 `imu` 命令已删除。** 采样观察改由 BMI088 模块自带的 `bmi088` 命令提供，姿态命令由 `AttitudeEkf` 实例按 `command_name` 注册；板级 `board_commands` 只保留 `status/health/echo`。上文的 `imu` 行为与板测记录对应 2026-11-05～11-07 的固件，保留作历史记录。
+
 ## 生成、构建与验证
 
 ```sh

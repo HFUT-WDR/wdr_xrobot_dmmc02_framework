@@ -11,8 +11,8 @@
 本仓库是**纯板级基座**：只包含 MC02 板级代码、板载模块（蜂鸣器、BMI088、板载姿态）和构建/CI 基座。底盘、云台、发射、遥控、裁判、上位机通信等产品模块不在本仓库锁定，按需自行加入：
 
 ```sh
-xrobot module add HFUT-WDR/Chassis
-xrobot module add HFUT-WDR/Gimbal
+xrobot module add WDR-Xrobot-org/Chassis
+xrobot module add WDR-Xrobot-org/Gimbal
 xrobot setup
 ```
 
@@ -64,7 +64,7 @@ Python 包 `libxr` 是代码生成器，工程使用的 LibXR C++ 库位于 Git 
 
 ### 2.1 配置仓库访问权限
 
-主工程、WDR 模块及模块索引使用 `HFUT-WDR` 组织仓库。先确认当前账号具有这些仓库的读取权限。使用 HTTPS 时：
+主工程位于 `HFUT-WDR`；XRobot 模块与模块索引位于 `WDR-Xrobot-org`。先确认当前账号具有这些仓库的读取权限。使用 HTTPS 时：
 
 ```sh
 gh auth login
@@ -157,7 +157,7 @@ cmake --build --preset Release -j4
 | BIN | `build/Debug/wdr_xrobot_dmmc02_framework.bin` |
 | C++ 索引数据库 | `build/Debug/compile_commands.json` |
 
-Release 产物位于 `build/Release/`。正常构建还会编译检查未启用模块和组合 YAML；这些检查对象不链接进运行固件，因此“模块编译通过”不代表它已经在板上启动。
+Release 产物位于 `build/Release/`。纯板级基座只编译 `User/xrobot.yaml` 实例化的模块；未加入清单的模块不会进入构建，加入后由 `xrobot setup` 生成，仍需自行确认“模块编译通过”不代表它已经在板上启动。
 
 ## 4. 烧录与首次运行
 
@@ -202,10 +202,10 @@ echo WDR_READY
 | `health` | SPI / ADC 错误及 CPU 故障状态 |
 | `led 8 0 0`、`led 0 0 0`、`led auto` | 红灯、熄灭、恢复自动心跳 |
 | `key` | 按下 / 松开时按键状态变化，按下计数递增 |
-| `imu` | 新陀螺仪和加速度数据，单位分别为 rad/s、g |
-| `attitude` | 板载姿态序号和时间更新，角度单位为 rad |
+| `bmi088 show 1000 100` | BMI088 原始采样；原板级 `imu` 命令已删除，采样观察改由模块自带的 `bmi088` 命令提供 |
+| `attitude` | 板载姿态序号和时间更新，角度单位为 rad（由 AttitudeEkf 实例注册） |
 
-默认固件没有外置 DM IMU 或底盘实例，`dm_attitude`、`chassis` 等待不到新数据属于预期现象。`bmi088 cali` 成功后的零偏写入内部 Flash 数据库，复位后保留；温控 PID 为零，默认不加热。Flash 数据区占用末尾两个 128 KB 扇区，布局和维护要求见 [Flash 数据库与标定持久化](docs/flash_database_20261107.md)。
+默认固件没有外置 DM IMU 或底盘实例，`dm_attitude`、`chassis` 命令也不会注册；启用对应模块后由各实例按 `command_name` 注册。`bmi088 cali` 成功后的零偏写入内部 Flash 数据库，复位后保留；温控 PID 为零，默认不加热。Flash 数据区占用末尾两个 128 KB 扇区，布局和维护要求见 [Flash 数据库与标定持久化](docs/flash_database_20261107.md)。
 
 构建成功、烧录校验成功、设备数据收发正常和机构闭环正常是不同验证层次。板级状态通过后，再按具体模块文档进行外接设备测试。
 
@@ -222,7 +222,6 @@ echo WDR_READY
 | `Modules/modules.yaml` | 模块依赖及 XRobot 工具版本 |
 | `Modules/sources.yaml`、`ModuleIndex/` | 模块来源和索引 |
 | `xrobot.lock` | 模块锁定提交，由工具维护 |
-| `module_sources/HFUT-WDR/` | 板级模块（BMI088、BuzzerAlarm、AttitudeEkf）的离线 bundle |
 | `Modules/<组织>/<模块名>/` | 独立模块仓库的实现代码 |
 
 电机型号、CAN 总线、ID、方向、PID、零位和几何参数放在机器人 YAML；模块中维护可复用功能。资源名称必须与 `User/app_main.cpp` 中的注册名称一致，例如 `can1`、`spi2`、`pwm_tim12_ch2`。
@@ -262,7 +261,7 @@ cmake --build --preset Debug -j4
 需要升级某个模块时，在保存好模块本地修改后执行，例如：
 
 ```sh
-xrobot setup --update HFUT-WDR/Chassis
+xrobot setup --update WDR-Xrobot-org/Chassis
 ```
 
 审查模块版本、配置和 `xrobot.lock` 的变化，再构建验证。跨仓库改动应先将模块提交到对应模块仓库，再更新主工程锁文件，避免其他人无法恢复锁定提交。不要通过直接编辑锁文件改变依赖。
@@ -283,15 +282,13 @@ cmake --build --preset Debug -j4
 
 ### 6.3 验证与提交
 
-修改控制模块时运行对应的主机回归，例如：
+修改板级存储或生成入口时运行 `tests/board_support` 回归：
 
 ```sh
-python tests/chassis/run_tests.py
-python tests/power/run_tests.py
-python tests/imu/run_tests.py
+python tests/board_support/run_tests.py
 ```
 
-测试范围按改动选择，主机回归不能代替设备收发和实机闭环。提交前查看 `git diff` 与暂存区，确认只包含本次改动。
+产品模块（底盘、云台、发射、IMU 采集与解算）的主机回归随各自产品 BSP 维护，例如 27_sentry 的 `tests/chassis`、`tests/power`、`tests/imu`。测试范围按改动选择，主机回归不能代替设备收发和实机闭环。提交前查看 `git diff` 与暂存区，确认只包含本次改动。
 
 提交机器人 YAML、模块清单、锁文件、实现和必要文档；个人 IDE / 调试配置、虚拟环境、构建产物及下载的模块工作副本不应入库。个人目录可在本机 `.git/info/exclude` 中补充忽略规则。
 
@@ -311,7 +308,7 @@ python tests/imu/run_tests.py
 | 编译通过但新功能没有运行 | 检查所选配置是否实际实例化了模块，再确认已烧录本次生成的 ELF |
 | 调试探针无法连接或被占用 | 关闭其他调试会话，核对板卡供电、SWD 接线、驱动权限和探针类型 |
 | USB 无输出 | 确认打开的是 Log CDC，检查是否停在断点或异常；结束调试后复位再观察 |
-| `imu` / `attitude` 等待超时 | 检查实例是否启用、Topic 名称和采样链路；单次超时不等于已定位硬件故障 |
+| `attitude` 命令不存在或等待超时 | 检查 AttitudeEkf 实例是否启用、`command_name` 是否与调用名一致、Topic 名称和采样链路；单次超时不等于已定位硬件故障 |
 | 配置修改后效果不变 | 重新执行生成、编译、烧录，并确认选择的是同一份配置和产物 |
 
 ## 8. 专题文档与参考资料
