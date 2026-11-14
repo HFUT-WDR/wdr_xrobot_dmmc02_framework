@@ -26,7 +26,7 @@ ImuFusion继承了MC02_Framework_CPP已做过冻结源对照的移植。必要�
 
 - 板载实例输出 `wdr_imu::Attitude`，默认Topic `board_attitude`。
 - DmImu输出 `wdr_imu::DmMeasurement`（默认Topic `dm_measurement`），姿态由 AttitudeEkf 实例订阅后发布 `dm_attitude`。
-- yaw/pitch/roll单位rad，gyro三轴rad/s，accel三轴m/s²（含重力），四元数顺序w,x,y,z。
+- 姿态角统一按 **roll,pitch,yaw** 声明与发布，gyro三轴rad/s，accel三轴m/s²（含重力），四元数顺序w,x,y,z。顺序细则见[IMU姿态角统一顺序](imu_axis_order_20261115.md)。
 - BoardState另带yaw_total与原算法定义的机体/导航系运动加速度。
 - time_us与sequence同姿态一起发布；Topic新消息只代表新计算结果，消费者仍需检查时效与机构条件。
 - 板载时间来自BMI088硬件采样通知时间戳。DM时间来自任务消费完整流帧的时刻，不是设备采样/硬件收包时刻。

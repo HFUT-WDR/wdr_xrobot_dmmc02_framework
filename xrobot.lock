@@ -18,14 +18,14 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 5b3afcc96950c0c5fbb673b0e1e85330a976667d
+    commit: 278489d16f115ea27da00d061f4379d81d6c6022
   WDR-Xrobot-org/BMI088:
     repo: https://github.com/WDR-Xrobot-org/BMI088.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: e3c37dc4a7eaee322270b53ec2bb2aaca748c8b9
+    commit: 1bfbc124cefb31559633bfc33b9e9289759d1880
   WDR-Xrobot-org/BuzzerAlarm:
     repo: https://github.com/WDR-Xrobot-org/BuzzerAlarm.git
     source: ModuleIndex/index.yaml
@@ -39,7 +39,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: e0df0f975e5567fd3528d61865ad3df693935888
+    commit: 870106438e5030b759dba400149298742e8dc8e6
   xrobot-org/MadgwickAHRS:
     repo: https://github.com/xrobot-org/MadgwickAHRS
     source: https://xrobot.work/xrobot-modules/index.yaml
