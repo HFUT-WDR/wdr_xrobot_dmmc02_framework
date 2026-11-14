@@ -49,5 +49,16 @@ modules:
           task_stack_depth: 4096
       - ramfs: ramfs
       - command_name: "attitude"
+  - module: xrobot-org/MadgwickAHRS
+    id: madgwickahrs_0
+    args:
+      - ramfs: ramfs
+      - param:
+          beta: 0.05f
+          gyro_topic_name: "bmi088_gyro"
+          accl_topic_name: "bmi088_accl"
+          quaternion_topic_name: "ahrs_quaternion"
+          euler_topic_name: "ahrs_euler"
+          task_stack_depth: 2048
 settings:
   monitor_sleep_ms: 1000
