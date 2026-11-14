@@ -7,7 +7,16 @@ requests:
   ref: same-or-dev
 - id: WDR-Xrobot-org/BuzzerAlarm
   ref: same-or-dev
+- id: WDR-Xrobot-org/ESKF
+  ref: same-or-dev
 modules:
+  WDR-Xrobot-org/AttitudeEkf:
+    repo: https://github.com/WDR-Xrobot-org/AttitudeEkf.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: 6a3204efd93af2262324f1a13bca88f8d01c7c04
   WDR-Xrobot-org/BMI088:
     repo: https://github.com/WDR-Xrobot-org/BMI088.git
     source: ModuleIndex/index.yaml
@@ -15,13 +24,6 @@ modules:
     resolved_ref: dev
     ref_kind: branch
     commit: e3c37dc4a7eaee322270b53ec2bb2aaca748c8b9
-  WDR-Xrobot-org/AttitudeEkf:
-    repo: https://github.com/WDR-Xrobot-org/AttitudeEkf.git
-    source: ModuleIndex/index.yaml
-    requested: same-or-dev
-    resolved_ref: dev
-    ref_kind: branch
-    commit: c01060f53702ec66058b5ca6ed45d48a53484a90
   WDR-Xrobot-org/BuzzerAlarm:
     repo: https://github.com/WDR-Xrobot-org/BuzzerAlarm.git
     source: ModuleIndex/index.yaml
@@ -29,3 +31,10 @@ modules:
     resolved_ref: dev
     ref_kind: branch
     commit: a6f70132d657ae5d83dd6ebc1c0d6c4a68c71ab4
+  WDR-Xrobot-org/ESKF:
+    repo: https://github.com/WDR-Xrobot-org/ESKF.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: 62cfc60a70d652439f12fed61db6a0e7436e4a5e

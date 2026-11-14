@@ -4,3 +4,6 @@
 [submodule "ModuleIndex"]
 	path = ModuleIndex
 	url = https://github.com/WDR-Xrobot-org/xrobot-ci.git
+[submodule "Modules/WDR-Xrobot-org/ESKF"]
+	path = Modules/WDR-Xrobot-org/ESKF
+	url = https://github.com/WDR-Xrobot-org/ESKF.git

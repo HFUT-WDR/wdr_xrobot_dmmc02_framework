@@ -1,0 +1,87 @@
+# 双算法对照配置：同一组 BMI088 数据同时喂给两套融合算法，各自发布姿态与诊断。
+# 多实例体现在 YAML：同一模块写两次，只改 id、Topic 名与 command_name。
+modules:
+  - module: WDR-Xrobot-org/BuzzerAlarm
+    id: buzzer
+    args:
+      - pwm: pwm_tim12_ch2
+      - alarm_freq: 1500
+      - alarm_duration: 300
+      - alarm_delay: 300
+  - module: WDR-Xrobot-org/BMI088
+    id: imu
+    args:
+      - accl_cs: ACC_CS
+      - gyro_cs: GYRO_CS
+      - gyro_int: GYRO_INT
+      - spi: spi2
+      - heater_pwm: pwm_tim3_ch4
+      - database: database
+      - ramfs: ramfs
+      - buzzer: '&buzzer'
+      - param:
+          gyro_freq: BMI088::GyroFreq::GYRO_1000HZ_BW116HZ
+          accl_freq: BMI088::AcclFreq::ACCL_1600HZ
+          gyro_range: BMI088::GyroRange::DEG_2000DPS
+          accl_range: BMI088::AcclRange::ACCL_6G
+          rotation: '{1.0f, 0.0f, 0.0f, 0.0f}'
+          pid_param:
+            k: 1.0f
+            p: 0.0f
+            i: 0.0f
+            d: 0.0f
+            i_limit: 0.0f
+            out_limit: 0.0f
+            cycle: false
+          gyro_topic_name: "bmi088_gyro"
+          accl_topic_name: "bmi088_accl"
+          target_temperature: 45
+          task_stack_depth: 2048
+  # 算法 A：EKF，输出 board_attitude。
+  - module: WDR-Xrobot-org/AttitudeEkf
+    id: board_attitude
+    args:
+      - gyro_topic_name: "bmi088_gyro"
+      - accel_topic_name: "bmi088_accl"
+      - output_topic_name: "board_attitude"
+      - diagnostics_topic_name: "board_fusion_diagnostics"
+      - param:
+          dt_source: wdr_imu::DtSource::MEASURED
+          nominal_period_s: 0.001f
+          task_stack_depth: 4096
+      - ramfs: ramfs
+      - command_name: "attitude"
+  # 算法 B：ESKF，输出 eskf_attitude；与上面并行，互不影响。
+  - module: WDR-Xrobot-org/ESKF
+    id: eskf
+    args:
+      - gyro_topic_name: "bmi088_gyro"
+      - accel_topic_name: "bmi088_accl"
+      - output_topic_name: "eskf_attitude"
+      - diagnostics_topic_name: "eskf_diagnostics"
+      - param:
+          dt_source: wdr_imu::DtSource::MEASURED
+          nominal_period_s: 0.001f
+          task_stack_depth: 4096
+          accel_filter_enabled: true
+          accel_filter_tau_s: 0.05f
+          gyro_noise_density: 0.003f
+          bias_random_walk: 0.0001f
+          accel_direction_std: 0.03f
+          accel_norm_soft_mps2: 0.35f
+          accel_norm_reject_mps2: 1.5f
+          innovation_soft: 5.991f
+          innovation_reject: 25.0f
+          max_direction_error_rad: 1.04719755f
+          gravity_update_interval: 1
+          initialization_samples: 200
+          recovery_samples: 50
+          rest_bias_enabled: true
+          rest_gyro_threshold: 0.015f
+          rest_accel_std: 0.08f
+          rest_samples: 500
+          rest_bias_std: 0.003f
+      - ramfs: ramfs
+      - command_name: "eskf"
+settings:
+  monitor_sleep_ms: 1000

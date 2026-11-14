@@ -4,3 +4,4 @@ modules:
 - WDR-Xrobot-org/BuzzerAlarm@same-or-dev
 - WDR-Xrobot-org/BMI088@same-or-dev
 - WDR-Xrobot-org/AttitudeEkf@same-or-dev
+- WDR-Xrobot-org/ESKF@same-or-dev
