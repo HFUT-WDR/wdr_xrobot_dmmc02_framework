@@ -21,7 +21,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 6a3204efd93af2262324f1a13bca88f8d01c7c04
+    commit: c01060f53702ec66058b5ca6ed45d48a53484a90
   WDR-Xrobot-org/BuzzerAlarm:
     repo: https://github.com/WDR-Xrobot-org/BuzzerAlarm.git
     source: ModuleIndex/index.yaml
