@@ -1,0 +1,16 @@
+PASS: no constructor TX, single thread, voltage mode, DM unsigned decode, AI expiry/recovery, RC loss/auto-resume, STOP->AIM resume, motor-loss resume, SMALL_FIRST gain restore, complete calibration/persistence, modes; frozen PID/zero calibration 1000 dual-yaw plans and 1000 frozen pitch torque samples
+PASS: gimbal boundary late_stop
+PASS: gimbal boundary mode_loss
+PASS: gimbal boundary revive
+PASS: gimbal boundary init
+PASS: gimbal boundary startup
+PASS: gimbal boundary scan_zero
+PASS: gimbal boundary scan_limits
+PASS: gimbal boundary aim_limits
+PASS: gimbal boundary boundary_feedforward
+PASS: gimbal boundary navigation
+PASS: gimbal boundary launcher
+PASS: gimbal boundary source_switch
+PASS: gimbal boundary power_on
+PASS: gimbal boundary buzzer
+PASS: gimbal boundary buzzer_complete

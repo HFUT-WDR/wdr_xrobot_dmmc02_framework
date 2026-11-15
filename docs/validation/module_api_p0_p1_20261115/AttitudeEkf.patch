@@ -1,0 +1,247 @@
+diff --git a/AttitudeEkf.hpp b/AttitudeEkf.hpp
+index 183fc6d..89f8045 100644
+--- a/AttitudeEkf.hpp
++++ b/AttitudeEkf.hpp
+@@ -50,32 +50,37 @@ class AttitudeEkf
+     ///< Fixed step, or the clamp base of a measured step
+     uint32_t task_stack_depth = 4096;  ///< 解算线程栈深，单位字节
+     ///< Stack depth of the fusion thread
++    const char* gyro_topic_name = "bmi088_gyro";  ///< rad/s，同采样时间戳。
++    const char* accel_topic_name = "bmi088_accl";  ///< m/s²，含重力。
++    const char* output_topic_name = "board_attitude";
++    const char* diagnostics_topic_name = "board_fusion_diagnostics";
++    const char* command_name = "attitude";  ///< 多实例须使用不同名称。
+   };
+ 
+   /**
+    * @brief 构造函数：创建发布 Topic、绑定输入回调并启动解算线程。
+-   * @param gyro_topic_name 角速度 Topic，单位 rad/s。
+-   * @param accel_topic_name 加速度 Topic，单位 m/s²（含重力）。
+-   * @param output_topic_name 姿态输出 Topic。
+-   * @param diagnostics_topic_name 融合诊断 Topic。
+    * @param ramfs 注册命令的 RamFS。
+-   * @param command_name 命令名，按实例给出（如 attitude / dm_attitude），避免多实例撞名。
+    * @param param 解算参数。
+    * @note 两个输入 Topic 由采集模块创建，本实例须排在其后。可以创建多个实例，
+    *       每个实例各自持有算法状态、队列与线程，互不共享。
+    *       The two input Topics come from the acquisition module, which must be
+    * constructed first. Any number of instances may coexist.
+    */
+-  AttitudeEkf(const char* gyro_topic_name, const char* accel_topic_name,
+-              const char* output_topic_name, const char* diagnostics_topic_name,
+-              const Param& param, LibXR::RamFS& ramfs,
+-              const char* command_name = "attitude")
++  AttitudeEkf(LibXR::RamFS& ramfs,
++       const Param& param = {.dt_source = wdr_imu::DtSource::MEASURED,
++                            .nominal_period_s = 0.01f,
++                            .task_stack_depth = 4096,
++                            .gyro_topic_name = "bmi088_gyro",
++                            .accel_topic_name = "bmi088_accl",
++                            .output_topic_name = "board_attitude",
++                            .diagnostics_topic_name = "board_fusion_diagnostics",
++                            .command_name = "attitude"})
+       : param_(param),
+-        command_name_(command_name),
+-        cmd_file_(LibXR::RamFS::CreateFile(command_name, CommandFunc, this)),
+-        output_(LibXR::Topic::CreateTopic<State>(output_topic_name)),
++        command_name_(param.command_name),
++        cmd_file_(LibXR::RamFS::CreateFile(param.command_name, CommandFunc, this)),
++        output_(LibXR::Topic::CreateTopic<State>(param.output_topic_name)),
+         diagnostics_(LibXR::Topic::CreateTopic<wdr_imu::DmFusionDiagnostics>(
+-            diagnostics_topic_name)),
++            param.diagnostics_topic_name)),
+         samples_(16),
+         signal_(0)
+   {
+@@ -83,9 +88,9 @@ class AttitudeEkf
+     // 回调只复制样本；配对、解算与发布都在本实例线程里完成。
+     accel_callback_ = LibXR::Topic::Callback::Create(OnAccel, this);
+     gyro_callback_ = LibXR::Topic::Callback::Create(OnGyro, this);
+-    LibXR::Topic(LibXR::Topic::FindOrCreate<Vector>(accel_topic_name))
++    LibXR::Topic(LibXR::Topic::FindOrCreate<Vector>(param.accel_topic_name))
+         .RegisterCallback(accel_callback_);
+-    LibXR::Topic(LibXR::Topic::FindOrCreate<Vector>(gyro_topic_name))
++    LibXR::Topic(LibXR::Topic::FindOrCreate<Vector>(param.gyro_topic_name))
+         .RegisterCallback(gyro_callback_);
+     // 命令名由参数给出，多实例可各自注册。
+     ramfs.Add(cmd_file_);
+diff --git a/README.md b/README.md
+index b7a4e79..7fb9d63 100644
+--- a/README.md
++++ b/README.md
+@@ -4,32 +4,85 @@
+ 
+ An attitude EKF module: it subscribes to one gyro and one accel Vector, pairs them on one timestamp, and publishes the attitude plus diagnostics. The algorithm and the fusion scaffold ship together, one algorithm per repository, and multiple instances may coexist.
+ 
++
++## 使用教学
++
++要求XRobot 1.0.1、libxr 6.0.1、LibXR v2.0.1及C++20；BSP须已配置WDR模块索引并具备私有仓库读取权限。以下命令在BSP根目录执行。
++
++BSP须注册 ramfs；BMI088或DmImu先创建并发布两个同时间戳Vector。本例使用1kHz板载源，名义周期0.001s覆盖模块默认0.01s。
++
++```sh
++xrobot module add WDR-Xrobot-org/AttitudeEkf@same-or-dev
++xrobot setup
++xrobot instance add WDR-Xrobot-org/AttitudeEkf --id board_attitude
++```
++
++将添加的实例填成下面的完整参数映射，资源名换成BSP已注册对象。已有modules列表时只追加实例，不重复创建根键；输入发布者和依赖实例放在本实例之前。每个映射必须按字段声明顺序列全，不能靠省略字段缩短配置。
++
++```yaml
++modules:
++  - module: WDR-Xrobot-org/AttitudeEkf
++    id: board_attitude
++    args:
++      - ramfs: ramfs
++      - param:
++          dt_source: wdr_imu::DtSource::MEASURED
++          nominal_period_s: 0.001f
++          task_stack_depth: 4096
++          gyro_topic_name: "bmi088_gyro"
++          accel_topic_name: "bmi088_accl"
++          output_topic_name: "board_attitude"
++          diagnostics_topic_name: "board_fusion_diagnostics"
++          command_name: "attitude"
++```
++
++构造接口（所有依赖对象的生命周期须覆盖实例）：
++
++```cpp
++AttitudeEkf(LibXR::RamFS& ramfs,
++       const Param& param = {.dt_source = wdr_imu::DtSource::MEASURED,
++                            .nominal_period_s = 0.01f,
++                            .task_stack_depth = 4096,
++                            .gyro_topic_name = "bmi088_gyro",
++                            .accel_topic_name = "bmi088_accl",
++                            .output_topic_name = "board_attitude",
++                            .diagnostics_topic_name = "board_fusion_diagnostics",
++                            .command_name = "attitude"});
++```
++
++构造默认实参与字段默认值保持一致；BSP示例中的覆盖值不等于模块默认值。
++
++| Param字段 | 类型 | 源码字段默认值 | 单位与作用 |
++| --- | --- | --- | --- |
++| `dt_source` | `wdr_imu::DtSource` | `wdr_imu::DtSource::MEASURED` | MEASURED使用相邻输入时间戳；FIXED显式使用名义周期 |
++| `nominal_period_s` | `float` | `0.01f` | s；首拍和FIXED步长，MEASURED钳制基准（1/4至3倍） |
++| `task_stack_depth` | `uint32_t` | `4096` | 字节；解算/控制线程栈 |
++| `gyro_topic_name` | `const char*` | `"bmi088_gyro"` | 输入Vector；rad/s，机构坐标 |
++| `accel_topic_name` | `const char*` | `"bmi088_accl"` | 输入Vector；m/s²，含重力，机构坐标 |
++| `output_topic_name` | `const char*` | `"board_attitude"` | 姿态或底盘状态输出Topic |
++| `diagnostics_topic_name` | `const char*` | `"board_fusion_diagnostics"` | 诊断计数输出Topic |
++| `command_name` | `const char*` | `"attitude"` | RamFS命令名；多实例使用不同名称 |
++
++配置后重新生成入口：
++
++```sh
++xrobot gen -c User/xrobot.yaml
++```
++
++若配置放在另一份User YAML中，-c选择该文件。按BSP文档构建、烧录与验证。`attitude show`/`attitude diag`观察姿态及配对/丢样计数，姿态输出为board_attitude。 软件编译与主机回归不代表硬件或机构已通过验收。
++
++本次公开接口迁移方式见[迁移说明](docs/migration.md)。
++
++
+ ## 1. 模块作用 / Purpose
+ 
+-模块自己完成配对、解算与发布：回调只复制样本，配对、EKF 推进与发布都在本实例线程中完成。外设、零偏扣除与安装变换由采集模块（`BMI088`、`DmImu`）负责，本模块不碰硬件；命令名由构造参数给出，可多实例共存。
++模块自己完成配对、解算与发布：回调只复制样本，配对、EKF 推进与发布都在本实例线程中完成。外设、零偏扣除与安装变换由采集模块（`BMI088`、`DmImu`）负责，本模块不碰硬件；命令名由param.command_name给出，可多实例共存。
+ 
+ It pairs, solves and publishes on its own: callbacks only copy samples, while pairing, the EKF step and publishing run in the instance thread. Peripherals, bias removal and installation rotation belong to the acquisition modules; this one touches no hardware and registers no fixed command name.
+ 
+ ## 2. 构造接口 / Constructor
+ 
+-```cpp
+-class AttitudeEkf
+-{
+- public:
+-  using State = wdr_imu::Attitude;
+-
+-  struct Param
+-  {
+-    wdr_imu::DtSource dt_source = wdr_imu::DtSource::MEASURED;
+-    float nominal_period_s = 0.01f;
+-    uint32_t task_stack_depth = 4096;
+-  };
+-
+-  AttitudeEkf(const char* gyro_topic_name, const char* accel_topic_name,
+-              const char* output_topic_name, const char* diagnostics_topic_name,
+-              const Param& param = {});
+-};
+-```
++构造接口见上方“使用教学”和本仓库头文件。
+ 
+ 依赖：
+ 
+@@ -58,7 +111,7 @@ class AttitudeEkf
+ 
+ ### 命令 / Command
+ 
+-构造参数 `command_name` 决定命令名，按实例配置即可多实例共存：
++`param.command_name` 决定命令名，按实例配置即可多实例共存：
+ 
+ | 命令 | 作用 |
+ | --- | --- |
+@@ -77,21 +130,7 @@ class AttitudeEkf
+ 
+ ## 4. 配置示例 / Configuration Example
+ 
+-```yaml
+-- module: WDR-Xrobot-org/AttitudeEkf
+-  id: board_attitude
+-  args:
+-    - gyro_topic_name: "bmi088_gyro"
+-    - accel_topic_name: "bmi088_accl"
+-    - output_topic_name: "board_attitude"
+-    - diagnostics_topic_name: "board_fusion_diagnostics"
+-    - param:
+-        dt_source: wdr_imu::DtSource::MEASURED
+-        nominal_period_s: 0.001f
+-        task_stack_depth: 4096
+-    - ramfs: ramfs
+-    - command_name: "attitude"
+-```
++完整实例与参数见上方“使用教学”。
+ 
+ 外置 DM 再起一个实例，只改 Topic 名：`dm_gyro`/`dm_accl` → `dm_attitude`，`dt_source` 取 `FIXED`（旧连续流 1 kHz）。实例之间的算法状态、队列、线程与计数彼此独立。
+ 
+diff --git a/imu_types.hpp b/imu_types.hpp
+index a06633a..c5ac038 100644
+--- a/imu_types.hpp
++++ b/imu_types.hpp
+@@ -8,6 +8,9 @@
+ 
+ namespace wdr_imu
+ {
++// 相同载荷定义随各算法独立分发；同一翻译单元只声明一次，不屏蔽各算法自身类型。
++#ifndef WDR_IMU_COMMON_TYPES_V1_HPP
++#define WDR_IMU_COMMON_TYPES_V1_HPP
+ // 融合步长来源：FIXED 用名义周期（旧连续流 1 kHz），MEASURED 用相邻陀螺样本间隔。
+ enum class DtSource : uint8_t
+ {
+@@ -112,6 +115,8 @@ inline bool FiniteSample(const Sample& s)
+   }
+   return std::isfinite(norm) && norm > 1e-12f;
+ }
++#endif  // WDR_IMU_COMMON_TYPES_V1_HPP
++
+ /**
+  * @brief 姿态 EKF 本体：6 状态（四元数 + x/y 零偏）、3 量测，带卡方检验与自适应增益。
+  *
+diff --git a/docs/migration.md b/docs/migration.md
+new file mode 100644
+index 0000000..b43d5eb
+--- /dev/null
++++ b/docs/migration.md
+@@ -0,0 +1,10 @@
++# 接口迁移
++
++
++## 2026-11-15：依赖在前、配置集中
++
++公开构造改为对象依赖在前、Param在后。旧构造不保留兼容重载；旧YAML会在生成时暴露多余字段或顺序错误，直接C++调用必须同步迁移。
++
++RamFS移到第一个参数；原四个Topic名和command_name移入Param。原步长/栈字段保持；实测步长、采样配对、状态消息不变。
++
++完整命令、参数表与可复制配置直接维护在[README](../README.md)，不以example目录替代。

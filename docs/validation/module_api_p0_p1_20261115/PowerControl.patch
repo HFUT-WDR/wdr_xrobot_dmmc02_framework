@@ -1,0 +1,199 @@
+diff --git a/PowerControl.hpp b/PowerControl.hpp
+index 361f0af..811f6a0 100644
+--- a/PowerControl.hpp
++++ b/PowerControl.hpp
+@@ -14,14 +14,21 @@ depends:
+ class PowerControl
+ {
+  public:
+-  using Param = wdr_chassis::PowerParam;
+-  PowerControl(const Param& param = {}, LibXR::CAN* cap_can = nullptr,
+-               const wdr_chassis::SuperCap::Param& cap_param = {},
+-               const char* referee_power_topic_name = "chassis_power_ref")
+-      : control_(param), cap_(cap_can, cap_param),
+-        referee_(LibXR::Topic::FindOrCreate<RefereeTypes::ChassisPower>(referee_power_topic_name))
++  struct Param
+   {
+-    REQUIRE(wdr_chassis::PowerControl::CheckParam(param));
++    wdr_chassis::PowerParam control{};
++    wdr_chassis::SuperCap::Param super_cap{};
++    const char* referee_power_topic_name = "chassis_power_ref";
++  };
++  /// @param cap_can 可选超电总线；不使用时显式传 nullptr。
++  /// @param param 功率算法、超电协议和裁判输入配置；构造只绑定，不发送。
++  PowerControl(LibXR::CAN* cap_can,
++               const Param& param = {.control = {}, .super_cap = {},
++                                     .referee_power_topic_name = "chassis_power_ref"})
++      : control_(param.control), cap_(cap_can, param.super_cap),
++        referee_(LibXR::Topic::FindOrCreate<RefereeTypes::ChassisPower>(param.referee_power_topic_name))
++  {
++    REQUIRE(wdr_chassis::PowerControl::CheckParam(param.control));
+     referee_.StartWaiting();
+   }
+   void Update()
+diff --git a/README.md b/README.md
+index cb5cbe2..a0d7eb1 100644
+--- a/README.md
++++ b/README.md
+@@ -2,58 +2,103 @@
+ 
+ 四轮底盘功率约束模块。根据裁判功率上限、缓冲能量和超级电容反馈计算预算，对四轮电流请求分配功率，并可在线辨识损耗模型。
+ 
+-## 接入方式
+ 
+-依赖 Referee 与 LibXR。模块无独立线程，由底盘任务按 `Update → Calculate → Send` 调用。构造只绑定 Topic/CAN，不发送命令。
++## 使用教学
++
++要求XRobot 1.0.1、libxr 6.0.1、LibXR v2.0.1及C++20；BSP须已配置WDR模块索引并具备私有仓库读取权限。以下命令在BSP根目录执行。
++
++本例使用已注册的can1与裁判功率Topic；无超电时cap_can显式nullptr。本模块无线程，由Chassis同步驱动。示例control.enabled=true是整车覆盖，源码默认false。
++
++```sh
++xrobot module add WDR-Xrobot-org/PowerControl@same-or-dev
++xrobot setup
++xrobot instance add WDR-Xrobot-org/PowerControl --id power_control
++```
++
++将添加的实例填成下面的完整参数映射，资源名换成BSP已注册对象。已有modules列表时只追加实例，不重复创建根键；输入发布者和依赖实例放在本实例之前。每个映射必须按字段声明顺序列全，不能靠省略字段缩短配置。
+ 
+ ```yaml
+ modules:
+   - module: WDR-Xrobot-org/PowerControl
+     id: power_control
+     args:
+-      - param:
+-          enabled: true
+-          rls_enabled: true
+-          torque_coefficient: 0.0000190484
+-          k1: 0.01470
+-          k2: 476.3
+-          k3: 3.77
+-          rls_covariance: 0.1
+-          rls_lambda: 0.99999
+-          k1_min: 0.00011
+-          k1_max: 0.03
+-          k2_min: 440.0
+-          k2_max: 600.0
+-          rls_min_power: 15.0
+-          energy_kp: 20.0
+-          energy_kd_step: 0.05
+-          energy_max_output: 100.0
+-          cap_gain_low: 0.7
+-          cap_gain_high: 0.3
+-          cap_ratio_low: 0.85
+-          cap_ratio_high: 0.95
+-          cap_ratio_span: 0.1
+-          cap_gain_span: 0.4
+-          cap_reserve_w: 5.0
+-          cap_full: 40.0
+-          cap_base: 20.0
+-          referee_full: 60.0
+-          referee_base: 50.0
+-          minimum_power: 30.0
+-          fallback_power: 100.0
+-          both_offline_ratio: 0.85
+-          error_full: 20.0
+-          error_proportional: 15.0
+-          cap_timeout_ms: 100
+-          referee_timeout_ms: 500
+       - cap_can: '&can1'
+-      - cap_param:
+-          feedback_id: 0x329
+-          command_id: 0x330
+-          normal_state: 0
+-      - referee_power_topic_name: "chassis_power_ref"
++      - param:
++          control:
++            enabled: true
++            rls_enabled: true
++            torque_coefficient: 1.90484e-05
++            k1: 0.0147
++            k2: 476.3
++            k3: 3.77
++            rls_covariance: 0.1
++            rls_lambda: 0.99999
++            k1_min: 0.00011
++            k1_max: 0.03
++            k2_min: 440.0
++            k2_max: 600.0
++            rls_min_power: 15.0
++            energy_kp: 20.0
++            energy_kd_step: 0.05
++            energy_max_output: 100.0
++            cap_gain_low: 0.7
++            cap_gain_high: 0.3
++            cap_ratio_low: 0.85
++            cap_ratio_high: 0.95
++            cap_ratio_span: 0.1
++            cap_gain_span: 0.4
++            cap_reserve_w: 5.0
++            cap_full: 40.0
++            cap_base: 20.0
++            referee_full: 60.0
++            referee_base: 50.0
++            minimum_power: 30.0
++            fallback_power: 100.0
++            both_offline_ratio: 0.85
++            error_full: 20.0
++            error_proportional: 15.0
++            cap_timeout_ms: 100
++            referee_timeout_ms: 500
++          super_cap:
++            feedback_id: 809
++            command_id: 816
++            normal_state: 0
++          referee_power_topic_name: "chassis_power_ref"
++```
++
++构造接口（所有依赖对象的生命周期须覆盖实例）：
++
++```cpp
++PowerControl(LibXR::CAN* cap_can,
++               const Param& param = {.control = {}, .super_cap = {},
++                                     .referee_power_topic_name = "chassis_power_ref"});
+ ```
+ 
++构造默认实参与字段默认值保持一致；BSP示例中的覆盖值不等于模块默认值。
++
++| Param字段 | 类型 | 源码字段默认值 | 单位与作用 |
++| --- | --- | --- | --- |
++| `control` | `wdr_chassis::PowerParam` | 聚合默认值；见完整配置及下方参数说明 | 控制/模型参数；保留算法类型，完整子字段及示例值见YAML和下方参数说明 |
++| `super_cap` | `wdr_chassis::SuperCap::Param` | 聚合默认值；见完整配置及下方参数说明 | 超电反馈ID、命令ID、正常状态编码；须与实际固件一致 |
++| `referee_power_topic_name` | `const char*` | `"chassis_power_ref"` | 裁判功率输入Topic，功率和缓冲各自按接收时间判断有效性 |
++
++配置后重新生成入口：
++
++```sh
++xrobot gen -c User/xrobot.yaml
++```
++
++若配置放在另一份User YAML中，-c选择该文件。按BSP文档构建、烧录与验证。由Chassis状态/命令观察预算及约束结果；仅实例化不会周期推进，Update/Calculate/Send由所属任务调用。 软件编译与主机回归不代表硬件或机构已通过验收。
++
++本次公开接口迁移方式见[迁移说明](docs/migration.md)。
++
++
++## 接入方式
++
++依赖 Referee 与 LibXR。模块无独立线程，由底盘任务按 `Update → Calculate → Send` 调用。构造只绑定 Topic/CAN，不发送命令。
++
++完整实例与参数见上方“使用教学”。
++
+ 模块默认 `enabled=false`，示例显式开启。`cap_can=nullptr` 可不接超级电容。CAN 协议必须与实际超电固件匹配，示例参数不代表所有超电都支持。
+ 
+ ## 输入、输出与模型
+diff --git a/docs/migration.md b/docs/migration.md
+new file mode 100644
+index 0000000..22e008b
+--- /dev/null
++++ b/docs/migration.md
+@@ -0,0 +1,10 @@
++# 接口迁移
++
++
++## 2026-11-15：依赖在前、配置集中
++
++公开构造改为对象依赖在前、Param在后。旧构造不保留兼容重载；旧YAML会在生成时暴露多余字段或顺序错误，直接C++调用必须同步迁移。
++
++可选CAN*在第一个参数，不使用时显式nullptr；原功率参数在Param.control，原cap_param在Param.super_cap，裁判Topic在Param中。Update/Calculate/Send及无线程行为不变。
++
++完整命令、参数表与可复制配置直接维护在[README](../README.md)，不以example目录替代。

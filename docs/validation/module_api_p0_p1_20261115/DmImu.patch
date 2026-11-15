@@ -1,0 +1,295 @@
+diff --git a/DmImu.hpp b/DmImu.hpp
+index ccd7e4b..76b0d6b 100644
+--- a/DmImu.hpp
++++ b/DmImu.hpp
+@@ -24,14 +24,23 @@ depends: []
+ 
+ /**
+  * @brief DM IMU 采集模块：取得测量值、减去陀螺零偏、把 accel/gyro 与设备姿态
+- *        变换到机构坐标后发布原始量。姿态解算由 DmAttitude 负责，本模块不发姿态。
++ *        变换到机构坐标后发布原始量。姿态解算由独立姿态模块负责，本模块不发姿态。
+  */
+ class DmImu
+ {
+  public:
+   using RawState = wdr_imu::DmMeasurement;
+   using Diagnostics = wdr_imu::DmDiagnostics;
+-  using Param = wdr_imu::DmConfig;
++  struct Param
++  {
++    wdr_imu::DmConfig device{};  ///< 传输、地址与采样周期；不包含姿态融合配置。
++    wdr_imu::Installation installation = wdr_imu::IDENTITY;
++    const char* gyro_topic_name = "dm_gyro";
++    const char* accel_topic_name = "dm_accl";
++    const char* raw_topic_name = "dm_measurement";
++    const char* diagnostics_topic_name = "dm_diagnostics";
++    const char* command_name = "dm_imu";  ///< 同时决定零偏数据库键前缀。
++  };
+ 
+   /**
+    * @brief 构造采集模块：注册外设接收、加载零偏、创建采集线程。
+@@ -40,44 +49,43 @@ class DmImu
+    * @param uart UART 实例；仅 RS485 传输时非空。
+    * @param database 保存陀螺零偏的 Database。
+    * @param ramfs 注册 `dm_imu` 命令的 RamFS。
+-   * @param raw_topic_name 测量值 Topic 名称。
+-   * @param diagnostics_topic_name 采集诊断 Topic 名称。
+-   * @param installation 行优先 3×3 R_body_sensor，发布前施加一次。
+    * @note 构造不发送配置帧、不写设备 Flash；设备侧的零偏校准与主动上报位图由上位机配置。
+    */
+-  DmImu(const Param& param, LibXR::CAN* can, LibXR::UART* uart, LibXR::Database& database,
+-        LibXR::RamFS& ramfs, const char* gyro_topic_name = "dm_gyro",
+-        const char* accel_topic_name = "dm_accl",
+-        const char* raw_topic_name = "dm_measurement",
+-        const char* diagnostics_topic_name = "dm_diagnostics",
+-        wdr_imu::Installation installation = wdr_imu::IDENTITY,
+-        const char* command_name = "dm_imu")
+-      : param_(param),
++  DmImu(LibXR::Database& database, LibXR::RamFS& ramfs,
++        LibXR::CAN* can, LibXR::UART* uart,
++        const Param& param = {.device = {},
++                              .installation = wdr_imu::IDENTITY,
++                              .gyro_topic_name = "dm_gyro",
++                              .accel_topic_name = "dm_accl",
++                              .raw_topic_name = "dm_measurement",
++                              .diagnostics_topic_name = "dm_diagnostics",
++                              .command_name = "dm_imu"})
++      : param_(param.device),
+         can_(can),
+         uart_(uart),
+-        installation_(installation),
+-        session_(param),
++        installation_(param.installation),
++        session_(param.device),
+         legacy_(legacy_device_),
+-        gyro_(LibXR::Topic::CreateTopic<Vector>(gyro_topic_name)),
+-        accel_(LibXR::Topic::CreateTopic<Vector>(accel_topic_name)),
+-        raw_(LibXR::Topic::CreateTopic<RawState>(raw_topic_name)),
+-        diagnostics_(LibXR::Topic::CreateTopic<Diagnostics>(diagnostics_topic_name)),
+-        cmd_file_(LibXR::RamFS::CreateFile(command_name, CommandFunc, this)),
++        gyro_(LibXR::Topic::CreateTopic<Vector>(param.gyro_topic_name)),
++        accel_(LibXR::Topic::CreateTopic<Vector>(param.accel_topic_name)),
++        raw_(LibXR::Topic::CreateTopic<RawState>(param.raw_topic_name)),
++        diagnostics_(LibXR::Topic::CreateTopic<Diagnostics>(param.diagnostics_topic_name)),
++        cmd_file_(LibXR::RamFS::CreateFile(param.command_name, CommandFunc, this)),
+         // 零偏键随命令名派生：多实例各自保存零偏，互不覆盖。
+-        gyro_bias_key_(database, BiasKeyName(command_name)),
++        gyro_bias_key_(database, BiasKeyName(param.command_name)),
+         frames_(16),
+         wake_(0),
+         rx_callback_(LibXR::ReadOperation::Callback::Create(RxDone, this)),
+         rx_op_(rx_callback_),
+         tx_op_(tx_status_)
+   {
+-    REQUIRE(wdr_imu::CheckInstallation(installation));
+-    REQUIRE(command_name != nullptr && command_name[0] != '\0');
+-    REQUIRE(std::strlen(command_name) < bias_key_name_.size() - 10);
++    REQUIRE(wdr_imu::CheckInstallation(param.installation));
++    REQUIRE(param.command_name != nullptr && param.command_name[0] != '\0');
++    REQUIRE(std::strlen(param.command_name) < bias_key_name_.size() - 10);
+     REQUIRE(session_.Configured());
+     ramfs.Add(cmd_file_);
+-    if (param.transport == wdr_imu::DmTransport::CAN_REQUEST ||
+-        param.transport == wdr_imu::DmTransport::CAN_PUSH)
++    if (param.device.transport == wdr_imu::DmTransport::CAN_REQUEST ||
++        param.device.transport == wdr_imu::DmTransport::CAN_PUSH)
+     {
+       REQUIRE(can != nullptr && uart == nullptr);
+       auto callback = LibXR::CAN::Callback::Create(
+@@ -98,19 +106,19 @@ class DmImu
+           },
+           this);
+       can->Register(callback, LibXR::CAN::Type::STANDARD,
+-                    LibXR::CAN::FilterMode::ID_RANGE, param.feedback_id,
+-                    param.feedback_id);
++                    LibXR::CAN::FilterMode::ID_RANGE, param.device.feedback_id,
++                    param.device.feedback_id);
+     }
+     else
+     {
+       REQUIRE(uart != nullptr && can == nullptr);
+-      REQUIRE(uart->SetConfig({param.baudrate, LibXR::UART::Parity::NO_PARITY, 8, 1}) ==
++      REQUIRE(uart->SetConfig({param.device.baudrate, LibXR::UART::Parity::NO_PARITY, 8, 1}) ==
+               LibXR::ErrorCode::OK);
+-      if (param.transport == wdr_imu::DmTransport::RS485_STREAM_LEGACY)
++      if (param.device.transport == wdr_imu::DmTransport::RS485_STREAM_LEGACY)
+       {
+         wdr_imu::dm_imu_t::config_t config{};
+         config.transport = wdr_imu::dm_imu_t::transport_e::RS485;
+-        config.tx_id = param.device_id;
++        config.tx_id = param.device.device_id;
+         REQUIRE(legacy_device_.init(config));
+       }
+     }
+@@ -473,7 +481,7 @@ class DmImu
+     return bias_key_name_.data();
+   }
+ 
+-  Param param_;
++  wdr_imu::DmConfig param_;
+   // 零偏键名缓冲区：Database::Key 只持有指针，必须与实例同寿命。
+   std::array<char, 48> bias_key_name_{};
+   LibXR::CAN* can_;
+diff --git a/README.md b/README.md
+index 96c3e82..4634d91 100644
+--- a/README.md
++++ b/README.md
+@@ -2,6 +2,85 @@
+ 
+ 达妙 DM-IMU-L1 采集模块。取得原始测量、减去主机侧陀螺零偏，并把 accel/gyro 与设备姿态变换到机构坐标后发布。**本模块不做姿态解算**；采集、解包、组帧、零偏校准都在本仓库完成，出口是两个 Vector（`dm_gyro`、`dm_accl`，共用同一时间戳），姿态由 [AttitudeEkf](../AttitudeEkf) 订阅后发布。
+ 
++
++## 使用教学
++
++要求XRobot 1.0.1、libxr 6.0.1、LibXR v2.0.1及C++20；BSP须已配置WDR模块索引并具备私有仓库读取权限。以下命令在BSP根目录执行。
++
++BSP须注册 database、ramfs 和本例使用的 UART usart2；CAN与UART只能选择与传输对应的一项，另一项显式nullptr。本例为RS485采集；可选传输见下文。
++
++```sh
++xrobot module add WDR-Xrobot-org/DmImu@same-or-dev
++xrobot setup
++xrobot instance add WDR-Xrobot-org/DmImu --id dm_imu
++```
++
++将添加的实例填成下面的完整参数映射，资源名换成BSP已注册对象。已有modules列表时只追加实例，不重复创建根键；输入发布者和依赖实例放在本实例之前。每个映射必须按字段声明顺序列全，不能靠省略字段缩短配置。
++
++```yaml
++modules:
++  - module: WDR-Xrobot-org/DmImu
++    id: dm_imu
++    args:
++      - database: database
++      - ramfs: ramfs
++      - can: nullptr
++      - uart: '&usart2'
++      - param:
++          device:
++            transport: wdr_imu::DmTransport::RS485_REQUEST
++            device_id: 1
++            feedback_id: 17
++            baudrate: 2000000
++            period_ms: 10
++            timeout_ms: 50
++            retries: 2
++            data_mask: 15
++          installation: wdr_imu::IDENTITY
++          gyro_topic_name: "dm_gyro"
++          accel_topic_name: "dm_accl"
++          raw_topic_name: "dm_measurement"
++          diagnostics_topic_name: "dm_diagnostics"
++          command_name: "dm_imu"
++```
++
++构造接口（所有依赖对象的生命周期须覆盖实例）：
++
++```cpp
++DmImu(LibXR::Database& database, LibXR::RamFS& ramfs,
++        LibXR::CAN* can, LibXR::UART* uart,
++        const Param& param = {.device = {},
++                              .installation = wdr_imu::IDENTITY,
++                              .gyro_topic_name = "dm_gyro",
++                              .accel_topic_name = "dm_accl",
++                              .raw_topic_name = "dm_measurement",
++                              .diagnostics_topic_name = "dm_diagnostics",
++                              .command_name = "dm_imu"});
++```
++
++构造默认实参与字段默认值保持一致；BSP示例中的覆盖值不等于模块默认值。
++
++| Param字段 | 类型 | 源码字段默认值 | 单位与作用 |
++| --- | --- | --- | --- |
++| `device` | `wdr_imu::DmConfig` | 聚合默认值；见完整配置及下方参数说明 | 传输、设备地址、周期ms、超时ms及重试；全部子字段在YAML中给出 |
++| `installation` | `wdr_imu::Installation` | `wdr_imu::IDENTITY` | 行优先3×3 R_body_sensor；采集侧只施加一次 |
++| `gyro_topic_name` | `const char*` | `"dm_gyro"` | 输入Vector；rad/s，机构坐标 |
++| `accel_topic_name` | `const char*` | `"dm_accl"` | 输入Vector；m/s²，含重力，机构坐标 |
++| `raw_topic_name` | `const char*` | `"dm_measurement"` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `diagnostics_topic_name` | `const char*` | `"dm_diagnostics"` | 诊断计数输出Topic |
++| `command_name` | `const char*` | `"dm_imu"` | RamFS命令名；多实例使用不同名称 |
++
++配置后重新生成入口：
++
++```sh
++xrobot gen -c User/xrobot.yaml
++```
++
++若配置放在另一份User YAML中，-c选择该文件。按BSP文档构建、烧录与验证。`dm_imu`命令和dm_diagnostics观察传输状态，dm_gyro/dm_accl为供融合模块使用的Vector。 软件编译与主机回归不代表硬件或机构已通过验收。
++
++本次公开接口迁移方式见[迁移说明](docs/migration.md)。
++
++
+ ## 1. 模块作用 / Purpose
+ 
+ 构造后判断传输方式、注册接收路径、加载主机侧陀螺零偏，并启动采样线程。每完成一次采集或收到一轮上报，就发布一份已减去零偏、已变换到机构坐标的测量值。模块不发布姿态、不做姿态解算，也不写设备参数或 Flash。
+@@ -10,16 +89,7 @@ After construction the module selects the transport, registers the receive path,
+ 
+ ## 2. 构造接口 / Constructor
+ 
+-```cpp
+-DmImu(const Param& param, LibXR::CAN* can, LibXR::UART* uart,
+-      LibXR::Database& database, LibXR::RamFS& ramfs,
+-      const char* gyro_topic_name = "dm_gyro",
+-      const char* accel_topic_name = "dm_accl",
+-      const char* raw_topic_name = "dm_measurement",
+-      const char* diagnostics_topic_name = "dm_diagnostics",
+-      wdr_imu::Installation installation = wdr_imu::IDENTITY,
+-      const char* command_name = "dm_imu");
+-```
++构造接口见上方“使用教学”和本仓库头文件。
+ 
+ 依赖：
+ 
+@@ -45,35 +115,11 @@ DmImu(const Param& param, LibXR::CAN* can, LibXR::UART* uart,
+ 
+ ### 配置参数 / Configuration parameters
+ 
+-```yaml
+-modules:
+-  - module: WDR-Xrobot-org/DmImu
+-    id: dm_imu
+-    args:
+-      - param:
+-          transport: wdr_imu::DmTransport::CAN_REQUEST
+-          device_id: 1
+-          feedback_id: 0x11
+-          baudrate: 2000000
+-          period_ms: 10
+-          timeout_ms: 50
+-          retries: 2
+-          data_mask: 15
+-      - can: '&can1'
+-      - uart: nullptr
+-      - database: '&database'
+-      - ramfs: ramfs
+-      - gyro_topic_name: "dm_gyro"
+-      - accel_topic_name: "dm_accl"
+-      - raw_topic_name: "dm_measurement"
+-      - diagnostics_topic_name: "dm_diagnostics"
+-      - installation: wdr_imu::IDENTITY
+-      - command_name: "dm_imu"
+-```
++完整实例与参数见上方“使用教学”。
+ 
+-传输方式由 `param.transport` 选择，默认 `CAN_REQUEST`；同一份 YAML 里可以起多个实例，各自配 `transport`、总线与 `command_name`：
++传输方式由 `param.device.transport` 选择，默认 `CAN_REQUEST`；同一份 YAML 里可以起多个实例，各自配 `transport`、总线与 `command_name`：
+ 
+-`param` 必须提供；`can`/`uart` 恰好传入对应的一项。旧连续流需显式设置 `period_ms=1`，`CAN_PUSH`/`RS485_STREAM_LEGACY` 下 `retries` 与 `timeout_ms` 不用于重试。
++`param.device`保存采集配置；`can`/`uart` 恰好传入对应的一项。旧连续流需显式设置 `period_ms=1`，`CAN_PUSH`/`RS485_STREAM_LEGACY` 下 `retries` 与 `timeout_ms` 不用于重试。
+ 
+ | 参数 | 说明 |
+ | --- | --- |
+diff --git a/docs/migration.md b/docs/migration.md
+new file mode 100644
+index 0000000..d31ea7a
+--- /dev/null
++++ b/docs/migration.md
+@@ -0,0 +1,10 @@
++# 接口迁移
++
++
++## 2026-11-15：依赖在前、配置集中
++
++公开构造改为对象依赖在前、Param在后。旧构造不保留兼容重载；旧YAML会在生成时暴露多余字段或顺序错误，直接C++调用必须同步迁移。
++
++依赖顺序为Database、RamFS、CAN*、UART*；Param.device保存原DmConfig，installation、四个Topic和command_name集中在Param。传输互斥、零偏数据库键、安装变换和构造副作用不变。
++
++完整命令、参数表与可复制配置直接维护在[README](../README.md)，不以example目录替代。

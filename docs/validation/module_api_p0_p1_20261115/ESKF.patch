@@ -1,0 +1,637 @@
+diff --git a/ESKF.hpp b/ESKF.hpp
+index 9246eb9..c19d9bb 100644
+--- a/ESKF.hpp
++++ b/ESKF.hpp
+@@ -39,7 +39,7 @@ class ESKF
+   struct Param
+   {
+     wdr_imu::DtSource dt_source = wdr_imu::DtSource::MEASURED;  ///< 步长来源
+-    float nominal_period_s = 0.01f;    ///< FIXED 步长，或 MEASURED 的钳制基准，单位 s
++    float nominal_period_s = 0.001f;    ///< FIXED 步长，或 MEASURED 的钳制基准，单位 s
+     uint32_t task_stack_depth = 4096;  ///< 解算线程栈深，单位字节
+     bool accel_filter_enabled = true;
+     float accel_filter_tau_s = 0.05f;
+@@ -51,7 +51,7 @@ class ESKF
+     float innovation_soft = 5.991f;  // 二维残差统计量，工程门限
+     float innovation_reject = 25.0f;
+     float max_direction_error_rad = 1.04719755f;
+-    uint32_t gravity_update_interval = 1;  // 输入和预测始终1kHz，观测默认1kHz
++    uint32_t gravity_update_interval = 1;  // 按输入样本计数，1表示每拍更新重力
+     uint32_t initialization_samples = 200;
+     uint32_t recovery_samples = 50;
+     bool rest_bias_enabled = false;      // 只有能接受静止假设时才开启
+@@ -59,28 +59,52 @@ class ESKF
+     float rest_accel_std = 0.08f;        // m/s²，连续窗口稳定性
+     uint32_t rest_samples = 500;
+     float rest_bias_std = 0.003f;  // rad/s，静止窗口均值有效噪声
++    const char* gyro_topic_name = "bmi088_gyro";  ///< rad/s，同采样时间戳。
++    const char* accel_topic_name = "bmi088_accl";  ///< m/s²，含重力。
++    const char* output_topic_name = "eskf_output";
++    const char* diagnostics_topic_name = "eskf_diagnostics";
++    const char* command_name = "eskf";  ///< 多实例须使用不同名称。
+   };
+   /**
+    * @brief 构造函数：创建发布 Topic、绑定输入回调、注册命令并启动解算线程。
+-   * @param gyro_topic_name 角速度 Topic，单位 rad/s。
+-   * @param accel_topic_name 加速度 Topic，单位 m/s²（含重力）。
+-   * @param output_topic_name 姿态输出 Topic。
+-   * @param diagnostics_topic_name 融合诊断 Topic。
+    * @param param 解算参数。
+    * @param ramfs 注册命令的 RamFS。
+-   * @param command_name 命令名，按实例给出（如 attitude / eskf），避免多实例撞名。
+    * @note 两个输入 Topic 由采集模块创建，本实例须排在其后；命令子项为
+    *       show（最近一次输出与年龄）、diag（计数与协方差）、reset（复位滤波器）。
+    */
+-  ESKF(const char* gyro_topic_name, const char* accel_topic_name,
+-       const char* output_topic_name, const char* diagnostics_topic_name,
+-       const Param& param, LibXR::RamFS& ramfs, const char* command_name = "eskf")
++  ESKF(LibXR::RamFS& ramfs,
++       const Param& param = {.dt_source = wdr_imu::DtSource::MEASURED,
++                            .nominal_period_s = 0.001f,
++                            .task_stack_depth = 4096,
++                            .accel_filter_enabled = true,
++                            .accel_filter_tau_s = 0.05f,
++                            .gyro_noise_density = 0.003f,
++                            .bias_random_walk = 0.0001f,
++                            .accel_direction_std = 0.03f,
++                            .accel_norm_soft_mps2 = 0.35f,
++                            .accel_norm_reject_mps2 = 1.5f,
++                            .innovation_soft = 5.991f,
++                            .innovation_reject = 25.0f,
++                            .max_direction_error_rad = 1.04719755f,
++                            .gravity_update_interval = 1,
++                            .initialization_samples = 200,
++                            .recovery_samples = 50,
++                            .rest_bias_enabled = false,
++                            .rest_gyro_threshold = 0.015f,
++                            .rest_accel_std = 0.08f,
++                            .rest_samples = 500,
++                            .rest_bias_std = 0.003f,
++                            .gyro_topic_name = "bmi088_gyro",
++                            .accel_topic_name = "bmi088_accl",
++                            .output_topic_name = "eskf_output",
++                            .diagnostics_topic_name = "eskf_diagnostics",
++                            .command_name = "eskf"})
+       : param_(param),
+-        command_name_(command_name),
+-        cmd_file_(LibXR::RamFS::CreateFile(command_name, CommandFunc, this)),
+-        output_(LibXR::Topic::CreateTopic<State>(output_topic_name)),
++        command_name_(param.command_name),
++        cmd_file_(LibXR::RamFS::CreateFile(param.command_name, CommandFunc, this)),
++        output_(LibXR::Topic::CreateTopic<State>(param.output_topic_name)),
+         diagnostics_(LibXR::Topic::CreateTopic<wdr_imu::DmFusionDiagnostics>(
+-            diagnostics_topic_name)),
++            param.diagnostics_topic_name)),
+         pending_(16),
+         ready_(0)
+   {
+@@ -111,9 +135,9 @@ class ESKF
+     ramfs.Add(cmd_file_);
+     accel_callback_ = LibXR::Topic::Callback::Create(OnAccel, this);
+     gyro_callback_ = LibXR::Topic::Callback::Create(OnGyro, this);
+-    LibXR::Topic(LibXR::Topic::FindOrCreate<Vector>(accel_topic_name))
++    LibXR::Topic(LibXR::Topic::FindOrCreate<Vector>(param.accel_topic_name))
+         .RegisterCallback(accel_callback_);
+-    LibXR::Topic(LibXR::Topic::FindOrCreate<Vector>(gyro_topic_name))
++    LibXR::Topic(LibXR::Topic::FindOrCreate<Vector>(param.gyro_topic_name))
+         .RegisterCallback(gyro_callback_);
+     thread_.Create(this, Run, "eskf", param_.task_stack_depth,
+                    LibXR::Thread::Priority::HIGH);
+@@ -219,7 +243,8 @@ class ESKF
+         continue;
+       }
+       const uint64_t start = LibXR::Timebase::GetMicroseconds();
+-      if (!self->filter_.Update(eskf::Sample(work.sample)))
++      if (!self->filter_.Update(eskf::Sample(work.sample),
++                                self->SampleDt(work.sample.time_us)))
+       {
+         ++self->rejected_;
+         continue;
+diff --git a/README.md b/README.md
+index 4c1af3f..2e9abce 100644
+--- a/README.md
++++ b/README.md
+@@ -1,7 +1,131 @@
+ # ESKF
+ 
+ XRobot 六轴姿态融合模块：名义四元数＋三轴陀螺零偏，6维右乘误差状态。
+-每个有效输入固定预测 **1 ms**。可在 YAML 开关陀螺参考系中的加速度低通，调节时间常数和融合噪声。适合与已有姿态模块订阅同一采样源进行对照。
++默认按相邻采样时间戳的实际间隔预测。可在 YAML 开关陀螺参考系中的加速度低通，调节时间常数和融合噪声。适合与已有姿态模块订阅同一采样源进行对照。
++
++
++## 使用教学
++
++要求XRobot 1.0.1、libxr 6.0.1、LibXR v2.0.1及C++20；BSP须已配置WDR模块索引并具备私有仓库读取权限。以下命令在BSP根目录执行。
++
++BSP须注册 ramfs；输入发布者先创建，按加速度→陀螺发布同时间戳Vector。本例与板载EKF/Madgwick订阅相同数据源，默认使用实测步长。
++
++```sh
++xrobot module add WDR-Xrobot-org/ESKF@same-or-dev
++xrobot setup
++xrobot instance add WDR-Xrobot-org/ESKF --id eskf_0
++```
++
++将添加的实例填成下面的完整参数映射，资源名换成BSP已注册对象。已有modules列表时只追加实例，不重复创建根键；输入发布者和依赖实例放在本实例之前。每个映射必须按字段声明顺序列全，不能靠省略字段缩短配置。
++
++```yaml
++modules:
++  - module: WDR-Xrobot-org/ESKF
++    id: eskf_0
++    args:
++      - ramfs: ramfs
++      - param:
++          dt_source: wdr_imu::DtSource::MEASURED
++          nominal_period_s: 0.001f
++          task_stack_depth: 4096
++          accel_filter_enabled: true
++          accel_filter_tau_s: 0.05f
++          gyro_noise_density: 0.003f
++          bias_random_walk: 0.0001f
++          accel_direction_std: 0.03f
++          accel_norm_soft_mps2: 0.35f
++          accel_norm_reject_mps2: 1.5f
++          innovation_soft: 5.991f
++          innovation_reject: 25.0f
++          max_direction_error_rad: 1.04719755f
++          gravity_update_interval: 1
++          initialization_samples: 200
++          recovery_samples: 50
++          rest_bias_enabled: false
++          rest_gyro_threshold: 0.015f
++          rest_accel_std: 0.08f
++          rest_samples: 500
++          rest_bias_std: 0.003f
++          gyro_topic_name: "bmi088_gyro"
++          accel_topic_name: "bmi088_accl"
++          output_topic_name: "eskf_output"
++          diagnostics_topic_name: "eskf_diagnostics"
++          command_name: "eskf"
++```
++
++构造接口（所有依赖对象的生命周期须覆盖实例）：
++
++```cpp
++ESKF(LibXR::RamFS& ramfs,
++       const Param& param = {.dt_source = wdr_imu::DtSource::MEASURED,
++                            .nominal_period_s = 0.001f,
++                            .task_stack_depth = 4096,
++                            .accel_filter_enabled = true,
++                            .accel_filter_tau_s = 0.05f,
++                            .gyro_noise_density = 0.003f,
++                            .bias_random_walk = 0.0001f,
++                            .accel_direction_std = 0.03f,
++                            .accel_norm_soft_mps2 = 0.35f,
++                            .accel_norm_reject_mps2 = 1.5f,
++                            .innovation_soft = 5.991f,
++                            .innovation_reject = 25.0f,
++                            .max_direction_error_rad = 1.04719755f,
++                            .gravity_update_interval = 1,
++                            .initialization_samples = 200,
++                            .recovery_samples = 50,
++                            .rest_bias_enabled = false,
++                            .rest_gyro_threshold = 0.015f,
++                            .rest_accel_std = 0.08f,
++                            .rest_samples = 500,
++                            .rest_bias_std = 0.003f,
++                            .gyro_topic_name = "bmi088_gyro",
++                            .accel_topic_name = "bmi088_accl",
++                            .output_topic_name = "eskf_output",
++                            .diagnostics_topic_name = "eskf_diagnostics",
++                            .command_name = "eskf"});
++```
++
++构造默认实参与字段默认值保持一致；BSP示例中的覆盖值不等于模块默认值。
++
++| Param字段 | 类型 | 源码字段默认值 | 单位与作用 |
++| --- | --- | --- | --- |
++| `dt_source` | `wdr_imu::DtSource` | `wdr_imu::DtSource::MEASURED` | MEASURED使用相邻输入时间戳；FIXED显式使用名义周期 |
++| `nominal_period_s` | `float` | `0.001f` | s；首拍和FIXED步长，MEASURED钳制基准（1/4至3倍） |
++| `task_stack_depth` | `uint32_t` | `4096` | 字节；解算/控制线程栈 |
++| `accel_filter_enabled` | `bool` | `true` | 参考系加速度低通开关 |
++| `accel_filter_tau_s` | `float` | `0.05f` | s；加速度低通时间常数 |
++| `gyro_noise_density` | `float` | `0.003f` | rad/s/√Hz；陀螺白噪声幅度 |
++| `bias_random_walk` | `float` | `0.0001f` | rad/s/√s；零偏随机游走幅度 |
++| `accel_direction_std` | `float` | `0.03f` | 归一化重力方向观测标准差 |
++| `accel_norm_soft_mps2` | `float` | `0.35f` | m/s²；模长偏离重力的降权尺度 |
++| `accel_norm_reject_mps2` | `float` | `1.5f` | m/s²；模长偏离重力的拒绝门限 |
++| `innovation_soft` | `float` | `5.991f` | 二维创新统计量降权门限 |
++| `innovation_reject` | `float` | `25.0f` | 二维创新统计量拒绝门限 |
++| `max_direction_error_rad` | `float` | `1.04719755f` | rad；重力观测允许的最大方向误差 |
++| `gravity_update_interval` | `uint32_t` | `1` | 样本数；每N个预测样本尝试一次重力观测 |
++| `initialization_samples` | `uint32_t` | `200` | 样本数；启动初始化窗口 |
++| `recovery_samples` | `uint32_t` | `50` | 样本数；拒绝后连续可信输入窗口 |
++| `rest_bias_enabled` | `bool` | `false` | 静止零角速度观测；慢转误判风险须由应用评估 |
++| `rest_gyro_threshold` | `float` | `0.015f` | rad/s；静止候选角速度门限 |
++| `rest_accel_std` | `float` | `0.08f` | m/s²；初始化/静止窗口稳定性门限 |
++| `rest_samples` | `uint32_t` | `500` | 样本数；静止窗口长度 |
++| `rest_bias_std` | `float` | `0.003f` | rad/s；静止零偏观测有效噪声 |
++| `gyro_topic_name` | `const char*` | `"bmi088_gyro"` | 输入Vector；rad/s，机构坐标 |
++| `accel_topic_name` | `const char*` | `"bmi088_accl"` | 输入Vector；m/s²，含重力，机构坐标 |
++| `output_topic_name` | `const char*` | `"eskf_output"` | 姿态或底盘状态输出Topic |
++| `diagnostics_topic_name` | `const char*` | `"eskf_diagnostics"` | 诊断计数输出Topic |
++| `command_name` | `const char*` | `"eskf"` | RamFS命令名；多实例使用不同名称 |
++
++配置后重新生成入口：
++
++```sh
++xrobot gen -c User/xrobot.yaml
++```
++
++若配置放在另一份User YAML中，-c选择该文件。按BSP文档构建、烧录与验证。`eskf show`/`eskf diag`观察姿态、更新与dt_clamped计数，输出为eskf_output。 软件编译与主机回归不代表硬件或机构已通过验收。
++
++本次公开接口迁移方式见[迁移说明](docs/migration.md)。
++
+ 
+ ## 使用
+ 
+@@ -10,15 +134,10 @@ XRobot 六轴姿态融合模块：名义四元数＋三轴陀螺零偏，6维右
+ 
+ 仓库已迁到 WDR 组织，索引条目为：
+ 
+-```yaml
+-modules:
+-  - id: WDR-Xrobot-org/ESKF
+-    repo: https://github.com/WDR-Xrobot-org/ESKF.git
+-    status: community
+-```
++完整实例与参数见上方“使用教学”。
+ 
+ 把该索引加入 `Modules/sources.yaml`，执行 `xrobot module add WDR-Xrobot-org/ESKF@same-or-dev`。
+-将 [完整配置示例](examples/xrobot.yaml) 中的实例放到 IMU 发布者之后，再运行 `xrobot setup` 并构建。
++完整配置直接列在本README上方使用教学中，不依赖示例目录。
+ 
+ 最常调节的参数：
+ 
+@@ -32,7 +151,7 @@ modules:
+ | `accel_norm_soft_mps2` | `0.35f` | 模长偏离g时平滑降权的尺度 |
+ | `accel_norm_reject_mps2` | `1.5f` | 模长偏离g超过此值，拒绝重力更新 |
+ | `innovation_soft` / `innovation_reject` | `5.991f` / `25.0f` | 二维创新统计量降权/拒绝门限 |
+-| `gravity_update_interval` | `1` | 每个输入进行一次重力更新；预测仍为1kHz |
++| `gravity_update_interval` | `1` | 每个输入进行一次重力更新；预测使用每拍实际dt |
+ | `initialization_samples` | `200` | 启动稳定窗口长度；输出中的initialized表示是否完成 |
+ | `recovery_samples` | `50` | 拒绝后连续可信输入数量；恢复时重建低通状态 |
+ | `rest_bias_enabled` | `false` | 启用静止零角速度观测；慢转误判风险需由应用评估 |
+@@ -53,8 +172,8 @@ modules:
+ - 姿态角和累计航向为rad；`gyro_bias`为rad/s；`gyro`为三轴去零偏角速度；`motion_accel_b/n`为去重力加速度，m/s²。运动加速度只是输出，不反馈姿态。
+ - 初始yaw约定0。启动时要求一段低角速度、模长接近g且稳定的窗口；未完成时仍发布状态，`initialized=false`，消费者应检查它。
+ - 16槽采样队列、独立高优先级线程，栈由 `task_stack_depth` 配置，默认 4096 字节；回调只做配对和入队。
+-- 所有有效样本积分固定1ms。时间戳用于排序、配对与间断诊断，丢样不补积分；`drops`/`unpaired` 随诊断 Topic 发布，也可用命令查询。
+-- 模块注册 RamFS 命令，命令名由构造参数 `command_name` 给出（默认 `eskf`）：`show` 打印最近输出与年龄，`diag` 打印计数、观测状态、创新量与协方差对角，`reset` 复位滤波器。
++- MEASURED使用相邻有效采样时间戳；首拍采用nominal_period_s，异常间隔按其1/4–3倍钳制并累计dt_clamped。预测、过程噪声和加速度低通共用同一步长；`drops`/`unpaired` 随诊断 Topic 发布，也可用命令查询。
++- 模块注册 RamFS 命令，命令名由`param.command_name` 给出（默认 `eskf`）：`show` 打印最近输出与年龄，`diag` 打印计数、观测状态、创新量与协方差对角，`reset` 复位滤波器。
+ - 同一 YAML 里可以写多次：只改 `id`、各 Topic 名与 `command_name` 即可与 `AttitudeEkf` 并行对照。
+ 
+ ## 算法和限制
+diff --git a/eskf_core.cpp b/eskf_core.cpp
+index b9692e4..3d94e75 100644
+--- a/eskf_core.cpp
++++ b/eskf_core.cpp
+@@ -98,25 +98,25 @@ bool Filter::Initialize(const Sample& s)
+   return true;
+ }
+ 
+-void Filter::Predict(const Vec3& gyro)
++void Filter::Predict(const Vec3& gyro, float dt)
+ {
+   const Vec3 omega = gyro - bias_;
+-  const Quat increment = rotation_quaternion(omega * DT);
++  const Quat increment = rotation_quaternion(omega * dt);
+   q_ = (q_ * increment).normalized();
+   gyro_q_ = (gyro_q_ * increment).normalized();
+   Mat6 dynamics = Mat6::Zero();
+   dynamics.topLeftCorner<3, 3>() = -skew(omega);
+   dynamics.topRightCorner<3, 3>() = -Mat3::Identity();
+   // 二阶离散化保留旋转与零偏的耦合，Q使用连续白噪声积分。
+-  const Mat6 step = dynamics * DT;
++  const Mat6 step = dynamics * dt;
+   const Mat6 phi = Mat6::Identity() + step + 0.5f * step * step;
+   Mat6 noise = Mat6::Zero();
+   const float gyro_var = config_.gyro_noise_density * config_.gyro_noise_density;
+   const float bias_var = config_.bias_random_walk * config_.bias_random_walk;
+-  noise.topLeftCorner<3, 3>().diagonal().setConstant(gyro_var * DT +
+-                                                     bias_var * DT * DT * DT / 3);
+-  noise.bottomRightCorner<3, 3>().diagonal().setConstant(bias_var * DT);
+-  noise.topRightCorner<3, 3>().diagonal().setConstant(-0.5f * bias_var * DT * DT);
++  noise.topLeftCorner<3, 3>().diagonal().setConstant(gyro_var * dt +
++                                                     bias_var * dt * dt * dt / 3);
++  noise.bottomRightCorner<3, 3>().diagonal().setConstant(bias_var * dt);
++  noise.topRightCorner<3, 3>().diagonal().setConstant(-0.5f * bias_var * dt * dt);
+   noise.bottomLeftCorner<3, 3>() = noise.topRightCorner<3, 3>();
+   p_ = (phi * p_ * phi.transpose() + noise).eval();
+   p_ = (0.5f * (p_ + p_.transpose())).eval();
+@@ -257,17 +257,18 @@ void Filter::FillState(const Sample& s)
+   for (int i = 0; i < 6; ++i) state_.covariance_diagonal[i] = p_(i, i);
+ }
+ 
+-bool Filter::Update(const Sample& s)
++bool Filter::Update(const Sample& s, float dt)
+ {
+-  if (!ValidConfig(config_) || !s.gyro.allFinite() || !s.accel.allFinite() ||
++  if (!positive(dt) || !ValidConfig(config_) || !s.gyro.allFinite() || !s.accel.allFinite() ||
+       !std::isfinite(s.accel.squaredNorm()) || !std::isfinite(s.gyro.squaredNorm()) ||
+       s.gyro.norm() > 100.0f || (have_timestamp_ && s.time_us <= previous_time_))
+   {
+     ++state_.invalid_samples;
+     return false;
+   }
+-  if (have_timestamp_ &&
+-      (s.time_us - previous_time_ < 500 || s.time_us - previous_time_ > 1500))
++  // 以本拍使用的dt检查时间间隔；正常的非1kHz采样不再误报为固定1ms缺口。
++  const float interval = static_cast<float>(s.time_us - previous_time_) * 1e-6f;
++  if (have_timestamp_ && (interval < 0.5f * dt || interval > 1.5f * dt))
+   {
+     ++state_.timestamp_gaps;
+     lp_valid_ = false;
+@@ -285,7 +286,7 @@ bool Filter::Update(const Sample& s)
+     FillState(s);
+     return true;
+   }
+-  Predict(s.gyro);
++  Predict(s.gyro, dt);
+   state_.observation = Observation::PREDICT_ONLY;
+   ++update_count_;
+   const float norm_error = std::abs(state_.accel_norm - GRAVITY);
+@@ -321,7 +322,7 @@ bool Filter::Update(const Sample& s)
+     if (!lp_valid_)
+       accel_lp_ = reference_accel;
+     else
+-      accel_lp_ += (1 - std::exp(-DT / config_.accel_filter_tau_s)) / scale *
++      accel_lp_ += (1 - std::exp(-dt / config_.accel_filter_tau_s)) / scale *
+                    (reference_accel - accel_lp_);
+     lp_valid_ = true;
+     observation = gyro_q_.conjugate() * accel_lp_;
+diff --git a/eskf_core.hpp b/eskf_core.hpp
+index f414e2c..bb0836f 100644
+--- a/eskf_core.hpp
++++ b/eskf_core.hpp
+@@ -12,7 +12,7 @@ using Vec3 = Eigen::Vector3f;
+ using Mat3 = Eigen::Matrix3f;
+ using Mat6 = Eigen::Matrix<float, 6, 6>;
+ using Quat = Eigen::Quaternionf;
+-inline constexpr float DT = 0.001f;
++inline constexpr float NOMINAL_PERIOD_S = 0.001f;
+ inline constexpr float GRAVITY = 9.80665f;
+ 
+ struct Config
+@@ -27,7 +27,7 @@ struct Config
+   float innovation_soft = 5.991f;  // 二维残差统计量，工程门限
+   float innovation_reject = 25.0f;
+   float max_direction_error_rad = 1.04719755f;
+-  uint32_t gravity_update_interval = 1;  // 输入和预测始终1kHz，观测默认1kHz
++  uint32_t gravity_update_interval = 1;  // 按输入样本计数，1表示每拍更新重力。
+   uint32_t initialization_samples = 200;
+   uint32_t recovery_samples = 50;
+   bool rest_bias_enabled = false;      // 只有能接受静止假设时才开启
+@@ -80,21 +80,23 @@ struct State
+   Observation observation = Observation::INITIALIZING;
+ };
+ 
+-// 纯算法不依赖线程/Topic；每个新样本只积分固定1ms，时间戳仅诊断，不补积分。
++// 纯算法不依赖线程/Topic；调用方根据采样时间戳提供实际步长，单位s。
+ class Filter
+ {
+  public:
+   explicit Filter(const Config& config = Config{});
+   static bool ValidConfig(const Config& config);
+   void Reset();
+-  bool Update(const Sample& sample);
++  /// @brief 推进一个有效样本；dt为调用方按采样时间戳计算的正步长，单位s。
++  /// @note 无效样本或步长返回false，不推进姿态；窗口长度与观测间隔仍按样本数。
++  bool Update(const Sample& sample, float dt);
+   const State& GetState() const { return state_; }
+   const Mat6& GetCovariance() const { return p_; }
+   const Quat& GetQuaternion() const { return q_; }
+   const Vec3& GetBias() const { return bias_; }
+ 
+  private:
+-  void Predict(const Vec3& gyro);
++  void Predict(const Vec3& gyro, float dt);
+   bool CorrectGravity(const Vec3& direction, float scale);
+   void CorrectRestBias();
+   void Inject(const Eigen::Matrix<float, 6, 1>& error, const Mat6& covariance);
+diff --git a/examples/xrobot.yaml b/examples/xrobot.yaml
+deleted file mode 100644
+index 2dead56..0000000
+--- a/examples/xrobot.yaml
++++ /dev/null
+@@ -1,36 +0,0 @@
+-# 前置：发布者串行发布 accel→gyro，二者共用采样时间戳。
+-# 输入 accel 单位 m/s²（含重力），gyro 单位 rad/s；安装变换由采集模块施加一次。
+-# 同一模块可以写多次：只改 id、各 Topic 名与 command_name 即可并行跑多路。
+-modules:
+-  - module: WDR-Xrobot-org/ESKF
+-    id: eskf
+-    args:
+-      - gyro_topic_name: "bmi088_gyro"
+-      - accel_topic_name: "bmi088_accl"
+-      - output_topic_name: "eskf_attitude"
+-      - diagnostics_topic_name: "eskf_diagnostics"
+-      - param:
+-          dt_source: wdr_imu::DtSource::MEASURED
+-          nominal_period_s: 0.001f
+-          task_stack_depth: 4096
+-          accel_filter_enabled: true
+-          accel_filter_tau_s: 0.05f
+-          gyro_noise_density: 0.003f
+-          bias_random_walk: 0.0001f
+-          accel_direction_std: 0.03f
+-          accel_norm_soft_mps2: 0.35f
+-          accel_norm_reject_mps2: 1.5f
+-          innovation_soft: 5.991f
+-          innovation_reject: 25.0f
+-          gravity_update_interval: 1
+-          initialization_samples: 200
+-          recovery_samples: 50
+-          rest_bias_enabled: false
+-          rest_gyro_threshold: 0.015f
+-          rest_accel_std: 0.08f
+-          rest_samples: 500
+-          rest_bias_std: 0.003f
+-      - ramfs: ramfs
+-      - command_name: "eskf"
+-settings:
+-  monitor_sleep_ms: 1000
+diff --git a/imu_types.hpp b/imu_types.hpp
+index 54e459f..da043de 100644
+--- a/imu_types.hpp
++++ b/imu_types.hpp
+@@ -5,6 +5,9 @@
+ 
+ namespace wdr_imu
+ {
++// 相同载荷定义随各算法独立分发；同一翻译单元只声明一次，不屏蔽各算法自身类型。
++#ifndef WDR_IMU_COMMON_TYPES_V1_HPP
++#define WDR_IMU_COMMON_TYPES_V1_HPP
+ // 融合步长来源：FIXED 用名义周期（旧连续流 1 kHz），MEASURED 用相邻陀螺样本间隔。
+ enum class DtSource : uint8_t
+ {
+@@ -110,4 +113,5 @@ inline bool FiniteSample(const Sample& s)
+   }
+   return std::isfinite(norm) && norm > 1e-12f;
+ }
++#endif  // WDR_IMU_COMMON_TYPES_V1_HPP
+ }  // namespace wdr_imu
+diff --git a/tests/test_eskf.cpp b/tests/test_eskf.cpp
+index 8bcffde..fb142f6 100644
+--- a/tests/test_eskf.cpp
++++ b/tests/test_eskf.cpp
+@@ -14,7 +14,7 @@ static void feed(Filter& f, Sample& s, int count)
+   for (int i = 0; i < count; ++i)
+   {
+     s.time_us += 1000;
+-    assert(f.Update(s));
++    assert(f.Update(s, NOMINAL_PERIOD_S));
+   }
+ }
+ static void covariance_ok(const Filter& f)
+@@ -63,7 +63,7 @@ static void initialize_and_rotate(bool filtered)
+   float worst = 0;
+   for (int i = 1; i <= 10000; ++i)
+   {
+-    const Quat truth = initial * rotation_quaternion(omega * (i * DT));
++    const Quat truth = initial * rotation_quaternion(omega * (i * NOMINAL_PERIOD_S));
+     s.gyro = omega;
+     s.accel = truth.conjugate() * Vec3(0, 0, GRAVITY);
+     feed(f, s, 1);
+@@ -138,14 +138,14 @@ static void validation()
+   s.accel = Vec3(0, 0, GRAVITY);
+   feed(f, s, 250);
+   const auto sequence = f.GetState().sequence;
+-  assert(!f.Update(s));
++  assert(!f.Update(s, NOMINAL_PERIOD_S));
+   s.time_us += 1000;
+   s.accel.x() = std::numeric_limits<float>::quiet_NaN();
+-  assert(!f.Update(s));
++  assert(!f.Update(s, NOMINAL_PERIOD_S));
+   assert(f.GetState().sequence == sequence);
+   s.accel = Vec3(0, 0, GRAVITY);
+   s.time_us += 10000;
+-  assert(f.Update(s));
++  assert(f.Update(s, NOMINAL_PERIOD_S));
+   assert(f.GetState().timestamp_gaps == 1);
+   f.Reset();
+   assert(!f.GetState().initialized);
+@@ -167,16 +167,16 @@ static void filtering_and_long_run()
+   for (int i = 0; i < 250; ++i)
+   {
+     s.time_us += 1000;
+-    raw.Update(s);
+-    filtered.Update(s);
++    raw.Update(s, NOMINAL_PERIOD_S);
++    filtered.Update(s, NOMINAL_PERIOD_S);
+   }
+   double raw_sum = 0, filtered_sum = 0;
+   for (int i = 0; i < 20000; ++i)
+   {
+     s.time_us += 1000;
+-    s.accel = Vec3(1.2f * std::sin(i * DT * 2 * 3.14159265f * 17), 0, GRAVITY);
+-    raw.Update(s);
+-    filtered.Update(s);
++    s.accel = Vec3(1.2f * std::sin(i * NOMINAL_PERIOD_S * 2 * 3.14159265f * 17), 0, GRAVITY);
++    raw.Update(s, NOMINAL_PERIOD_S);
++    filtered.Update(s, NOMINAL_PERIOD_S);
+     if (i > 5000)
+     {
+       raw_sum += std::pow(raw.GetState().pitch, 2);
+@@ -212,6 +212,75 @@ static void output_axis_order()
+   assert(std::abs(st.roll) > .1f);
+   assert(std::abs(st.pitch) < .05f && std::abs(st.yaw) < .05f);
+ }
++// 独立解析解：零角速、无重力校正的一步预测，验证dt、dt²和dt³项均按实际步长变化。
++static void measured_step_covariance()
++{
++  for (float dt : {.0006f, .002f, .01f})
++  {
++    Config config;
++    config.initialization_samples = 2;
++    Filter f(config);
++    Sample sample;
++    sample.accel = Vec3(0, 0, GRAVITY);
++    feed(f, sample, 2);
++    assert(f.GetState().initialized);
++    sample.accel.setZero();
++    sample.time_us += static_cast<uint64_t>(std::lround(dt * 1e6f));
++    assert(f.Update(sample, dt));
++    const float gyro_var = config.gyro_noise_density * config.gyro_noise_density;
++    const float bias_var = config.bias_random_walk * config.bias_random_walk;
++    const auto& p = f.GetCovariance();
++    for (unsigned axis = 0; axis < 3; ++axis)
++    {
++      assert(std::abs(p(axis, axis) -
++                      (.01f + .0004f * dt * dt + gyro_var * dt +
++                       bias_var * dt * dt * dt / 3)) < 2e-9f);
++      assert(std::abs(p(axis, axis + 3) -
++                      (-.0004f * dt - .5f * bias_var * dt * dt)) < 1e-10f);
++      assert(std::abs(p(axis + 3, axis + 3) - (.0004f + bias_var * dt)) < 1e-10f);
++    }
++    assert(f.GetState().timestamp_gaps == 0);
++    covariance_ok(f);
++  }
++}
++
++// 同一物理转动采用不等间隔采样；滤波开/关均与解析姿态比较，不能按样本数假定1ms。
++static void measured_step_rotation(bool filtered)
++{
++  Config config;
++  config.accel_filter_enabled = filtered;
++  Filter f(config);
++  Sample sample;
++  sample.accel = Vec3(0, 0, GRAVITY);
++  feed(f, sample, 250);
++  const Vec3 omega(.3f, -.2f, .4f);
++  double elapsed = 0;
++  float worst = 0;
++  for (unsigned i = 0; i < 3000; ++i)
++  {
++    const uint64_t interval_us = (i % 3 == 0) ? 600 : (i % 3 == 1) ? 2400 : 10000;
++    const float dt = static_cast<float>(interval_us) * 1e-6f;
++    sample.time_us += interval_us;
++    elapsed += static_cast<double>(interval_us) * 1e-6;
++    const Quat truth = rotation_quaternion(omega * static_cast<float>(elapsed));
++    sample.gyro = omega;
++    sample.accel = truth.conjugate() * Vec3(0, 0, GRAVITY);
++    assert(f.Update(sample, dt));
++    worst = std::max(worst, tilt_error(f, truth));
++    if (i % 100 == 0) covariance_ok(f);
++  }
++  assert(worst < .003f);
++  const Quat expected = rotation_quaternion(omega * static_cast<float>(elapsed));
++  assert(f.GetQuaternion().angularDistance(expected) < .005f);
++  assert(f.GetState().timestamp_gaps == 0);
++  const auto sequence = f.GetState().sequence;
++  sample.time_us += 1000;
++  assert(!f.Update(sample, 0));
++  assert(f.GetState().sequence == sequence);
++  std::printf("measured dt filter=%d elapsed=%.3f worst_tilt=%.7f rad\n",
++              filtered, elapsed, worst);
++}
++
+ int main()
+ {
+   output_axis_order();
+@@ -222,6 +291,9 @@ int main()
+   bias_and_slow_yaw();
+   validation();
+   filtering_and_long_run();
++  measured_step_covariance();
++  measured_step_rotation(false);
++  measured_step_rotation(true);
+   std::puts(
+       "PASS: geometry, initialization, rotation, rejection/recovery, bias, timing, "
+       "covariance, filter switch and roll/pitch/yaw output order");
+diff --git a/docs/migration.md b/docs/migration.md
+new file mode 100644
+index 0000000..cc86a0c
+--- /dev/null
++++ b/docs/migration.md
+@@ -0,0 +1,10 @@
++# 接口迁移
++
++
++## 2026-11-15：依赖在前、配置集中
++
++公开构造改为对象依赖在前、Param在后。旧构造不保留兼容重载；旧YAML会在生成时暴露多余字段或顺序错误，直接C++调用必须同步迁移。
++
++RamFS移到第一个参数；Topic名和command_name移入Param。dt_source=MEASURED现在真正接入采样间隔；名义周期默认0.001s（原0.01s未接入核心）。Filter::Update必须显式传dt，不能继续调用旧的单参固定1ms形式；四元数预测、协方差、过程噪声、加速度低通均使用该dt。初始化、恢复、静止和重力更新间隔仍按样本数。1ms等间隔输入保持原公式与参数。
++
++完整命令、参数表与可复制配置直接维护在[README](../README.md)，不以example目录替代。

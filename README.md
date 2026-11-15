@@ -2,7 +2,7 @@
 
 本工程用于达妙 DM-MC02（STM32H723VGT6）机器人控制板，基于 FreeRTOS、LibXR 和 XRobot，使用 C++20 开发。
 
-第一次使用时，先按本文完成 **拉取工程 → 恢复模块 → 生成入口 → 编译 → 烧录 → 查看板级状态**，再接入遥控器、电机和机构。默认 `User/xrobot.yaml` 仅实例化蜂鸣器、板载 BMI088 和板载姿态模块，不启动外接电机、底盘、云台或发射机构。
+第一次使用时，先按本文完成 **拉取工程 → 恢复模块 → 生成入口 → 编译 → 烧录 → 查看板级状态**，再接入遥控器、电机和机构。当前 `User/xrobot.yaml` 实例化蜂鸣器、板载 BMI088，以及订阅同一采样源的 EKF、Madgwick、ESKF 三路姿态模块，不启动外接电机、底盘、云台或发射机构。
 
 本文使用本工程的文件名和命令。XRobot 的通用机制见 [XRobot 官方文档](https://xrobot.work/)，学习路线可参考 [QDU-Robomaster 战队文档](https://qdu-robomaster.github.io/)。QDU 部分页面使用旧版工具命令，本工程以 `requirements-tools.txt` 固定的版本和本文命令为准。
 
@@ -204,6 +204,8 @@ echo WDR_READY
 | `key` | 按下 / 松开时按键状态变化，按下计数递增 |
 | `bmi088 show 1000 100` | BMI088 原始采样；原板级 `imu` 命令已删除，采样观察改由模块自带的 `bmi088` 命令提供 |
 | `attitude` | 板载姿态序号和时间更新，角度单位为 rad（由 AttitudeEkf 实例注册） |
+| `eskf show`、`eskf diag` | ESKF 姿态、更新/丢样与实测步长钳制计数 |
+| `ahrs` | Madgwick 模块的命令帮助 |
 
 默认固件没有外置 DM IMU 或底盘实例，`dm_attitude`、`chassis` 命令也不会注册；启用对应模块后由各实例按 `command_name` 注册。`bmi088 cali` 成功后的零偏写入内部 Flash 数据库，复位后保留；温控 PID 为零，默认不加热。Flash 数据区占用末尾两个 128 KB 扇区，布局和维护要求见 [Flash 数据库与标定持久化](docs/flash_database_20261107.md)。
 
@@ -319,7 +321,7 @@ python tests/board_support/run_tests.py
 | 从板级程序到机器人配置的学习路线 | [QDU-Robomaster 文档](https://qdu-robomaster.github.io/)、[快速上手](https://qdu-robomaster.github.io/电控组/quick-start) |
 | 板级资源及验收记录 | [板级模块](docs/board_modules.md)、[基座迁移与验收](docs/wdr_base_bringup.md) |
 | 模块 README、协议与迁移文档维护 | [模块文档约定](docs/module_documentation.md) |
-| 开发规范 | [AGENTS.md](AGENTS.md) |
+| 开发规范 | [AGENTS.md](AGENTS.md)、[模块开发规范](docs/module_development_standard.md)、[逐模块 API 改造方案](docs/module_api_migration_plan.md) |
 | 第三方来源与许可证 | [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)、[LICENSE](LICENSE)、[NOTICE](NOTICE) |
 
 专题记录中的日期和验收结论对应当时的配置与固件；判断当前固件是否包含某功能，应以本次选择的 YAML、构建产物和实际测试为准。

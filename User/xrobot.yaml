@@ -39,16 +39,16 @@ modules:
   - module: WDR-Xrobot-org/AttitudeEkf
     id: board_attitude
     args:
-      - gyro_topic_name: "bmi088_gyro"
-      - accel_topic_name: "bmi088_accl"
-      - output_topic_name: "board_attitude"
-      - diagnostics_topic_name: "board_fusion_diagnostics"
+      - ramfs: ramfs
       - param:
           dt_source: wdr_imu::DtSource::MEASURED
           nominal_period_s: 0.001f
           task_stack_depth: 4096
-      - ramfs: ramfs
-      - command_name: "attitude"
+          gyro_topic_name: "bmi088_gyro"
+          accel_topic_name: "bmi088_accl"
+          output_topic_name: "board_attitude"
+          diagnostics_topic_name: "board_fusion_diagnostics"
+          command_name: "attitude"
   - module: xrobot-org/MadgwickAHRS
     id: madgwickahrs_0
     args:
@@ -60,5 +60,36 @@ modules:
           quaternion_topic_name: "ahrs_quaternion"
           euler_topic_name: "ahrs_euler"
           task_stack_depth: 2048
+  - module: WDR-Xrobot-org/ESKF
+    id: eskf_0
+    args:
+      - ramfs: ramfs
+      - param:
+          dt_source: wdr_imu::DtSource::MEASURED
+          nominal_period_s: 0.001f
+          task_stack_depth: 4096
+          accel_filter_enabled: true
+          accel_filter_tau_s: 0.05f
+          gyro_noise_density: 0.003f
+          bias_random_walk: 0.0001f
+          accel_direction_std: 0.03f
+          accel_norm_soft_mps2: 0.35f
+          accel_norm_reject_mps2: 1.5f
+          innovation_soft: 5.991f
+          innovation_reject: 25.0f
+          max_direction_error_rad: 1.04719755f
+          gravity_update_interval: 1
+          initialization_samples: 200
+          recovery_samples: 50
+          rest_bias_enabled: false
+          rest_gyro_threshold: 0.015f
+          rest_accel_std: 0.08f
+          rest_samples: 500
+          rest_bias_std: 0.003f
+          gyro_topic_name: "bmi088_gyro"
+          accel_topic_name: "bmi088_accl"
+          output_topic_name: "eskf_output"
+          diagnostics_topic_name: "eskf_diagnostics"
+          command_name: "eskf"
 settings:
   monitor_sleep_ms: 1000

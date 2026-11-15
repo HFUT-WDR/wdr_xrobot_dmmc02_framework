@@ -1,0 +1,2 @@
+PASS: CAN/RS485 requests, CAN push, four groups, one-shot installation, deadlines/retries, malformed replies
+PASS: CAN/RS485 requests, CAN push, groups, framing splits, legacy vendor frame

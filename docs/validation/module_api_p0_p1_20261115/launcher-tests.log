@@ -1,0 +1,8 @@
+PASS: launcher behavior
+PASS: launcher ready
+PASS: launcher events
+PASS: launcher modes
+PASS: launcher heat
+PASS: launcher speed
+PASS: launcher jam
+PASS: launcher filter

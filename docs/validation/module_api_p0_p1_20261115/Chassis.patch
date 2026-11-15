@@ -1,0 +1,323 @@
+diff --git a/Chassis.hpp b/Chassis.hpp
+index 8dd2934..22edaed 100644
+--- a/Chassis.hpp
++++ b/Chassis.hpp
+@@ -42,7 +42,18 @@ class Chassis
+ {
+  public:
+   using Mode = wdr_chassis::Mode;
+-  using Param = wdr_chassis::Param;
++  struct Param
++  {
++    wdr_chassis::Param control{};  ///< 机器人几何、PID、斜坡与超时，取值沿用原配置。
++    const char* command_name = "chassis";
++    const char* command_topic_name = "chassis_cmd";
++    const char* attitude_topic_name = "board_attitude";
++    const char* gimbal_topic_name = "gimbal_chassis_feedback";
++    const char* output_topic_name = "chassis_status";
++    uint32_t task_stack_depth = 4096;
++    LibXR::Thread::Priority thread_priority = LibXR::Thread::Priority::MEDIUM;
++    const char* referee_topic_name = "robot_game_ref";
++  };
+   using State = wdr_chassis::State;
+   using GimbalFeedback = wdr_chassis::GimbalFeedback;
+   /**
+@@ -53,45 +64,33 @@ class Chassis
+    * @param right_rear 右后轮电机。
+    * @param cmd 命令中枢，提供运动命令和遥控链路在线状态。
+    * @param power_control 独立功率模块，生命周期覆盖底盘任务。
+-   * @param param 算法参数，按值复制到模块及控制器。
+-   * @param command_topic_name 底盘命令Topic，平移为m/s，旋转为rad/s。
+-   * @param attitude_topic_name 板载姿态Topic，航向为rad。
+-   * @param gimbal_topic_name 云台机械相对角Topic，单位为rad。
+-   * @param output_topic_name 底盘状态和诊断输出Topic。
+-   * @param task_stack_depth 任务栈大小，单位为字节，必须大于零。
+-   * @param thread_priority 底盘任务优先级。
++   * @param ramfs 注册本实例观察命令的RamFS。
++   * @param param control为算法参数，其余为实例命名和任务配置；构造期间复制。
+    * @note 四轮必须为同总线M3508，唯一且完整占用一个四槽命令组；
+    *       逻辑轮序由参数位置决定，不要求CAN ID递增。构造过程本身不发送电流。
+    */
+   Chassis(RMMotor& right_front, RMMotor& left_front, RMMotor& left_rear,
+-          RMMotor& right_rear, CMD& cmd, PowerControl& power_control, const Param& param,
+-          LibXR::RamFS& ramfs, const char* command_name = "chassis",
+-          const char* command_topic_name = "chassis_cmd",
+-          const char* attitude_topic_name = "board_attitude",
+-          const char* gimbal_topic_name = "gimbal_chassis_feedback",
+-          const char* output_topic_name = "chassis_status",
+-          uint32_t task_stack_depth = 4096,
+-          LibXR::Thread::Priority thread_priority = LibXR::Thread::Priority::MEDIUM,
+-          const char* referee_topic_name = "robot_game_ref")
++          RMMotor& right_rear, CMD& cmd, PowerControl& power_control,
++          LibXR::RamFS& ramfs, const Param& param)
+       : motors_{&right_front, &left_front, &left_rear, &right_rear},
+-        param_(std::make_unique<Param>(param)),
++        param_(std::make_unique<wdr_chassis::Param>(param.control)),
+         cmd_(&cmd),
+-        control_(param),
++        control_(param.control),
+         power_(power_control),
+-        auto_spin_(std::make_unique<wdr_chassis::AutoSpin>(param.auto_spin)),
++        auto_spin_(std::make_unique<wdr_chassis::AutoSpin>(param.control.auto_spin)),
+         referee_subscriber_(
+             LibXR::Topic::FindOrCreate<RefereeTypes::RobotGameRefereePack>(
+-                referee_topic_name)),
+-        output_(LibXR::Topic::CreateTopic<State>(output_topic_name)),
++                param.referee_topic_name)),
++        output_(LibXR::Topic::CreateTopic<State>(param.output_topic_name)),
+         command_subscriber_(
+-            LibXR::Topic::FindOrCreate<CMD::ChassisCMD>(command_topic_name)),
++            LibXR::Topic::FindOrCreate<CMD::ChassisCMD>(param.command_topic_name)),
+         attitude_subscriber_(
+-            LibXR::Topic::FindOrCreate<wdr_imu::Attitude>(attitude_topic_name)),
+-        gimbal_subscriber_(LibXR::Topic::FindOrCreate<GimbalFeedback>(gimbal_topic_name)),
+-        cmd_file_(LibXR::RamFS::CreateFile(command_name, CommandFunc, this))
++            LibXR::Topic::FindOrCreate<wdr_imu::Attitude>(param.attitude_topic_name)),
++        gimbal_subscriber_(LibXR::Topic::FindOrCreate<GimbalFeedback>(param.gimbal_topic_name)),
++        cmd_file_(LibXR::RamFS::CreateFile(param.command_name, CommandFunc, this))
+   {
+-    REQUIRE(wdr_chassis::Control::CheckParam(param));
+-    REQUIRE(task_stack_depth > 0);
++    REQUIRE(wdr_chassis::Control::CheckParam(param.control));
++    REQUIRE(param.task_stack_depth > 0);
+     for (unsigned i = 0; i < 4; ++i)
+     {
+       REQUIRE(motors_[i]->GetParam().model == RMMotor::Model::MOTOR_M3508);
+@@ -120,7 +119,7 @@ class Chassis
+       event_.Register(id, mode_callback);
+     }
+     // 构造只绑定，不发送；独立任务固定2ms，默认模式RELAX。
+-    thread_.Create(this, ThreadFunc, "chassis", task_stack_depth, thread_priority);
++    thread_.Create(this, ThreadFunc, "chassis", param.task_stack_depth, param.thread_priority);
+   }
+   /// @brief 获取模式事件入口；事件编号对应Mode枚举值。
+   LibXR::Event& GetEvent() { return event_; }
+@@ -346,7 +345,7 @@ class Chassis
+     }
+   }
+   std::array<RMMotor*, 4> motors_;
+-  std::unique_ptr<Param> param_;  // 参数缓存放堆中，避免占用已接近上限的DTCM静态区。
++  std::unique_ptr<wdr_chassis::Param> param_;  // 参数缓存放堆中，避免占用已接近上限的DTCM静态区。
+   CMD* cmd_{};
+   ChassisType control_;
+   PowerControl& power_;
+diff --git a/README.md b/README.md
+index 6b13a0c..8acfad7 100644
+--- a/README.md
++++ b/README.md
+@@ -2,20 +2,26 @@
+ 
+ 四轮全向底盘控制模块。将底盘速度命令转换为四轮目标速度，完成轮速闭环、航向跟随、加减速处理与功率约束。
+ 
+-## 适用范围与依赖
+ 
+-当前使用 `Chassis<Omni>`，四轮均为 M3508，逻辑轮序固定为右前、左前、左后、右后。四台电机须在同一 CAN 总线，唯一占用同一个四槽控制组；CAN ID 不必按轮序递增。麦轮和舵轮没有在本实现中提供。
++## 使用教学
+ 
+-依赖 CMD、RMMotor、PowerControl、AttitudeEkf、ControlAlgorithms 和 LibXR。功率模块由底盘任务同步调用。
++要求XRobot 1.0.1、libxr 6.0.1、LibXR v2.0.1及C++20；BSP须已配置WDR模块索引并具备私有仓库读取权限。以下命令在BSP根目录执行。
+ 
+-## 配置示例
++先创建四台M3508、cmd、power_control，并注册ramfs；逻辑轮序为右前、左前、左后、右后。模板实参使用Omni。下面几何、PID及auto_spin来自整车示例，须按实际机构确认。
+ 
+-先创建 `cmd`、`power_control` 和四台轮电机。下面是增量实例，参数应按轮径、减速比、安装方向和实际车体填写：
++```sh
++xrobot module add WDR-Xrobot-org/Chassis@same-or-dev
++xrobot setup
++xrobot instance add WDR-Xrobot-org/Chassis --id chassis --template-arg Omni
++```
++
++将添加的实例填成下面的完整参数映射，资源名换成BSP已注册对象。已有modules列表时只追加实例，不重复创建根键；输入发布者和依赖实例放在本实例之前。每个映射必须按字段声明顺序列全，不能靠省略字段缩短配置。
+ 
+ ```yaml
+ modules:
+   - module: WDR-Xrobot-org/Chassis
+-    template_args: [Omni]
++    template_args:
++      - Omni
+     id: chassis
+     args:
+       - right_front: right_front_motor
+@@ -24,44 +30,105 @@ modules:
+       - right_rear: right_rear_motor
+       - cmd: cmd
+       - power_control: power_control
++      - ramfs: ramfs
+       - param:
+-          rpm_to_speed: 0.000299
+-          wheel_to_center: 0.18951
+-          translation_comp: 0.625
+-          max_speed_x: 2.0
+-          max_speed_y: 2.0
+-          max_wheel_speed: 10.0
+-          current_limit: 16000.0
+-          filter_tau: 0.1666666667
+-          xy_accel: 18.0
+-          xy_decel: 12.0
+-          wz_accel: 120.0
+-          wz_decel: 80.0
+-          wheel_pid:
+-            kp: 20000.0
+-            ki: 1000.0
+-            kd: 0.0
+-            alpha: 0.5
+-            deadband: 0.0
+-            i_limit: 3000.0
+-            out_limit: 16000.0
+-          follow_pid:
+-            kp: 12.0
+-            ki: 0.0
+-            kd: 4.0
+-            alpha: 0.5
+-            deadband: 0.0
+-            i_limit: 0.5
+-            out_limit: 12.0
+-          motor_timeout_ms: 10
+-      - command_topic_name: "chassis_cmd"
+-      - attitude_topic_name: "board_attitude"
+-      - gimbal_topic_name: "gimbal_chassis_feedback"
+-      - output_topic_name: "chassis_status"
+-      - task_stack_depth: 4096
+-      - thread_priority: LibXR::Thread::Priority::MEDIUM
++          control:
++            rpm_to_speed: 0.000299
++            wheel_to_center: 0.18951
++            translation_comp: 0.625
++            max_speed_x: 2.0
++            max_speed_y: 2.0
++            max_wheel_speed: 10.0
++            current_limit: 16000.0
++            filter_tau: 0.1666666667
++            xy_accel: 18.0
++            xy_decel: 12.0
++            wz_accel: 120.0
++            wz_decel: 80.0
++            wheel_pid:
++              kp: 20000.0
++              ki: 1000.0
++              kd: 0.0
++              alpha: 0.5
++              deadband: 0.0
++              i_limit: 3000.0
++              out_limit: 16000.0
++            follow_pid:
++              kp: 12.0
++              ki: 0.0
++              kd: 4.0
++              alpha: 0.5
++              deadband: 0.0
++              i_limit: 0.5
++              out_limit: 12.0
++            auto_spin:
++              low_speed: 2.0
++              mid_speed: 3.5
++              high_speed: 7.0
++              prepare_speed: 1.0
++              stationary_speed: 0.3
++              far_distance: 4.0
++              minimum_buffer: 30.0
++              translation_low: 0.5
++              translation_high: 2.0
++              minimum_scale: 0.3
++              attacked_hold_ms: 6000
++            motor_timeout_ms: 10
++          command_name: "chassis"
++          command_topic_name: "chassis_cmd"
++          attitude_topic_name: "board_attitude"
++          gimbal_topic_name: "gimbal_chassis_feedback"
++          output_topic_name: "chassis_status"
++          task_stack_depth: 4096
++          thread_priority: LibXR::Thread::Priority::MEDIUM
++          referee_topic_name: "robot_game_ref"
++```
++
++构造接口（所有依赖对象的生命周期须覆盖实例）：
++
++```cpp
++Chassis(RMMotor& right_front, RMMotor& left_front, RMMotor& left_rear,
++          RMMotor& right_rear, CMD& cmd, PowerControl& power_control,
++          LibXR::RamFS& ramfs, const Param& param);
++```
++
++机构控制Param必须显式提供；下表是字段默认成员值，不代表构造参数可省略。
++
++| Param字段 | 类型 | 源码字段默认值 | 单位与作用 |
++| --- | --- | --- | --- |
++| `control` | `wdr_chassis::Param` | 聚合默认值；见完整配置及下方参数说明 | 控制/模型参数；保留算法类型，完整子字段及示例值见YAML和下方参数说明 |
++| `command_name` | `const char*` | `"chassis"` | RamFS命令名；多实例使用不同名称 |
++| `command_topic_name` | `const char*` | `"chassis_cmd"` | CMD输入Topic；载荷语义见下文Topic表 |
++| `attitude_topic_name` | `const char*` | `"board_attitude"` | 板载姿态输入Topic |
++| `gimbal_topic_name` | `const char*` | `"gimbal_chassis_feedback"` | 云台机械角与底盘停止许可输入Topic |
++| `output_topic_name` | `const char*` | `"chassis_status"` | 姿态或底盘状态输出Topic |
++| `task_stack_depth` | `uint32_t` | `4096` | 字节；解算/控制线程栈 |
++| `thread_priority` | `LibXR::Thread::Priority` | `LibXR::Thread::Priority::MEDIUM` | 控制线程优先级 |
++| `referee_topic_name` | `const char*` | `"robot_game_ref"` | 裁判摘要输入Topic |
++
++配置后重新生成入口：
++
++```sh
++xrobot gen -c User/xrobot.yaml
+ ```
+ 
++若配置放在另一份User YAML中，-c选择该文件。按BSP文档构建、烧录与验证。`chassis`命令与chassis_status观察模式、故障及功率。构造不发送电流，但构造启动的任务会按许可发送；首次运行按BSP机构验证流程。 软件编译与主机回归不代表硬件或机构已通过验收。
++
++本次公开接口迁移方式见[迁移说明](docs/migration.md)。
++
++
++## 适用范围与依赖
++
++当前使用 `Chassis<Omni>`，四轮均为 M3508，逻辑轮序固定为右前、左前、左后、右后。四台电机须在同一 CAN 总线，唯一占用同一个四槽控制组；CAN ID 不必按轮序递增。麦轮和舵轮没有在本实现中提供。
++
++依赖 CMD、RMMotor、PowerControl、AttitudeEkf、ControlAlgorithms 和 LibXR。功率模块由底盘任务同步调用。
++
++## 配置示例
++
++先创建 `cmd`、`power_control` 和四台轮电机。下面是增量实例，参数应按轮径、减速比、安装方向和实际车体填写：
++
++完整实例与参数见上方“使用教学”。
++
+ 该例展示接入格式，几何与 PID 参数需要按机构确认。
+ 
+ ## 参数与模式
+@@ -98,13 +165,13 @@ modules:
+ | 订阅 | `gimbal_chassis_feedback` | `wdr_chassis::GimbalFeedback`，实际机械角 rad 与停止许可 |
+ | 发布 | `chassis_status` | `wdr_chassis::State` |
+ 
+-命令 X 前、Y 左、Z 逆时针，`frame` 指定 BODY/GIMBAL 坐标系。Topic 名称、线程栈和优先级可通过构造参数覆盖；默认栈 4096 字节、优先级 MEDIUM。
++命令 X 前、Y 左、Z 逆时针，`frame` 指定 BODY/GIMBAL 坐标系。Topic 名称、线程栈和优先级可通过param字段覆盖；默认栈 4096 字节、优先级 MEDIUM。
+ 
+ 构造启动标称 2 ms 任务，构造过程不发送电流。任务入口读取 ASync 已捕获快照，无新帧沿用上一份数据，复制后重新等待。PID、斜坡和滤波使用本拍实际 dt，首拍为 2 ms。
+ 
+ ## 命令 / Command
+ 
+-构造参数 `command_name` 决定命令名（默认 `chassis`）。命令打印最近一次发布的 `chassis_status`：序号、年龄、模式、目标四轮电流、故障位与功率预算；数据取本模块内部快照，不重新订阅 Topic。
++`param.command_name` 决定命令名（默认 `chassis`）。命令打印最近一次发布的 `chassis_status`：序号、年龄、模式、目标四轮电流、故障位与功率预算；数据取本模块内部快照，不重新订阅 Topic。
+ 
+ ## 输出许可
+ 
+@@ -122,6 +189,6 @@ modules:
+ 
+ 整车CMD配置`ChassisWzSource::LOCAL`时，底盘在`SetControl()`调用内部`AutoSpin`，由目标距离、平移速度、裁判血量/伤害、比赛阶段和功率缓冲生成旋转速度。CMD只转发输入，不承担策略。没有额外模块、线程或线上字段。
+ 
+-基础速度−2rad/s；静止自瞄距离>4m为0，否则−3.5rad/s。受击加速−7rad/s保持6s，准备/倒计时覆盖−1rad/s，自检或缓冲<30J覆盖0。平移缩减复用控制器原有处理，仅普通移动姿态跳过，不重复缩减。参数位于机器人YAML的`param.auto_spin`。
++基础速度−2rad/s；静止自瞄距离>4m为0，否则−3.5rad/s。受击加速−7rad/s保持6s，准备/倒计时覆盖−1rad/s，自检或缓冲<30J覆盖0。平移缩减复用控制器原有处理，仅普通移动姿态跳过，不重复缩减。参数位于机器人YAML的`param.control.auto_spin`。
+ 
+-构造参数`referee_topic_name`默认robot_game_ref；缓冲能量复用注入的PowerControl缓存。参数及裁判缓存使用模块生命周期堆对象，避免增加DTCM静态占用。OP手动旋转不受自动策略覆盖。
++`param.referee_topic_name`默认robot_game_ref；缓冲能量复用注入的PowerControl缓存。参数及裁判缓存使用模块生命周期堆对象，避免增加DTCM静态占用。OP手动旋转不受自动策略覆盖。
+diff --git a/docs/migration.md b/docs/migration.md
+index 810582c..1ec69a5 100644
+--- a/docs/migration.md
++++ b/docs/migration.md
+@@ -5,3 +5,12 @@
+ 功率控制独立为 PowerControl；PID/LPF 使用 ControlAlgorithms。旧 C PID、LPF、translation_filter 仅保留在冻结参考和 Git 历史中。平移滤波保留零历史、实际 dt 和零目标清历史。
+ 
+ 当前只实现四轮全向；旧上位机策略和其他轮型不因模板名而自动获得支持。
++
++
++## 2026-11-15：依赖在前、配置集中
++
++公开构造改为对象依赖在前、Param在后。旧构造不保留兼容重载；旧YAML会在生成时暴露多余字段或顺序错误，直接C++调用必须同步迁移。
++
++RamFS移到配置之前。原算法Param搬到Param.control，原命令/Topic/栈/优先级搬入Param；核心控制器继续使用原wdr_chassis::Param，不扩大其职责。
++
++完整命令、参数表与可复制配置直接维护在[README](../README.md)，不以example目录替代。

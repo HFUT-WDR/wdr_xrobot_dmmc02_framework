@@ -1,0 +1,445 @@
+diff --git a/Gimbal.hpp b/Gimbal.hpp
+index 0c9c3af..5efc5f4 100644
+--- a/Gimbal.hpp
++++ b/Gimbal.hpp
+@@ -88,6 +88,16 @@ class Gimbal
+     /// 两轴控制参数由机器人YAML提供，内部组件与本云台同生命周期。
+     DualYaw::Param yaw{};
+     Pitch::Param pitch{};
++    const char* calibration_key = "gimbal_yaw_calibration";
++    const char* command_topic_name = "gimbal_cmd";
++    const char* board_topic_name = "board_attitude";
++    const char* dm_topic_name = "dm_attitude";
++    const char* context_topic_name = "gimbal_context";
++    const char* referee_topic_name = "robot_game_ref";
++    const char* chassis_topic_name = "gimbal_chassis_feedback";
++    const char* status_topic_name = "gimbal_status";
++    uint32_t task_stack_depth = 4096;
++    LibXR::Thread::Priority thread_priority = LibXR::Thread::Priority::MEDIUM;
+   };
+   /// @brief 比赛扫描条件；敌方前哨站状态需外部适配器提供，比赛阶段/时间另订阅裁判摘要。
+   struct Context
+@@ -114,33 +124,19 @@ class Gimbal
+   };
+   /**
+    * @brief 注入三台电机及CMD，在内部构造两轴控制组件，绑定Topic并创建唯一的云台控制线程。
++   * @param big_yaw 大Yaw电机；与小Yaw同总线同组帧。
++   * @param small_yaw 小Yaw电机。
++   * @param pitch_motor Pitch电机；使能由控制线程处理。
++   * @param cmd 命令中枢，生命周期覆盖本实例。
+    * @param calibration_database 可选标定数据库；nullptr时零位只存RAM，复位后丢失。
+-   * @param calibration_key yaw标定数据键，数据库生命周期须覆盖本云台。
+    * @param calibration_buzzer 可选蜂鸣器；非空时在CALI期间持续提示，离开CALI即关闭。
+-   * @param command_topic_name CMD::GimbalCMD命令，来源/有效性由CMD填写。
+-   * @param board_topic_name wdr_imu::Attitude板载姿态，角度rad、角速度rad/s。
+-   * @param dm_topic_name wdr_imu::Attitude小yaw/pitch姿态，角度rad、角速度rad/s。
+-   * @param context_topic_name Context扫描条件；敌方前哨站状态由外部提供。
+-   * @param referee_topic_name 裁判摘要，读取比赛阶段和剩余秒数。
+-   * @param chassis_topic_name 发布实际BIG_YAW机械相对角rad及停底盘许可，不发布目标角。
+-   * @param status_topic_name 发布本拍模式、故障、标定及两个控制模块状态的副本。
+-   * @param task_stack_depth 云台线程栈大小，单位字节。
+    * @param launcher 可选发射机构；由本线程每拍同步调用，与yaw同拍写入共用0x1FF组帧。
++   * @param param 控制、标定键、Topic与任务配置，按值保存。
+    * @note 所有注入对象生命周期覆盖本模块；构造只绑定并创建线程，Pitch上电使能由控制线程执行。
+    */
+   Gimbal(RMMotor& big_yaw, RMMotor& small_yaw, DMMotor& pitch_motor, CMD& cmd,
+-         const Param& param, LibXR::Database* calibration_database = nullptr,
+-         const char* calibration_key = "gimbal_yaw_calibration",
+-         const char* command_topic_name = "gimbal_cmd",
+-         const char* board_topic_name = "board_attitude",
+-         const char* dm_topic_name = "dm_attitude",
+-         const char* context_topic_name = "gimbal_context",
+-         const char* referee_topic_name = "robot_game_ref",
+-         const char* chassis_topic_name = "gimbal_chassis_feedback",
+-         const char* status_topic_name = "gimbal_status",
+-         uint32_t task_stack_depth = 4096,
+-         LibXR::Thread::Priority thread_priority = LibXR::Thread::Priority::MEDIUM,
+-         Launcher* launcher = nullptr, BuzzerAlarm* calibration_buzzer = nullptr);
++         LibXR::Database* calibration_database, Launcher* launcher,
++         BuzzerAlarm* calibration_buzzer, const Param& param);
+   /// @brief 接受Mode模式请求和Event一次性申请，具体控制变更在云台线程中执行。
+   LibXR::Event& GetEvent() { return event_; }
+   const State& GetState() const { return state_; }
+diff --git a/README.md b/README.md
+index 575239a..a27df30 100644
+--- a/README.md
++++ b/README.md
+@@ -2,15 +2,20 @@
+ 
+ 双 Yaw＋Pitch 云台控制模块。统一完成姿态反馈、模式切换、双 Yaw 目标分配、Pitch 控制和 Yaw 零位校准，并发布底盘及发射运行许可。
+ 
+-## 适用范围
+ 
+-两台 Yaw 为同总线、同组帧的 GM6020 电压模式，Pitch 为 DMMotor。模块持有 `components/` 中的 DualYaw、Pitch 控制组件，只创建一个标称 1 ms 云台线程；两轴不单独实例化。
++## 使用教学
+ 
+-依赖 RMMotor、DMMotor、CMD、Chassis、Launcher、AttitudeEkf、ControlAlgorithms 与 LibXR；可选 BuzzerAlarm 用于校准提示。电机、CMD、可选 Launcher 与可选蜂鸣器的生命周期须覆盖本模块。
++要求XRobot 1.0.1、libxr 6.0.1、LibXR v2.0.1及C++20；BSP须已配置WDR模块索引并具备私有仓库读取权限。以下命令在BSP根目录执行。
+ 
+-## 配置示例
++先创建big_yaw_motor、small_yaw_motor、pitch_motor、cmd；本例还需database、launcher与buzzer，可选对象不用时显式nullptr。下面控制、标定和安装值来自整车示例，须按实际机构确认。
+ 
+-先创建 `big_yaw_motor`、`small_yaw_motor`、`pitch_motor` 与 `cmd`。下面是使用默认控制参数的最小增量实例：
++```sh
++xrobot module add WDR-Xrobot-org/Gimbal@same-or-dev
++xrobot setup
++xrobot instance add WDR-Xrobot-org/Gimbal --id gimbal
++```
++
++将添加的实例填成下面的完整参数映射，资源名换成BSP已注册对象。已有modules列表时只追加实例，不重复创建根键；输入发布者和依赖实例放在本实例之前。每个映射必须按字段声明顺序列全，不能靠省略字段缩短配置。
+ 
+ ```yaml
+ modules:
+@@ -21,22 +26,239 @@ modules:
+       - small_yaw: small_yaw_motor
+       - pitch_motor: pitch_motor
+       - cmd: cmd
+-      - param: '{}'
+-      - calibration_database: nullptr
+-      - calibration_key: "gimbal_yaw_calibration"
++      - calibration_database: '&database'
++      - launcher: '&launcher'
+       - calibration_buzzer: '&buzzer'
+-      - command_topic_name: "gimbal_cmd"
+-      - board_topic_name: "board_attitude"
+-      - dm_topic_name: "dm_attitude"
+-      - context_topic_name: "gimbal_context"
+-      - referee_topic_name: "robot_game_ref"
+-      - chassis_topic_name: "gimbal_chassis_feedback"
+-      - status_topic_name: "gimbal_status"
+-      - task_stack_depth: 4096
+-      - thread_priority: LibXR::Thread::Priority::MEDIUM
+-      - launcher: nullptr
++      - param:
++          yaw_manual_speed: 3.96
++          pitch_manual_speed: 1.98
++          deadband: 0.015151515151515152
++          init_error: 0.1
++          init_yaw_gain: 5
++          init_pitch_velocity: 0.5
++          calibration_voltage: 8000
++          calibration_gyro_limit: 0.1
++          calibration_margin: 0.1
++          init_timeout_ms: 6000
++          init_hold_ms: 1000
++          calibration_hold_ms: 2000
++          calibration_step_timeout_ms: 15000
++          yaw:
++            big_yaw:
++              offset_ecd: 0
++              minimum: -3
++              maximum: 3
++              angle:
++                kp: 30
++                ki: 0
++                kd: 0
++                kf: 0
++                integral_limit: 0
++                output_limit: 10
++                integral_zone: 0.1
++              auto_angle:
++                kp: 20
++                ki: 0
++                kd: 0
++                kf: 0
++                integral_limit: 0
++                output_limit: 10
++                integral_zone: 0.1
++              relative:
++                kp: 25
++                ki: 0
++                kd: 0
++                kf: 0
++                integral_limit: 0
++                output_limit: 10
++                integral_zone: 0
++              velocity:
++                kp: 22000
++                ki: 500
++                kd: 0
++                kf: 0
++                integral_limit: 10000
++                output_limit: 30000
++                integral_zone: 0
++              soft_velocity:
++                kp: 20000
++                ki: 0
++                kd: 0
++                kf: 0
++                integral_limit: 10000
++                output_limit: 30000
++                integral_zone: 0
++            small_yaw:
++              offset_ecd: 0
++              minimum: -0.785398
++              maximum: 0.785398
++              angle:
++                kp: 40
++                ki: 0
++                kd: 0
++                kf: 0
++                integral_limit: 1
++                output_limit: 10
++                integral_zone: 0.08
++              auto_angle:
++                kp: 30
++                ki: 0.05
++                kd: 0
++                kf: 0
++                integral_limit: 1
++                output_limit: 10
++                integral_zone: 0.08
++              relative:
++                kp: 20
++                ki: 1
++                kd: 0
++                kf: 0
++                integral_limit: 1
++                output_limit: 10
++                integral_zone: 0
++              velocity:
++                kp: 12000
++                ki: 5
++                kd: 0
++                kf: 0
++                integral_limit: 2000
++                output_limit: 30000
++                integral_zone: 0
++              soft_velocity:
++                kp: 7000
++                ki: 0
++                kd: 0
++                kf: 0
++                integral_limit: 0
++                output_limit: 30000
++                integral_zone: 0
++            voltage_limit: 30000
++            align_alpha: 0.001
++            velocity_feedforward: 0.9
++            accel_feedforward: 120
++            small_yaw_min_kp: 10
++            small_yaw_min_velocity_kp: 7000
++            scan_speed: 1.5
++            scan_low_speed: 1
++            motor_timeout_ms: 10
++          pitch:
++            zero: 0
++            minimum: -0.47
++            maximum: 0.57
++            absolute_minimum: -0.31
++            absolute_maximum: 0.5
++            mit_kp: 15
++            mit_kd: 1.4
++            tracking_kd: 1
++            inertia: 0.01116936
++            damping: 0.02214229
++            gravity: 0.8850881
++            coulomb: 0.14099603
++            coulomb_smooth: 0.5
++            tracking_kp: 3000
++            tracking_ki: 10
++            tracking_kd_feedback: 150
++            integral_error_min: 0.004
++            integral_error_max: 0.05
++            integral_reset_error: 0.1
++            integral_min: -0.3
++            integral_max: 0.2
++            integral_reverse_decay: 0.85
++            scan_kd: 1
++            torque_limit: 5
++            td_w: 40
++            td_zeta: 1
++            scan_center: 0.1
++            scan_amplitude: 0.35
++            scan_frequency: 1
++            high_scan_center: -0.3
++            high_scan_amplitude: 0.2
++            high_scan_frequency: 1
++            scan_center_speed: 2
++            scan_ramp_speed: 1
++            motor_timeout_ms: 20
++            enable_period_ms: 500
++            relative_pid:
++              kp: 26
++              ki: 0.002
++              kd: 0.0002
++              kf: 0
++              integral_limit: 0
++              output_limit: 10
++              integral_zone: 0
++          calibration_key: "gimbal_yaw_calibration"
++          command_topic_name: "gimbal_cmd"
++          board_topic_name: "board_attitude"
++          dm_topic_name: "dm_attitude"
++          context_topic_name: "gimbal_context"
++          referee_topic_name: "robot_game_ref"
++          chassis_topic_name: "gimbal_chassis_feedback"
++          status_topic_name: "gimbal_status"
++          task_stack_depth: 4096
++          thread_priority: LibXR::Thread::Priority::MEDIUM
+ ```
+ 
++构造接口（所有依赖对象的生命周期须覆盖实例）：
++
++```cpp
++Gimbal(RMMotor& big_yaw, RMMotor& small_yaw, DMMotor& pitch_motor, CMD& cmd,
++         LibXR::Database* calibration_database, Launcher* launcher,
++         BuzzerAlarm* calibration_buzzer, const Param& param);
++```
++
++机构控制Param必须显式提供；下表是字段默认成员值，不代表构造参数可省略。
++
++| Param字段 | 类型 | 源码字段默认值 | 单位与作用 |
++| --- | --- | --- | --- |
++| `yaw_manual_speed` | `float` | `{3.96f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `pitch_manual_speed` | `float` | `{1.98f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `deadband` | `float` | `{10.0f / CMD_RC_CHANNEL_RANGE}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `init_error` | `float` | `{0.1f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `init_yaw_gain` | `float` | `{5}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `init_pitch_velocity` | `float` | `{0.5f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `calibration_voltage` | `float` | `{8000}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `calibration_gyro_limit` | `float` | `{0.1f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `calibration_margin` | `float` | `{0.1f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `init_timeout_ms` | `uint32_t` | `{6000}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `init_hold_ms` | `uint32_t` | `{1000}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `calibration_hold_ms` | `uint32_t` | `{2000}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `calibration_step_timeout_ms` | `uint32_t` | `{15000}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `yaw` | `DualYaw::Param` | 聚合默认值；见完整配置及下方参数说明 | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `pitch` | `Pitch::Param` | 聚合默认值；见完整配置及下方参数说明 | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `calibration_key` | `const char*` | `"gimbal_yaw_calibration"` | 数据库键；不同机构须使用不同名称 |
++| `command_topic_name` | `const char*` | `"gimbal_cmd"` | CMD输入Topic；载荷语义见下文Topic表 |
++| `board_topic_name` | `const char*` | `"board_attitude"` | 大Yaw/底座姿态输入Topic |
++| `dm_topic_name` | `const char*` | `"dm_attitude"` | 小Yaw/Pitch姿态输入Topic |
++| `context_topic_name` | `const char*` | `"gimbal_context"` | 比赛扫描条件输入Topic |
++| `referee_topic_name` | `const char*` | `"robot_game_ref"` | 裁判摘要输入Topic |
++| `chassis_topic_name` | `const char*` | `"gimbal_chassis_feedback"` | 实际大Yaw相对角与停止底盘许可输出Topic |
++| `status_topic_name` | `const char*` | `"gimbal_status"` | 机构State副本输出Topic |
++| `task_stack_depth` | `uint32_t` | `4096` | 字节；解算/控制线程栈 |
++| `thread_priority` | `LibXR::Thread::Priority` | `LibXR::Thread::Priority::MEDIUM` | 控制线程优先级 |
++
++配置后重新生成入口：
++
++```sh
++xrobot gen -c User/xrobot.yaml
++```
++
++若配置放在另一份User YAML中，-c选择该文件。按BSP文档构建、烧录与验证。gimbal_status观察模式、故障和标定；构造不发CAN，但启动的控制线程会尝试使能Pitch并发送，接线和机构状态须先确认。 软件编译与主机回归不代表硬件或机构已通过验收。
++
++本次公开接口迁移方式见[迁移说明](docs/migration.md)。
++
++
++## 适用范围
++
++两台 Yaw 为同总线、同组帧的 GM6020 电压模式，Pitch 为 DMMotor。模块持有 `components/` 中的 DualYaw、Pitch 控制组件，只创建一个标称 1 ms 云台线程；两轴不单独实例化。
++
++依赖 RMMotor、DMMotor、CMD、Chassis、Launcher、AttitudeEkf、ControlAlgorithms 与 LibXR；可选 BuzzerAlarm 用于校准提示。电机、CMD、可选 Launcher 与可选蜂鸣器的生命周期须覆盖本模块。
++
++## 配置示例
++
++先创建 `big_yaw_motor`、`small_yaw_motor`、`pitch_motor` 与 `cmd`。下面是使用默认控制参数的最小增量实例：
++
++完整实例与参数见上方“使用教学”。
++
+ 实际 PID、限位与安装参数应在 `param.yaw`、`param.pitch` 中覆盖；完整参数定义见 [Gimbal.hpp](Gimbal.hpp)、[DualYaw.hpp](components/DualYaw.hpp) 和 [Pitch.hpp](components/Pitch.hpp)。`big_yaw` 表示大 Yaw，`small_yaw` 表示小 Yaw。
+ 
+ ## 模式与参数
+@@ -67,7 +289,7 @@ Pitch 的 `zero` 是电机位置反馈坐标中的机械零点；DM4310 已提
+ 
+ ## Topic
+ 
+-名称均可由构造参数覆盖：
++名称均可由param字段覆盖：
+ 
+ | 方向 | 默认名称 | 类型与坐标 |
+ | --- | --- | --- |
+@@ -75,13 +297,14 @@ Pitch 的 `zero` 是电机位置反馈坐标中的机械零点；DM4310 已提
+ | 订阅 | `board_attitude` | `wdr_imu::Attitude`，大 Yaw/底座姿态 |
+ | 订阅 | `dm_attitude` | `wdr_imu::Attitude`，小 Yaw/Pitch 姿态 |
+ 
+-姿态角按字段名取用（`board.yaw`、`dm.pitch` 等），不依赖声明顺序；三元素数组 `gyro` 用
+-`wdr_imu::IMU_GYRO_INDEX_ROLL/PITCH/YAW` 取轴，避免顺序调整后静默取错轴。
+ | 订阅 | `gimbal_context` | `Gimbal::Context`，扫描比赛条件 |
+ | 订阅 | `robot_game_ref` | `RefereeTypes::RobotGameRefereePack`，比赛阶段与剩余时间 |
+ | 发布 | `gimbal_chassis_feedback` | `wdr_chassis::GimbalFeedback`，实际大 Yaw 机械相对角 rad 及停止许可 |
+ | 发布 | `gimbal_status` | `Gimbal::State`，模式、故障、两轴状态和校准结果 |
+ 
++姿态角按字段名取用（`board.yaw`、`dm.pitch` 等），不依赖声明顺序；三元素数组 `gyro` 用
++`wdr_imu::IMU_GYRO_INDEX_ROLL/PITCH/YAW` 取轴，避免顺序调整后静默取错轴。
++
+ 扫描由本地轨迹产生，自瞄接收目标角及速度/加速度前馈。两者可与底盘导航并行；底盘导航使用独立速度通道，不控制大 Yaw 角度目标。
+ 
+ ## 校准、调度与联动
+diff --git a/docs/migration.md b/docs/migration.md
+index e075e24..bc9ccb2 100644
+--- a/docs/migration.md
++++ b/docs/migration.md
+@@ -9,3 +9,12 @@ DualYaw、Pitch 已收进 Gimbal/components，原独立模块实例及依赖不
+ 2026-11-08恢复Pitch上电使能：使能准备在云台模式门控之前执行，离线/失能重试沿用 `pitch.enable_period_ms`（默认500 ms）。云台无力与CALI使用零刚度、零阻尼、零力矩MIT，不再每拍发送0xFD失能。电机驱动自身的Disable/Relax接口仍保持0xFD语义。
+ 
+ 校准选择/取消通过独立事件接入蜂鸣器，选择间歇提示与CALI持续提示由同一个云台线程维护；事件回调只提交状态，不阻塞或直接操作PWM。
++
++
++## 2026-11-15：依赖在前、配置集中
++
++公开构造改为对象依赖在前、Param在后。旧构造不保留兼容重载；旧YAML会在生成时暴露多余字段或顺序错误，直接C++调用必须同步迁移。
++
++Database*、Launcher*、BuzzerAlarm*均在Param之前，未使用时显式nullptr；标定键、Topic、栈与优先级移入原Param。yaw/pitch与原控制字段保持原值；同拍控制和发送顺序不变。
++
++完整命令、参数表与可复制配置直接维护在[README](../README.md)，不以example目录替代。
+diff --git a/gimbal.cpp b/gimbal.cpp
+index 3139022..8452a63 100644
+--- a/gimbal.cpp
++++ b/gimbal.cpp
+@@ -10,32 +10,26 @@ constexpr float CALIBRATION_SCAN_DUTY = 0.32f;
+ }  // namespace
+ 
+ Gimbal::Gimbal(RMMotor& big_yaw, RMMotor& small_yaw, DMMotor& pitch_motor,
+-               CMD& cmd, const Param& param, LibXR::Database* calibration_database,
+-               const char* calibration_key,
+-               const char* command_topic_name, const char* board_topic_name,
+-               const char* dm_topic_name, const char* context_topic_name,
+-               const char* referee_topic_name, const char* chassis_topic_name,
+-               const char* status_topic_name, uint32_t task_stack_depth,
+-               LibXR::Thread::Priority thread_priority, Launcher* launcher,
+-               BuzzerAlarm* calibration_buzzer)
+-    : yaw_(big_yaw, small_yaw, param.yaw, calibration_database, calibration_key),
++               CMD& cmd, LibXR::Database* calibration_database, Launcher* launcher,
++               BuzzerAlarm* calibration_buzzer, const Param& param)
++    : yaw_(big_yaw, small_yaw, param.yaw, calibration_database, param.calibration_key),
+       pitch_(pitch_motor, param.pitch),
+       cmd_(cmd),
+       launcher_(launcher),
+       calibration_buzzer_(calibration_buzzer),
+       param_(param),
+-      command_subscriber_(LibXR::Topic::FindOrCreate<CMD::GimbalCMD>(command_topic_name)),
++      command_subscriber_(LibXR::Topic::FindOrCreate<CMD::GimbalCMD>(param.command_topic_name)),
+       board_subscriber_(
+-          LibXR::Topic::FindOrCreate<wdr_imu::Attitude>(board_topic_name)),
+-      dm_subscriber_(LibXR::Topic::FindOrCreate<wdr_imu::Attitude>(dm_topic_name)),
+-      context_subscriber_(LibXR::Topic::FindOrCreate<Context>(context_topic_name)),
++          LibXR::Topic::FindOrCreate<wdr_imu::Attitude>(param.board_topic_name)),
++      dm_subscriber_(LibXR::Topic::FindOrCreate<wdr_imu::Attitude>(param.dm_topic_name)),
++      context_subscriber_(LibXR::Topic::FindOrCreate<Context>(param.context_topic_name)),
+       game_subscriber_(LibXR::Topic::FindOrCreate<RefereeTypes::RobotGameRefereePack>(
+-          referee_topic_name)),
++          param.referee_topic_name)),
+       chassis_output_(
+-          LibXR::Topic::FindOrCreate<wdr_chassis::GimbalFeedback>(chassis_topic_name)),
+-      status_output_(LibXR::Topic::CreateTopic<State>(status_topic_name))
++          LibXR::Topic::FindOrCreate<wdr_chassis::GimbalFeedback>(param.chassis_topic_name)),
++      status_output_(LibXR::Topic::CreateTopic<State>(param.status_topic_name))
+ {
+-  REQUIRE(task_stack_depth > 0 && param_.calibration_voltage > 0 &&
++  REQUIRE(param.task_stack_depth > 0 && param_.calibration_voltage > 0 &&
+           param_.calibration_voltage <= GM6020_VOLTAGE_MAX_ABS_LSB);
+   command_subscriber_.StartWaiting();
+   board_subscriber_.StartWaiting();
+@@ -65,7 +59,7 @@ Gimbal::Gimbal(RMMotor& big_yaw, RMMotor& small_yaw, DMMotor& pitch_motor,
+       }, this);
+   event_.Register(static_cast<uint32_t>(Event::CALIBRATION_SELECTING), selection);
+   event_.Register(static_cast<uint32_t>(Event::CALIBRATION_CANCELLED), selection);
+-  thread_.Create(this, ThreadFunc, "gimbal", task_stack_depth, thread_priority);
++  thread_.Create(this, ThreadFunc, "gimbal", param.task_stack_depth, param.thread_priority);
+ }
+ void Gimbal::ReadInputs()
+ {

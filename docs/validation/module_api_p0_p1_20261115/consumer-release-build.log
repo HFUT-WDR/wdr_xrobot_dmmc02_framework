@@ -1,0 +1,10 @@
+Memory region         Used Size  Region Size  %age Used
+         DTCMRAM:       94720 B       128 KB     72.27%
+          RAM_D1:       38048 B       320 KB     11.61%
+          RAM_D2:           0 B        32 KB      0.00%
+          RAM_D3:         320 B        16 KB      1.95%
+         ITCMRAM:           0 B        64 KB      0.00%
+           FLASH:      257928 B       768 KB     32.80%
+   text	   data	    bss	    dec	    hex	filename
+ 257580	    296	 132768	 390644	  5f5f4	27_sentry.elf
+27_sentry.elf built for product: sentry_remote

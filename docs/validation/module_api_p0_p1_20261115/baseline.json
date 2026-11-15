@@ -1,0 +1,35 @@
+{
+  "AttitudeEkf": {
+    "commit": "278489d16f115ea27da00d061f4379d81d6c6022",
+    "patch_sha256": "a34ecf7a3c6ff98bc8d7ddd87da199b040b49179199810e6dff7243ee3770e2f"
+  },
+  "ESKF": {
+    "commit": "870106438e5030b759dba400149298742e8dc8e6",
+    "patch_sha256": "509cdcae3fd72f9289a0feb2bfbbe4f779d3f599c3d536d62bddaed830caaa05"
+  },
+  "DmImu": {
+    "commit": "386c06e8f6335966a0a9821ac53d3ee06d6dfddb",
+    "patch_sha256": "5e826620eea00a397eee8f5973c5e5cdc7e2246e6415815d53060f517fcf30f0"
+  },
+  "Chassis": {
+    "commit": "882251d6920c0a463e3069d6af6e8ab6adb09c9d",
+    "patch_sha256": "dfb482bcf9804b9671635e07790aa5d1d3953f562a53485a266e774429750536"
+  },
+  "Gimbal": {
+    "commit": "cf77adeb383ca4add4780b6954812123e420bd96",
+    "patch_sha256": "9c61975344395c8472d83dd42363aab1dda98da99a378ea47409b2c5f5ad50ef"
+  },
+  "Launcher": {
+    "commit": "071971a8c47491997b0cc3ea60aead7215711f46",
+    "patch_sha256": "c13a9146de2333e280e8b8c3e5cac697501d6f271b62564a49253d901bc9986b"
+  },
+  "PowerControl": {
+    "commit": "9c1e0757fc283df5b1538b3b9fe380cc128e7cf3",
+    "patch_sha256": "4b3eef405ee32c43f137ec4b322f9f260db518808ea1b000a2bc6d8bbbad1942"
+  },
+  "consumer": {
+    "source_head": "a75f66fc64eb852d3605a0ff7868d1a6d776d1bb",
+    "patch_sha256": "dbd967c8367d63f96ee79a458bc98f8fc42dcec596364077079c06a442a369d6",
+    "applied_to_original": false
+  }
+}

@@ -18,7 +18,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 278489d16f115ea27da00d061f4379d81d6c6022
+    commit: 6f94a01fa6a00b709e71a3327cab1dad40b4da51
   WDR-Xrobot-org/BMI088:
     repo: https://github.com/WDR-Xrobot-org/BMI088.git
     source: ModuleIndex/index.yaml
@@ -39,7 +39,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 870106438e5030b759dba400149298742e8dc8e6
+    commit: 84c1830183102991d447359d88462908145d4b44
   xrobot-org/MadgwickAHRS:
     repo: https://github.com/xrobot-org/MadgwickAHRS
     source: https://xrobot.work/xrobot-modules/index.yaml

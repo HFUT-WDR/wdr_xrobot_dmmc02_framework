@@ -1,0 +1,37 @@
+{
+  "AttitudeEkf": {
+    "commit": "6f94a01fa6a00b709e71a3327cab1dad40b4da51",
+    "branch": "dev",
+    "pushed": true
+  },
+  "ESKF": {
+    "commit": "84c1830183102991d447359d88462908145d4b44",
+    "branch": "dev",
+    "pushed": true
+  },
+  "DmImu": {
+    "commit": "386d333256916ba095d6dd3ecfdd4efac0a06d87",
+    "branch": "dev",
+    "pushed": true
+  },
+  "Chassis": {
+    "commit": "4fcc2eb9e28f4c77ec066e32af6fd3ae0fbbd06e",
+    "branch": "dev",
+    "pushed": true
+  },
+  "Gimbal": {
+    "commit": "5b23f7438feaf50f4a356960e9438fbee409570e",
+    "branch": "dev",
+    "pushed": true
+  },
+  "Launcher": {
+    "commit": "1dcbba2299c3237e566b7ff9b60239aafd747f0c",
+    "branch": "dev",
+    "pushed": true
+  },
+  "PowerControl": {
+    "commit": "dc892dbcbaeafdbf5826dd772d6d1ac8e8234e1e",
+    "branch": "dev",
+    "pushed": true
+  }
+}

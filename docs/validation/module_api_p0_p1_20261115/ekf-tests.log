@@ -1,0 +1,3 @@
+DM fusion: 8100 source comparisons, independent instances, stationary axes and allocation-free reset passed
+PASS: per-sample EKF, rejected NaN/zero dt, post-processing (z bias, yaw_total, motion accel), roll/pitch/yaw axis order
+PASS: AttitudeEkf regression (frozen DM source, per-sample EKF)

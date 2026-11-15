@@ -1,0 +1,249 @@
+diff --git a/Launcher.hpp b/Launcher.hpp
+index 2abb25f..be8b042 100644
+--- a/Launcher.hpp
++++ b/Launcher.hpp
+@@ -62,8 +62,8 @@ class Launcher
+     float fric_rpm_to_speed{0.00359375f};
+     /// 拨弹电机rpm到拨盘输出轴rad/s的换算系数，含M2006 36:1减速比。
+     float trigger_rpm_to_speed{0.00290888208665721596f};
+-    PidParam fric_pid{8000, 5, 0, 1000, 16000};
+-    PidParam trigger_pid{1000, 2, 0, 7000, 10000};
++    PidParam fric_pid{.kp = 8000, .ki = 5, .kd = 0, .i_limit = 1000, .out_limit = 16000};
++    PidParam trigger_pid{.kp = 1000, .ki = 2, .kd = 0, .i_limit = 7000, .out_limit = 10000};
+     /// 拨弹速度二阶IIR系数，按1ms采样设计：y=a0*y1+a1*y2+a2*x。
+     std::array<float, 3> trigger_filter{1.725709860247969f, -0.75594777109163436f,
+                                         0.030237910843665373f};
+@@ -93,6 +93,9 @@ class Launcher
+     float heat_sync_max_step{20};
+     /// 电机真实反馈超时、裁判数据视为在线的期限，单位ms。
+     uint32_t motor_timeout_ms{20}, referee_timeout_ms{1000};
++    const char* fire_topic_name = "launcher_cmd";
++    const char* referee_topic_name = "robot_game_ref";
++    const char* status_topic_name = "launcher_status";
+   };
+   /// @brief 由Gimbal每拍给出：permit为停发射联锁的反面，automatic/aim取自云台命令。
+   struct Request
+@@ -120,15 +123,11 @@ class Launcher
+    * @param fric_right 右摩擦轮M3508（原车0x205），逻辑正向为出弹方向。
+    * @param fric_left 左摩擦轮M3508（原车0x206），须与右轮同总线。
+    * @param trigger 拨弹M2006（原车0x207），逻辑正向为送弹方向。
+-   * @param fire_topic_name CMD::LauncherCMD，来源与AI时效由CMD处理。
+-   * @param referee_topic_name 裁判摘要，读取热量上限/冷却/当前热量与弹速。
+-   * @param status_topic_name 每拍发布State副本。
++   * @param param 机构控制与三个Topic名称，按值保存；不创建线程。
+    * @note 依赖对象生命周期覆盖本模块；构造不发送CAN。
+    */
+-  Launcher(RMMotor& fric_right, RMMotor& fric_left, RMMotor& trigger, const Param& param,
+-           const char* fire_topic_name = "launcher_cmd",
+-           const char* referee_topic_name = "robot_game_ref",
+-           const char* status_topic_name = "launcher_status");
++  Launcher(RMMotor& fric_right, RMMotor& fric_left, RMMotor& trigger,
++           const Param& param);
+   /// @brief 摩擦轮请求事件入口，事件ID对应Event枚举。
+   LibXR::Event& GetEvent() { return event_; }
+   /// @brief 读取输入与反馈并计算三路电流，不发送；dt单位s，now_ms为本拍单调时间。
+diff --git a/README.md b/README.md
+index a289767..90d4370 100644
+--- a/README.md
++++ b/README.md
+@@ -2,11 +2,20 @@
+ 
+ 双摩擦轮＋拨弹发射机构控制模块。管理起转、连续拨弹、卡弹反转、虚拟热量和弹速调节，适用于两台 M3508 摩擦轮与一台 M2006 拨弹电机。
+ 
+-## 接入方式
+ 
+-依赖 RMMotor、CMD、ControlAlgorithms、Referee 与 LibXR。无独立线程，由调用者周期执行 `Update(request, dt, now_ms)`、再 `Send()`；当前整车可通过 Gimbal 的 `launcher` 参数接入 1 ms 控制线程。
++## 使用教学
+ 
+-先创建三台电机。以下为默认参数的增量配置，PID、转速换算及热量参数需按机构覆盖：
++要求XRobot 1.0.1、libxr 6.0.1、LibXR v2.0.1及C++20；BSP须已配置WDR模块索引并具备私有仓库读取权限。以下命令在BSP根目录执行。
++
++先创建fric_right_motor、fric_left_motor、trigger_motor；本模块无线程，需要Gimbal的launcher对象依赖或等价同拍调用者。下面PID和机构参数来自整车示例，不能直接当作实机标定。
++
++```sh
++xrobot module add WDR-Xrobot-org/Launcher@same-or-dev
++xrobot setup
++xrobot instance add WDR-Xrobot-org/Launcher --id launcher
++```
++
++将添加的实例填成下面的完整参数映射，资源名换成BSP已注册对象。已有modules列表时只追加实例，不重复创建根键；输入发布者和依赖实例放在本实例之前。每个映射必须按字段声明顺序列全，不能靠省略字段缩短配置。
+ 
+ ```yaml
+ modules:
+@@ -16,12 +25,128 @@ modules:
+       - fric_right: fric_right_motor
+       - fric_left: fric_left_motor
+       - trigger: trigger_motor
+-      - param: '{}'
+-      - fire_topic_name: "launcher_cmd"
+-      - referee_topic_name: "robot_game_ref"
+-      - status_topic_name: "launcher_status"
++      - param:
++          fric_rpm_to_speed: 0.00359375
++          trigger_rpm_to_speed: 0.002908882086657216
++          fric_pid:
++            kp: 8000
++            ki: 5
++            kd: 0
++            i_limit: 1000
++            out_limit: 16000
++          trigger_pid:
++            kp: 1000
++            ki: 2
++            kd: 0
++            i_limit: 7000
++            out_limit: 10000
++          trigger_filter: '{1.725709860247969f, -0.75594777109163436f, 0.030237910843665373f}'
++          spin_up_tolerance: 0.3
++          auto_spin_up_tolerance: 0.1
++          brake_speed: 0.1
++          fire_speed: 20
++          jam_speed: 1
++          jam_ms: 1000
++          reverse_ms: 500
++          initial_speed: 21
++          reference_speed: 23.5
++          speed_min: 15
++          speed_max: 23.5
++          speed_limit: 25
++          speed_step: 0.2
++          speed_deadband: 0.5
++          urgent_margin: 0.5
++          urgent_step: 0.3
++          speed_ema_alpha: 0.3
++          min_valid_speed: 5
++          speed_adjust_interval_ms: 5000
++          heat_per_shot: 10
++          default_heat_limit: 260
++          default_cooling: 30
++          heat_stop_margin: 80
++          shot_current_a: 3
++          shot_confirm_ms: 10
++          shot_interval_ms: 10
++          cooling_period_ms: 100
++          heat_sync_period_ms: 200
++          heat_sync_max_step: 20
++          motor_timeout_ms: 20
++          referee_timeout_ms: 1000
++          fire_topic_name: "launcher_cmd"
++          referee_topic_name: "robot_game_ref"
++          status_topic_name: "launcher_status"
++```
++
++构造接口（所有依赖对象的生命周期须覆盖实例）：
++
++```cpp
++Launcher(RMMotor& fric_right, RMMotor& fric_left, RMMotor& trigger,
++           const Param& param);
++```
++
++机构控制Param必须显式提供；下表是字段默认成员值，不代表构造参数可省略。
++
++| Param字段 | 类型 | 源码字段默认值 | 单位与作用 |
++| --- | --- | --- | --- |
++| `fric_rpm_to_speed` | `float` | `{0.00359375f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `trigger_rpm_to_speed` | `float` | `{0.00290888208665721596f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `fric_pid` | `PidParam` | 聚合默认值；见完整配置及下方参数说明 | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `trigger_pid` | `PidParam` | 聚合默认值；见完整配置及下方参数说明 | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `trigger_filter` | `std::array<float, 3>` | `{1.725709860247969f, -0.75594777109163436f,                                         0.030237910843665373f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `spin_up_tolerance` | `float` | `{0.3f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `auto_spin_up_tolerance` | `float` | `{0.1f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `brake_speed` | `float` | `{0.1f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `fire_speed` | `float` | `{20}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `jam_speed` | `float` | `{1}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `jam_ms` | `uint32_t` | `{1000}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `reverse_ms` | `uint32_t` | `{500}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `initial_speed` | `float` | `{21}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `reference_speed` | `float` | `{23.5f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `speed_min` | `float` | `{15}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `speed_max` | `float` | `{23.5f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `speed_limit` | `float` | `{25}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `speed_step` | `float` | `{0.2f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `speed_deadband` | `float` | `{0.5f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `urgent_margin` | `float` | `{0.5f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `urgent_step` | `float` | `{0.3f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `speed_ema_alpha` | `float` | `{0.3f}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `min_valid_speed` | `float` | `{5}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `speed_adjust_interval_ms` | `uint32_t` | `{5000}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `heat_per_shot` | `float` | `{10}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `default_heat_limit` | `float` | `{260}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `default_cooling` | `float` | `{30}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `heat_stop_margin` | `float` | `{80}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `shot_current_a` | `float` | `{3}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `shot_confirm_ms` | `uint32_t` | `{10}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `shot_interval_ms` | `uint32_t` | `{10}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `cooling_period_ms` | `uint32_t` | `{100}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `heat_sync_period_ms` | `uint32_t` | `{200}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `heat_sync_max_step` | `float` | `{20}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `motor_timeout_ms` | `uint32_t` | `{20}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `referee_timeout_ms` | `uint32_t` | `{1000}` | 机构控制参数；含义见下方参数说明，实际值须按机构确认 |
++| `fire_topic_name` | `const char*` | `"launcher_cmd"` | CMD发射命令输入Topic |
++| `referee_topic_name` | `const char*` | `"robot_game_ref"` | 裁判摘要输入Topic |
++| `status_topic_name` | `const char*` | `"launcher_status"` | 机构State副本输出Topic |
++
++配置后重新生成入口：
++
++```sh
++xrobot gen -c User/xrobot.yaml
+ ```
+ 
++若配置放在另一份User YAML中，-c选择该文件。按BSP文档构建、烧录与验证。launcher_status由Send发布；构造不发CAN，Update只计算，Send才写入组帧；必须由同一控制拍协调拨弹和Yaw。 软件编译与主机回归不代表硬件或机构已通过验收。
++
++本次公开接口迁移方式见[迁移说明](docs/migration.md)。
++
++
++## 接入方式
++
++依赖 RMMotor、CMD、ControlAlgorithms、Referee 与 LibXR。无独立线程，由调用者周期执行 `Update(request, dt, now_ms)`、再 `Send()`；当前整车可通过 Gimbal 的 `launcher` 参数接入 1 ms 控制线程。
++
++先创建三台电机。以下为默认参数的增量配置，PID、转速换算及热量参数需按机构覆盖：
++
++完整实例与参数见上方“使用教学”。
++
+ 左右摩擦轮须为同总线的不同电机。若拨弹与 Yaw 共用 0x1FF 控制组，须在同拍为该组所有已构造电机写入命令，不能用互不协调的任务分别发送。
+ 
+ ## 输入与输出
+diff --git a/docs/migration.md b/docs/migration.md
+index 39ea597..e5426fe 100644
+--- a/docs/migration.md
++++ b/docs/migration.md
+@@ -8,3 +8,12 @@
+ - Gimbal在进入、退出AUTO时调用Reset，恢复原车切源复位发射的行为，保留热量与弹速管理结果。
+ - 弹速新样本以 0x0207 帧计数识别；裁判离线时不再把虚拟热量拉向 0。
+ - 未移植：强化进攻姿态旁路、弹速上限变化重新起转（RobotStatus 未提供弹速上限）、AUTO_TEST、下位机火控与发弹延迟统计。
++
++
++## 2026-11-15：依赖在前、配置集中
++
++公开构造改为对象依赖在前、Param在后。旧构造不保留兼容重载；旧YAML会在生成时暴露多余字段或顺序错误，直接C++调用必须同步迁移。
++
++三电机依赖之后只保留Param；三个Topic名移到Param尾部。原控制字段不换层、不改值；仍由Gimbal同拍Update/Send，不新增线程。
++
++完整命令、参数表与可复制配置直接维护在[README](../README.md)，不以example目录替代。
+diff --git a/launcher.cpp b/launcher.cpp
+index 9daf01f..664a53e 100644
+--- a/launcher.cpp
++++ b/launcher.cpp
+@@ -34,18 +34,17 @@ wdr_control::PidParam Launcher::ToPid(const PidParam& p)
+ }
+ 
+ Launcher::Launcher(RMMotor& fric_right, RMMotor& fric_left, RMMotor& trigger,
+-                   const Param& param, const char* fire_topic_name,
+-                   const char* referee_topic_name, const char* status_topic_name)
++                   const Param& param)
+     : fric_{&fric_right, &fric_left},
+       trigger_(trigger),
+       param_(param),
+       fric_pid_{wdr_control::PID(ToPid(param.fric_pid)),
+                 wdr_control::PID(ToPid(param.fric_pid))},
+       trigger_pid_(ToPid(param.trigger_pid)),
+-      fire_subscriber_(LibXR::Topic::FindOrCreate<CMD::LauncherCMD>(fire_topic_name)),
++      fire_subscriber_(LibXR::Topic::FindOrCreate<CMD::LauncherCMD>(param.fire_topic_name)),
+       referee_subscriber_(LibXR::Topic::FindOrCreate<RefereeTypes::RobotGameRefereePack>(
+-          referee_topic_name)),
+-      status_output_(LibXR::Topic::CreateTopic<State>(status_topic_name))
++          param.referee_topic_name)),
++      status_output_(LibXR::Topic::CreateTopic<State>(param.status_topic_name))
+ {
+   REQUIRE(&fric_right != &fric_left && fric_right.GetBus() == fric_left.GetBus());
+   for (auto* motor : fric_) REQUIRE(motor->GetParam().model == RMMotor::Model::MOTOR_M3508);

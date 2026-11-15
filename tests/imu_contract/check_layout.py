@@ -11,6 +11,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import re
 
 ROOT = Path(__file__).resolve().parents[2]
 MODULES = ROOT / "Modules" / "WDR-Xrobot-org"
@@ -64,6 +65,24 @@ def main():
     if (fusion / "imu_types.hpp").is_file():
         TARGETS.append(("ImuEkfFusion", fusion, []))
     result = layouts()
+    # 独立分发的共同载荷必须保持同定义；共享guard只解决重复包含，不应掩盖定义漂移。
+    common = []
+    for name in ("AttitudeEkf", "ESKF"):
+        text = (MODULES / name / "imu_types.hpp").read_text()
+        block = text.split("#define WDR_IMU_COMMON_TYPES_V1_HPP", 1)[1].split("#endif", 1)[0]
+        block = re.sub(r"/\*.*?\*/|//[^\n]*", "", block, flags=re.S)
+        common.append(re.sub(r"\s+", "", block))
+    assert common[0] == common[1], "EKF/ESKF共同载荷或步长规则发生漂移"
+    with tempfile.TemporaryDirectory(prefix="imu-coexist-") as directory:
+        temp = Path(directory)
+        for order in (("AttitudeEkf", "ESKF"), ("ESKF", "AttitudeEkf")):
+            source = temp / "coexist.cpp"
+            source.write_text("\n".join(
+                f'#include "{MODULES / name / "imu_types.hpp"}"' for name in order) +
+                '\nstatic_assert(sizeof(wdr_imu::Attitude) > 0);\n'
+                'static_assert(sizeof(wdr_imu::Ekf) > 0);\n')
+            subprocess.run(["c++", "-std=c++20", "-fsyntax-only",
+                            f"-I{AEKF / 'tests/stubs'}", str(source)], check=True)
     for name, values in result.items():
         size, roll, pitch, yaw, gyro, accel = values
         # 姿态角必须按 roll,pitch,yaw 递增排列且三者紧邻。

@@ -1,0 +1,10 @@
+Memory region         Used Size  Region Size  %age Used
+         DTCMRAM:       94720 B       128 KB     72.27%
+          RAM_D1:       25376 B       320 KB      7.74%
+          RAM_D2:           0 B        32 KB      0.00%
+          RAM_D3:         320 B        16 KB      1.95%
+         ITCMRAM:           0 B        64 KB      0.00%
+           FLASH:      234320 B       768 KB     29.80%
+   text	   data	    bss	    dec	    hex	filename
+ 234004	    264	 120128	 354396	  5685c	wdr_xrobot_dmmc02_framework.elf
+wdr_xrobot_dmmc02_framework.elf built for product: xrobot

@@ -1,0 +1,4 @@
+PASS: automatic spin branches, priority, attack hold, posture scaling and referee bit layout
+PASS: 1000 frozen wheel mixes, original filter/source history, mode edge capture, zero targets and fault reset
+PASS: module auto-spin distance, referee damage and buffer wiring
+PASS: real Chassis/CMD/RMMotor integration, no constructor TX, held angle snapshots, motor expiry, RC loss/auto-resume, gimbal stop gate, RAW guard, four-slot zero output
