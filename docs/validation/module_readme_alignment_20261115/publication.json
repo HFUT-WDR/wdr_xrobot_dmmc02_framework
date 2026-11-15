@@ -1,0 +1,258 @@
+{
+  "branch": "dev",
+  "module_repositories": [
+    {
+      "module": "BMI088",
+      "repository": "git@github.com:WDR-Xrobot-org/BMI088.git",
+      "branch": "dev",
+      "commit": "9d7dfe5a9309fd8c80d92764e38813c628420af0",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "9d7dfe5a9309fd8c80d92764e38813c628420af0",
+      "verified": true
+    },
+    {
+      "module": "BuzzerAlarm",
+      "repository": "git@github.com:WDR-Xrobot-org/BuzzerAlarm.git",
+      "branch": "dev",
+      "commit": "340e4cb9a1187c1d460240daad783f6b2bc298c7",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "340e4cb9a1187c1d460240daad783f6b2bc298c7",
+      "verified": true
+    },
+    {
+      "module": "CMD",
+      "repository": "git@github.com:WDR-Xrobot-org/CMD.git",
+      "branch": "dev",
+      "commit": "a0c77279138588182910d7142b866c9ca60bd2bb",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "a0c77279138588182910d7142b866c9ca60bd2bb",
+      "verified": true
+    },
+    {
+      "module": "Chassis",
+      "repository": "git@github.com:WDR-Xrobot-org/Chassis.git",
+      "branch": "dev",
+      "commit": "bfa4b957898200aa8d9d42bd618044d4899a1271",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "bfa4b957898200aa8d9d42bd618044d4899a1271",
+      "verified": true
+    },
+    {
+      "module": "ControlAlgorithms",
+      "repository": "git@github.com:WDR-Xrobot-org/ControlAlgorithms.git",
+      "branch": "dev",
+      "commit": "f9ec82eb78689097082a83e34470800af69220a3",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "f9ec82eb78689097082a83e34470800af69220a3",
+      "verified": true
+    },
+    {
+      "module": "DMMotor",
+      "repository": "git@github.com:WDR-Xrobot-org/DMMotor.git",
+      "branch": "dev",
+      "commit": "6889cd1573e66a0ae6dd6eacd895126d8a4f9353",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "6889cd1573e66a0ae6dd6eacd895126d8a4f9353",
+      "verified": true
+    },
+    {
+      "module": "DR16",
+      "repository": "git@github.com:WDR-Xrobot-org/DR16.git",
+      "branch": "dev",
+      "commit": "9eb19dcf0424d455067fbf082d32fb5cf02fa4ff",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "9eb19dcf0424d455067fbf082d32fb5cf02fa4ff",
+      "verified": true
+    },
+    {
+      "module": "EventBinder",
+      "repository": "git@github.com:WDR-Xrobot-org/EventBinder.git",
+      "branch": "dev",
+      "commit": "a96560c61b3435862fb8d6a3d7dcd18ef61237c7",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "a96560c61b3435862fb8d6a3d7dcd18ef61237c7",
+      "verified": true
+    },
+    {
+      "module": "Gimbal",
+      "repository": "git@github.com:WDR-Xrobot-org/Gimbal.git",
+      "branch": "dev",
+      "commit": "c61ac466773fc9de95bfef32a58a20b9924a9b8f",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "c61ac466773fc9de95bfef32a58a20b9924a9b8f",
+      "verified": true
+    },
+    {
+      "module": "HostData",
+      "repository": "git@github.com:WDR-Xrobot-org/HostData.git",
+      "branch": "dev",
+      "commit": "801c2e85741b0d4a198e1d26f75d6a2b4257020b",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "801c2e85741b0d4a198e1d26f75d6a2b4257020b",
+      "verified": true
+    },
+    {
+      "module": "I6x",
+      "repository": "git@github.com:WDR-Xrobot-org/I6x.git",
+      "branch": "dev",
+      "commit": "4392d053170be112b8b73074a5c3083373c8738d",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "4392d053170be112b8b73074a5c3083373c8738d",
+      "verified": true
+    },
+    {
+      "module": "Launcher",
+      "repository": "git@github.com:WDR-Xrobot-org/Launcher.git",
+      "branch": "dev",
+      "commit": "23c47627f7a56cc70701fc2f1212a6a866d438c2",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "23c47627f7a56cc70701fc2f1212a6a866d438c2",
+      "verified": true
+    },
+    {
+      "module": "Motor",
+      "repository": "git@github.com:WDR-Xrobot-org/Motor.git",
+      "branch": "dev",
+      "commit": "7c527d3a4dc00a50cc8d4f22c7fa9e0e505b243b",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "7c527d3a4dc00a50cc8d4f22c7fa9e0e505b243b",
+      "verified": true
+    },
+    {
+      "module": "PowerControl",
+      "repository": "git@github.com:WDR-Xrobot-org/PowerControl.git",
+      "branch": "dev",
+      "commit": "6038df786beb54eafb9df0bbb7fb4f532b42f2ed",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "6038df786beb54eafb9df0bbb7fb4f532b42f2ed",
+      "verified": true
+    },
+    {
+      "module": "RMMotor",
+      "repository": "git@github.com:WDR-Xrobot-org/RMMotor.git",
+      "branch": "dev",
+      "commit": "412d787400783029ede0ff0c488c37ad3fafe405",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "412d787400783029ede0ff0c488c37ad3fafe405",
+      "verified": true
+    },
+    {
+      "module": "Referee",
+      "repository": "git@github.com:WDR-Xrobot-org/Referee.git",
+      "branch": "dev",
+      "commit": "448811015ade218ea19e7f2dc0010a8816e3ed13",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "448811015ade218ea19e7f2dc0010a8816e3ed13",
+      "verified": true
+    },
+    {
+      "module": "DmImu",
+      "repository": "git@github.com:WDR-Xrobot-org/DmImu.git",
+      "branch": "dev",
+      "commit": "e01799d658ad5c61693a15e7bdfdd18a6df55d8c",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "e01799d658ad5c61693a15e7bdfdd18a6df55d8c",
+      "verified": true
+    },
+    {
+      "module": "AttitudeEkf",
+      "repository": "git@github.com:WDR-Xrobot-org/AttitudeEkf.git",
+      "branch": "dev",
+      "commit": "58904b5c50b31d71b3c332094717986f6f77e5ed",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "58904b5c50b31d71b3c332094717986f6f77e5ed",
+      "verified": true
+    },
+    {
+      "module": "ESKF",
+      "repository": "git@github.com:WDR-Xrobot-org/ESKF.git",
+      "branch": "dev",
+      "commit": "68977a76e63a9710bb89f556f082025c779d7765",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "68977a76e63a9710bb89f556f082025c779d7765",
+      "verified": true
+    },
+    {
+      "module": "HostLink",
+      "repository": "git@github.com:WDR-Xrobot-org/HostLink.git",
+      "branch": "dev",
+      "commit": "4031a6456726f809c6373c0fd6d313779857a3fd",
+      "files": [
+        "README.md",
+        "docs/protocol.md"
+      ],
+      "pushed": true,
+      "remote_commit": "4031a6456726f809c6373c0fd6d313779857a3fd",
+      "verified": true
+    },
+    {
+      "module": "rm_decision",
+      "repository": "git@github.com:WDR-Xrobot-org/rm_decision.git",
+      "branch": "dev",
+      "commit": "4fbb694d86069b2a5d634875aafb807754a51700",
+      "files": [
+        "README.md"
+      ],
+      "pushed": true,
+      "remote_commit": "4fbb694d86069b2a5d634875aafb807754a51700",
+      "verified": true
+    }
+  ]
+}

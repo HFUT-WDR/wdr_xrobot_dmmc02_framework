@@ -4,6 +4,20 @@
 
 模块 API 的组织方式和改造范围见[模块开发规范](module_development_standard.md)与[逐模块 API 改造方案](module_api_migration_plan.md)。P0/P1 已在本地实施，具体范围及证据见[实施记录](validation/module_api_p0_p1_20261115.md)；P2 仍为后续方案。
 
+## 统一版式
+
+README 参照 [xrobot-org/MadgwickAHRS](https://github.com/xrobot-org/MadgwickAHRS/blob/master/README.md) 的“先行为、后接口、再接入”顺序。2026-11-15 对齐索引中全部 21 个 WDR 模块；改动与校验见[对齐记录](validation/module_readme_alignment_20261115.md)。章节统一使用以下编号和双语标题，正文以中文为主，已有准确英文说明可以保留：
+
+1. `模块作用 / Purpose`：能力、输入输出、支持范围，构造和运行行为。
+2. `运行约定 / Runtime Conventions`：按模块需要分设时间戳、单位/坐标系、命令、事件、模式、线程及失效处理子节。
+3. `构造接口 / Constructor`：当前 C++ 签名，依赖对象与完整参数说明；区分源码默认值、必填配置和 BSP 覆盖值。
+4. `Topic`：默认名称、方向、C++ 类型、载荷含义；无 Topic 时明确说明实际输入输出接口。
+5. `配置示例 / Configuration Example`：添加模块到生成入口的完整教学，以及直接可读的完整 YAML；纯库改为 include 与最小调用示例。
+6. `依赖与硬件 / Dependencies and Hardware`：模块依赖、外部库、支持平台、外设与前置资源。
+7. `来源与许可 / Provenance and License`：来源摘要及许可证/第三方声明链接。
+
+Madgwick 的独立时间戳和 RamFS 章节在 WDR 版式中归入运行约定，保留五项核心内容并集中放置来源。不得仅为凑齐标题声称模块拥有不存在的线程、命令或 Topic。
+
 ## README 内容
 
 1. 开头说明用途、输入输出和适用范围。库模块明确无需 YAML 实例化，驱动和机构模块明确支持的设备或拓扑。
@@ -15,7 +29,7 @@
 
 当前生成器要求 YAML 显式列出构造参数；参数对象采用 YAML 映射时应列全成员。示例中的 `'{}'` 是 C++ 默认聚合初始化表达式，不能把它与省略映射字段混为一谈。
 
-README 不要求空章节。无 Topic 的库只说明无 Topic，不必安排空 Topic 表。中文说明不逐段复制英文；如需英文版本，独立维护 README.en.md。
+无 Topic 的模块只说明无 Topic 和实际调用入口，不填写空表。双语标题统一；无需为了版式逐段复制英文。
 
 ## README 中的使用教学
 

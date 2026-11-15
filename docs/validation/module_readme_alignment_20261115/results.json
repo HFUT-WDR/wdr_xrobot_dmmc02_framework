@@ -1,0 +1,439 @@
+{
+  "reference": {
+    "url": "https://github.com/xrobot-org/MadgwickAHRS/blob/master/README.md",
+    "readme_blob_sha": "d582b0b08abd8ead815820dddd5a92ca306c3348"
+  },
+  "modules": {
+    "BMI088": {
+      "commit": "1bfbc124cefb31559633bfc33b9e9289759d1880",
+      "readme_sha256": "5536d766f4af9de174939fb693763d38bcc150228d2dd3d71f6192e6a87eb1ca"
+    },
+    "BuzzerAlarm": {
+      "commit": "a6f70132d657ae5d83dd6ebc1c0d6c4a68c71ab4",
+      "readme_sha256": "bc070e9b909f8da3e0c977f186bc978aef4362272d53b6354c39d1bac00d6a24"
+    },
+    "CMD": {
+      "commit": "73f2bf4c97b3d37e169360f17e02a8926724f817",
+      "readme_sha256": "2a221bb17dd0b3e63a39596a4e99d7b97fc5d8f724c4c1c5309469c67d26972d"
+    },
+    "Chassis": {
+      "commit": "4fcc2eb9e28f4c77ec066e32af6fd3ae0fbbd06e",
+      "readme_sha256": "44e91eddd6323a54cdf983156f1417719b88de45d04d1d6269a1ec85d05a6565"
+    },
+    "ControlAlgorithms": {
+      "commit": "06eae1291ec5d756b947566b41287d557ef394bb",
+      "readme_sha256": "76cb40d4a98a2109b8ccd9fc8b1d23d62b1bc1167c100c0d27248238a3651e61"
+    },
+    "DMMotor": {
+      "commit": "3a93aa587d7a1747298d07a7ae6a30c116740729",
+      "readme_sha256": "84489234e099649ed885e802832db1f115503d41e016e98592c85ee692891a99"
+    },
+    "DR16": {
+      "commit": "8b91341c29b094e46aa656ba921d36afee690f19",
+      "readme_sha256": "70c3be1d904d22470988284c10383cad266f9506b045eace34cdedf03dd78c1d"
+    },
+    "EventBinder": {
+      "commit": "6698fd4d02f55b80e32ccece27e4e544d002584b",
+      "readme_sha256": "2ed10f8502041108ac48582689b1bf5c2d18a1bd540951ee6188b6d62d6f686d"
+    },
+    "Gimbal": {
+      "commit": "5b23f7438feaf50f4a356960e9438fbee409570e",
+      "readme_sha256": "d67ad242125519df3681bbcbd277e24526a76776510d17cd3ffae5c25fc85d65"
+    },
+    "HostData": {
+      "commit": "3bea9d36130ae03b40ced42fc7434fd80683d1b4",
+      "readme_sha256": "52287b41255e453776123ed6c1c103c9a7373be92ac7407aca604d76acac044a"
+    },
+    "I6x": {
+      "commit": "ddeaba83d432d1ad281f5b9383edb5e25fa8fc40",
+      "readme_sha256": "ae0a8000ecbdedf0c07fbefcd3ee8045c6f1eb276dc258ef7978dc04cb466b4f"
+    },
+    "Launcher": {
+      "commit": "1dcbba2299c3237e566b7ff9b60239aafd747f0c",
+      "readme_sha256": "81de2d78c7906cd8c25d172d51358c99045df97312cd8e6a511e7ffe14f5018b"
+    },
+    "Motor": {
+      "commit": "cf91a88d2414a0c2ffb05d5dd05e40cb742bb2bc",
+      "readme_sha256": "556d7c573287b24c4073b7d24161c70f4337d7fdffe2d4f2a45ffc4b652d8a23"
+    },
+    "PowerControl": {
+      "commit": "dc892dbcbaeafdbf5826dd772d6d1ac8e8234e1e",
+      "readme_sha256": "732eef5e4a3fae0ff23121d8e722dd6c7373e2171ccce88a2ea83ffaebbd118c"
+    },
+    "RMMotor": {
+      "commit": "b8570cb05f554883ffbbbe81c30b7674da7f93d6",
+      "readme_sha256": "dd931c103ccf0a4daf3381bca2c61ce72d515cb78b4fb84c00b8e2e2f0951043"
+    },
+    "Referee": {
+      "commit": "91ed2ad8f758cbeacc55380a82b23c8bed48bbba",
+      "readme_sha256": "67fa170572400f38b90fc4a1655b6a35516e016885ac824dca4fee48d2c576c3"
+    },
+    "DmImu": {
+      "commit": "386d333256916ba095d6dd3ecfdd4efac0a06d87",
+      "readme_sha256": "e0053f97360efa2a71e24fb291ae4e342682ed49954c30ff6f721f526cd420c4"
+    },
+    "AttitudeEkf": {
+      "commit": "6f94a01fa6a00b709e71a3327cab1dad40b4da51",
+      "readme_sha256": "bd3c79c1d22d03d36fdb59b5e54ea1aa51044307367ea93673d68ff3958d8fa6"
+    },
+    "ESKF": {
+      "commit": "84c1830183102991d447359d88462908145d4b44",
+      "readme_sha256": "5a963066847dc49f99345236c3a813e4525d066258e942a45be170f3dc141939"
+    },
+    "HostLink": {
+      "commit": "01a559fa6dc7a25ccd5b41475c7c623b88b69c02",
+      "readme_sha256": "3c893569dda7c23f1a670b7ff8b692672c1614509b328f3ee325f9921b440e2e"
+    },
+    "rm_decision": {
+      "commit": "9528f6e3268906a67c6b4f68dfdc05883b63f50b",
+      "readme_sha256": "38676d513902dba6636c1062dd7670a6fde183797d7be059e9fab53f9d92f5f4"
+    }
+  },
+  "generation": [
+    {
+      "module": "BMI088",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "BuzzerAlarm",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "CMD",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "Chassis",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "ControlAlgorithms",
+      "yaml_count": 0,
+      "errors": []
+    },
+    {
+      "module": "DMMotor",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "DR16",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "EventBinder",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "Gimbal",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "HostData",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "I6x",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "Launcher",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "Motor",
+      "yaml_count": 0,
+      "errors": []
+    },
+    {
+      "module": "PowerControl",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "RMMotor",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "Referee",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "DmImu",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "AttitudeEkf",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "ESKF",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "HostLink",
+      "yaml_count": 1,
+      "errors": []
+    },
+    {
+      "module": "rm_decision",
+      "yaml_count": 1,
+      "errors": []
+    }
+  ],
+  "cpp_syntax": [
+    {
+      "example": "AttitudeEkf0",
+      "passed": true
+    },
+    {
+      "example": "BMI0880",
+      "passed": true
+    },
+    {
+      "example": "BuzzerAlarm0",
+      "passed": true
+    },
+    {
+      "example": "CMD0",
+      "passed": true
+    },
+    {
+      "example": "Chassis0",
+      "passed": true
+    },
+    {
+      "example": "DMMotor0",
+      "passed": true
+    },
+    {
+      "example": "DR160",
+      "passed": true
+    },
+    {
+      "example": "DmImu0",
+      "passed": true
+    },
+    {
+      "example": "ESKF0",
+      "passed": true
+    },
+    {
+      "example": "EventBinder0",
+      "passed": true
+    },
+    {
+      "example": "Gimbal0",
+      "passed": true
+    },
+    {
+      "example": "HostData0",
+      "passed": true
+    },
+    {
+      "example": "HostLink0",
+      "passed": true
+    },
+    {
+      "example": "I6x0",
+      "passed": true
+    },
+    {
+      "example": "Launcher0",
+      "passed": true
+    },
+    {
+      "example": "PowerControl0",
+      "passed": true
+    },
+    {
+      "example": "RMMotor0",
+      "passed": true
+    },
+    {
+      "example": "Referee0",
+      "passed": true
+    },
+    {
+      "example": "rm_decision0",
+      "passed": true
+    },
+    {
+      "example": "Motor0",
+      "passed": true
+    },
+    {
+      "example": "ControlAlgorithms0",
+      "passed": true
+    },
+    {
+      "example": "ControlAlgorithms1",
+      "passed": true
+    }
+  ],
+  "scope": [
+    {
+      "module": "BMI088",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "BuzzerAlarm",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "CMD",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "Chassis",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "ControlAlgorithms",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "DMMotor",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "DR16",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "EventBinder",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "Gimbal",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "HostData",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "I6x",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "Launcher",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "Motor",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "PowerControl",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "RMMotor",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "Referee",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "DmImu",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "AttitudeEkf",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "ESKF",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    },
+    {
+      "module": "HostLink",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md",
+        "?? docs/"
+      ]
+    },
+    {
+      "module": "rm_decision",
+      "local_links_valid": true,
+      "changes": [
+        "M README.md"
+      ]
+    }
+  ]
+}

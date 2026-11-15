@@ -105,7 +105,7 @@ class AttitudeExample
 - manifest 使用 V2；依赖显式声明；纯库采用 standalone: false，不为需要静态实例装配的同步组件误标纯库。
 - manifest 描述使用官方中英同行形式；自研注释采用中文，保留第三方原有注释和名称。
 - CMake 集成 xr target，沿用当前工程与官方骨架方式；库或 Linux 模块的特殊构建依赖须明确，不机械复制 STM32 模板。
-- README 按用途、构造接口、Topic、配置示例、依赖与硬件组织；补充副作用和限制；来源与许可放第三方说明，迁移差异放 docs/migration.md。
+- README 参照 MadgwickAHRS，按模块作用、运行约定、构造接口、Topic、配置示例、依赖与硬件、来源与许可七节组织，使用编号和双语标题；详细来源与许可放第三方说明，迁移差异放 docs/migration.md。
 - README 必须直接提供使用教学：`xrobot module add` → `xrobot setup` → `xrobot instance add` → 完整 YAML 参数示例与参数表 → `xrobot gen` → 可观察结果。命令使用真实模块 ID，依赖资源与实例顺序明确；不得用 example/examples 文件夹替代 README 中的教学。纯库模块改为 include 与最小调用教学，不创建 YAML 实例。具体写法见[模块文档约定](module_documentation.md)。
 - 注释与格式遵循 AGENTS.md：lower_case、lower_case_、CamelCase、UPPER_CASE 与既有 clang-format；不批量重命名上游 API。
 - 模块代码在模块仓库维护；框架只保存配置、锁定版本、集成及规范，下载目录不是框架源码交付物。
