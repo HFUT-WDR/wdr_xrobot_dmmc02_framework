@@ -93,5 +93,13 @@ modules:
           status_topic_name: "launcher_status"
           command_timeout_ms: 30
           task_stack_depth: 3072
+  - module: WDR-Xrobot-org/BuzzerAlarm
+    id: buzzer
+    args:
+      - pwm: pwm_tim12_ch2
+      - alarm_freq: 1500
+      - alarm_duration: 300
+      - alarm_delay: 300
+      - duty: 0.5f
 settings:
   monitor_sleep_ms: 1000
