@@ -30,84 +30,84 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 6f94a01fa6a00b709e71a3327cab1dad40b4da51
+    commit: fd4037293cf7f829d1fb146f9887247615704bf7
   WDR-Xrobot-org/BMI088:
     repo: https://github.com/WDR-Xrobot-org/BMI088.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 0de06e30c3a58d8760881112ab73ba31c1514c71
+    commit: 1132145cca1b31f9714d58161cbe3688f0f33e80
   WDR-Xrobot-org/BuzzerAlarm:
     repo: https://github.com/WDR-Xrobot-org/BuzzerAlarm.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: a6f70132d657ae5d83dd6ebc1c0d6c4a68c71ab4
+    commit: 9210a7bcdabed7cdb7afab8462588a3aa20ac127
   WDR-Xrobot-org/CMD:
     repo: https://github.com/WDR-Xrobot-org/CMD.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 8f6533e472283f6c1e9bbed3fcf7beac9bb5df22
+    commit: fe0ab34fcfc0b8c9f81985eeb85e42736bb97e23
   WDR-Xrobot-org/ControlAlgorithms:
     repo: https://github.com/WDR-Xrobot-org/ControlAlgorithms.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 35b9d87408256b0888b057c5f7933869922306ac
+    commit: a5e80c1b810f8c95ea63f3ea8adb689a9c9ceed3
   WDR-Xrobot-org/ESKF:
     repo: https://github.com/WDR-Xrobot-org/ESKF.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 84c1830183102991d447359d88462908145d4b44
+    commit: bc49ba1b6dc1a33e9840a08151cdf8647bc7af19
   WDR-Xrobot-org/I6x:
     repo: https://github.com/WDR-Xrobot-org/I6x.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 4622d91898c51918a740a80d7f722d019fbb34fd
+    commit: f4160d08284d3ccffe338c26f88ddf64fa579cb3
   WDR-Xrobot-org/Launcher:
     repo: https://github.com/WDR-Xrobot-org/Launcher.git
     source: ModuleIndex/index.yaml
     requested: dev
     resolved_ref: dev
     ref_kind: branch
-    commit: ffdf85bfb224a649864cd319492847a89d63f68e
+    commit: 695814b6cb895f261ca3d7120bcad0bbfdecdd1a
   WDR-Xrobot-org/Motor:
     repo: https://github.com/WDR-Xrobot-org/Motor.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 7c527d3a4dc00a50cc8d4f22c7fa9e0e505b243b
+    commit: eee5329cbb1f539dc0cc57273ccf443730014ea5
   WDR-Xrobot-org/RMMotor:
     repo: https://github.com/WDR-Xrobot-org/RMMotor.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 35e72b6281fb224091726cb6add12247ec4910c7
+    commit: c56103444d76e5ad327f398c4e342ef7619a1440
   WDR-Xrobot-org/Referee:
     repo: https://github.com/WDR-Xrobot-org/Referee.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 49d2839752791f3169321b39ddbc4873cde462ac
+    commit: 75e0ba938097363db4aadd830445943f776bd1f1
   WDR-Xrobot-org/ThreeFricLauncher:
     repo: https://github.com/WDR-Xrobot-org/ThreeFricLauncher.git
     source: ModuleIndex/index.yaml
     requested: dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 38a9fb3b7dd5da09c8805679e1bf519a9efdb306
+    commit: 4448e9ad509be7190ba13ca487c75bcf3d50c629
   xrobot-org/MadgwickAHRS:
     repo: https://github.com/xrobot-org/MadgwickAHRS
     source: https://xrobot.work/xrobot-modules/index.yaml
