@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-16",
+  "product": "User/three_fric.yaml",
+  "xrobot": "1.0.1",
+  "libxr_generator": "6.0.1",
+  "libxr_commit": "5161373dbe6d9d9fb1904d90e0ebd4344a44047a",
+  "modules": {
+    "ThreeFricLauncher": {
+      "source_commit": "9c7acacad204cf84c675c3ef9b0d59e5f3e38233",
+      "checkout_commit": "9c7acacad204cf84c675c3ef9b0d59e5f3e38233"
+    },
+    "ThreeFricLauncherTask": {
+      "source_commit": "a28f868d551e880ab5a312172e6a298a958f0893",
+      "checkout_commit": "a28f868d551e880ab5a312172e6a298a958f0893"
+    }
+  },
+  "lock_sha256": "c7e8c7e3f85c29aba8f9561f80b050360c117b5304fed939823b7710565c5790",
+  "configuration_sha256": "73e9bd302fe9723e6e5151b172b1791101978a91c9d4df4280455deac56ea6fd",
+  "products": {
+    "Debug": {
+      "elf": "build/Debug/wdr_xrobot_dmmc02_framework.elf",
+      "sha256": "1f303eb46c760d064d9d2709f5f6ecc146478850a8ac5ecd2b1a17ca588438a6",
+      "bytes": 6865572
+    },
+    "Release": {
+      "elf": "build/Release/wdr_xrobot_dmmc02_framework.elf",
+      "sha256": "aabf43a5b333cdd078656c4587ab2ee6ded9fc64edda1dc420f086d95b16f88d",
+      "bytes": 325868
+    }
+  },
+  "checks": {
+    "host_behavior": "PASS: real CMD, RMMotor, LibXR messages/events; fake CAN/time/thread startup",
+    "frozen_offline_setup": "PASS",
+    "generation": "PASS: both base and launcher configuration checked",
+    "debug": "PASS",
+    "release": "PASS",
+    "format": "PASS",
+    "diff_check": "PASS"
+  },
+  "not_verified": [
+    "flashing",
+    "board communication",
+    "motor direction and rotation",
+    "physical firing",
+    "RTOS scheduling jitter"
+  ]
+}

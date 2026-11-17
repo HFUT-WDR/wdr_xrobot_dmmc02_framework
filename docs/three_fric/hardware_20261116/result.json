@@ -1,0 +1,90 @@
+{
+  "board": {
+    "chip": "STM32H723",
+    "idcode": "0x10016483",
+    "uid": [
+      "0x00250001",
+      "0x3233510e",
+      "0x31333635"
+    ],
+    "flash_bytes": 1048576
+  },
+  "probe": {
+    "product": "XR-DAP-S3 CMSIS-DAP",
+    "serial": "XRobot-XRDAP-30EDA006A4D0",
+    "swd_khz": 1000
+  },
+  "firmware": {
+    "profile": "User/three_fric.yaml",
+    "preset": "Debug",
+    "elf_sha256": "1f303eb46c760d064d9d2709f5f6ecc146478850a8ac5ecd2b1a17ca588438a6",
+    "flash_verify": "PASS",
+    "last_known_board_image": "three-friction Debug image; not restored"
+  },
+  "backup": {
+    "path": "build/hardware_20261116/pre_flash.bin",
+    "sha256": "1233b6b7b7c35bcf2b53bfa839bcc8508eaaccadc17cb727d2bdf0c9644a5611",
+    "bytes": 1048576
+  },
+  "runtime": {
+    "sampling": "running-target SWD reads; no halt during runtime samples",
+    "launcher_sequence_delta": 2600,
+    "tick_delta_ms": 2600,
+    "clock_hz": 550000000,
+    "free_heap_bytes": 59256,
+    "cfsr": 0,
+    "hfsr": 0,
+    "launcher": {
+      "mode": 0,
+      "stop_reason": 2,
+      "running": false,
+      "spun_up": false,
+      "firing": false,
+      "reversing": false,
+      "wheel_online": [
+        0,
+        0,
+        0
+      ],
+      "wheel_released": [
+        1,
+        1,
+        1
+      ],
+      "trigger_online": false,
+      "trigger_released": true,
+      "wheel_speed_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "wheel_target_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trigger_speed_rad_s": 0.0,
+      "wheel_current": [
+        0,
+        0,
+        0
+      ],
+      "trigger_current": 0,
+      "sequence": 129444
+    },
+    "remote_sequence": 0,
+    "motor_received": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  "incomplete": [
+    "No valid UART5 remote frame observed",
+    "No valid CAN1 ID1/2/3/4 motor feedback observed",
+    "Motor direction, spin-up, braking and physical firing not tested",
+    "Probe USB disconnected during subsequent observation; server stopped without reset"
+  ],
+  "writes": "Only authorized firmware flash/reset; no synthesized fire or enable commands, no RAM control overrides"
+}

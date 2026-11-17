@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-17",
+  "launcher_commit": "e3d8e82f9c765b637b32780438769bc777300179",
+  "control_algorithms_commit": "f9ec82eb78689097082a83e34470800af69220a3",
+  "sample_hz": 1000,
+  "cutoff_hz": 27.951037,
+  "cutoff_selection": "old recurrence -3dB frequency: 27.951036898188477Hz",
+  "step_first_sample_gain": {
+    "old": 0.030237910843665373,
+    "new": 0.00684523374296389
+  },
+  "checks": {
+    "independent_direct_form_I_response": "PASS",
+    "stop_reset_zero_history": "PASS",
+    "mechanism_regression": "PASS",
+    "generation_and_frozen_offline": "PASS",
+    "debug": "PASS",
+    "release": "PASS",
+    "format": "PASS"
+  },
+  "elf_sha256": {
+    "Debug": "63116c05e3370da0a97ab41aba310e277bc475e6f06ad3817a7a1f11bf50b716",
+    "Release": "8eae31f8712ceed711287c11b1ff021fe6c4f3b74b60af48603b4a4db55702eb"
+  },
+  "configuration_sha256": "487e4889e77fc460654f1ae2ae8f57a4b15bea4e950642c60ca82bc57f91f8de",
+  "flashed": false,
+  "board_image": "previous 2026-11-16 Debug; hardware evidence does not cover this change"
+}

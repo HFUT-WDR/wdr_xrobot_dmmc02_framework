@@ -1,5 +1,9 @@
 # WDR MC02 框架使用教程
 
+## 本目录的三摩擦发射产品
+
+当前开发产品使用 `User/three_fric.yaml`，仅实例化CMD、I6x、四台M2006与内置控制任务的三摩擦发射模块。模块源码在WDR-Xrobot-org各远程仓库，按xrobot.lock恢复至Modules目录。操作、构建与验证见 [三摩擦发射说明](docs/three_fric/README.md)。下文保留原板级基座教程，`User/xrobot.yaml` 仍是原板载配置；重新生成时注意选择产品配置。
+
 本工程用于达妙 DM-MC02（STM32H723VGT6）机器人控制板，基于 FreeRTOS、LibXR 和 XRobot，使用 C++20 开发。
 
 第一次使用时，先按本文完成 **拉取工程 → 恢复模块 → 生成入口 → 编译 → 烧录 → 查看板级状态**，再接入遥控器、电机和机构。当前 `User/xrobot.yaml` 实例化蜂鸣器、板载 BMI088，以及订阅同一采样源的 EKF、Madgwick、ESKF 三路姿态模块，不启动外接电机、底盘、云台或发射机构。
@@ -325,3 +329,5 @@ python tests/board_support/run_tests.py
 | 第三方来源与许可证 | [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)、[LICENSE](LICENSE)、[NOTICE](NOTICE) |
 
 专题记录中的日期和验收结论对应当时的配置与固件；判断当前固件是否包含某功能，应以本次选择的 YAML、构建产物和实际测试为准。
+
+三摩擦当前为单一ThreeFricLauncher模块，内部1ms任务；CMD统一发布open_fric/is_fire，AUTO开轮由auto_open_fric配置。变更和验证见docs/three_fric/cmd_migration_20261117.md。

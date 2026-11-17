@@ -1,8 +1,14 @@
 xrobot: 1.0.1
-# 纯板级基座：只请求板载模块。产品模块由使用者自行 xrobot module add。
+# 保留板级配置依赖；独立发射产品由User/three_fric.yaml选择。
 modules:
 - WDR-Xrobot-org/BuzzerAlarm@same-or-dev
 - WDR-Xrobot-org/BMI088@same-or-dev
 - WDR-Xrobot-org/AttitudeEkf@same-or-dev
 - WDR-Xrobot-org/ESKF@same-or-dev
 - xrobot-org/MadgwickAHRS@same-or-dev
+- WDR-Xrobot-org/CMD@same-or-dev
+- WDR-Xrobot-org/I6x@same-or-dev
+- WDR-Xrobot-org/RMMotor@same-or-dev
+- WDR-Xrobot-org/ThreeFricLauncher@dev
+- WDR-Xrobot-org/ControlAlgorithms@same-or-dev
+- WDR-Xrobot-org/Launcher@dev

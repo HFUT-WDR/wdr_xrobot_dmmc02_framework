@@ -1,0 +1,63 @@
+/* offset      |    size */  type = struct I6xInput::State {
+/*      0      |      12 */    struct std::array<short, 6> [with _Tp = short] {
+/*      0      |      12 */        std::__array_traits<_Tp, 6>::_Type _M_elems;
+
+                                   /* total size (bytes):   12 */
+                               } channels;
+/*     12      |       4 */    struct std::array<signed char, 4> [with _Tp = signed char] {
+/*     12      |       4 */        std::__array_traits<_Tp, 4>::_Type _M_elems;
+
+                                   /* total size (bytes):    4 */
+                               } switches;
+/*     16      |       1 */    bool frame_lost;
+/*     17      |       1 */    bool failsafe;
+/*     18      |       1 */    bool online;
+/* XXX  1-byte hole      */
+/*     20      |       4 */    uint32_t sequence;
+/*     24      |       4 */    uint32_t received_ms;
+
+                               /* total size (bytes):   28 */
+                             }
+/* offset      |    size */  type = struct ThreeFricLauncher::State {
+/*      0      |       1 */    enum ThreeFricLauncher::Mode mode;
+/*      1      |       1 */    enum ThreeFricLauncher::StopReason stop_reason;
+/*      2      |       1 */    bool running;
+/*      3      |       1 */    bool spun_up;
+/*      4      |       1 */    bool firing;
+/*      5      |       1 */    bool reversing;
+/*      6      |       3 */    struct std::array<bool, 3> [with _Tp = bool] {
+/*      6      |       3 */        std::__array_traits<value_type, 3>::_Type _M_elems;
+
+                                   /* total size (bytes):    3 */
+                               } wheel_online;
+/*      9      |       3 */    struct std::array<bool, 3> [with _Tp = bool] {
+/*      9      |       3 */        std::__array_traits<value_type, 3>::_Type _M_elems;
+
+                                   /* total size (bytes):    3 */
+                               } wheel_released;
+/*     12      |       1 */    bool trigger_online;
+/*     13      |       1 */    bool trigger_released;
+/* XXX  2-byte hole      */
+/*     16      |      12 */    struct std::array<float, 3> [with _Tp = float] {
+/*     16      |      12 */        std::__array_traits<_Tp, 3>::_Type _M_elems;
+
+                                   /* total size (bytes):   12 */
+                               } wheel_speed_mps;
+/*     28      |      12 */    struct std::array<float, 3> [with _Tp = float] {
+/*     28      |      12 */        std::__array_traits<_Tp, 3>::_Type _M_elems;
+
+                                   /* total size (bytes):   12 */
+                               } wheel_target_mps;
+/*     40      |       4 */    float trigger_speed_rad_s;
+/*     44      |       4 */    float trigger_filtered_rad_s;
+/*     48      |       4 */    float trigger_target_rad_s;
+/*     52      |       6 */    struct std::array<short, 3> [with _Tp = short] {
+/*     52      |       6 */        std::__array_traits<_Tp, 3>::_Type _M_elems;
+
+                                   /* total size (bytes):    6 */
+                               } wheel_current;
+/*     58      |       2 */    int16_t trigger_current;
+/*     60      |       4 */    uint32_t sequence;
+
+                               /* total size (bytes):   64 */
+                             }

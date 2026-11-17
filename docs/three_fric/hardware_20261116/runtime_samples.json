@@ -1,0 +1,614 @@
+[
+  {
+    "host_time": 1794839842.4357955,
+    "tick": 127188,
+    "clock": 550000000,
+    "free_heap": 59256,
+    "cfsr": 0,
+    "hfsr": 0,
+    "dhcsr": 16842753,
+    "launcher": {
+      "mode": 0,
+      "stop_reason": 2,
+      "running": false,
+      "spun_up": false,
+      "firing": false,
+      "reversing": false,
+      "wheel_online": [
+        0,
+        0,
+        0
+      ],
+      "wheel_released": [
+        1,
+        1,
+        1
+      ],
+      "trigger_online": false,
+      "trigger_released": true,
+      "wheel_speed_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "wheel_target_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trigger_speed_rad_s": 0.0,
+      "wheel_current": [
+        0,
+        0,
+        0
+      ],
+      "trigger_current": 0,
+      "sequence": 126844
+    },
+    "cmd_online": false,
+    "remote_receiver": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "task_remote": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "fdcan1": {
+      "PSR": 1901,
+      "ECR": 23296,
+      "TXBRP": 0,
+      "TXBTO": 0
+    },
+    "motor_received": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  {
+    "host_time": 1794839842.9556866,
+    "tick": 127708,
+    "clock": 550000000,
+    "free_heap": 59256,
+    "cfsr": 0,
+    "hfsr": 0,
+    "dhcsr": 16842753,
+    "launcher": {
+      "mode": 0,
+      "stop_reason": 2,
+      "running": false,
+      "spun_up": false,
+      "firing": false,
+      "reversing": false,
+      "wheel_online": [
+        0,
+        0,
+        0
+      ],
+      "wheel_released": [
+        1,
+        1,
+        1
+      ],
+      "trigger_online": false,
+      "trigger_released": true,
+      "wheel_speed_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "wheel_target_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trigger_speed_rad_s": 0.0,
+      "wheel_current": [
+        0,
+        0,
+        0
+      ],
+      "trigger_current": 0,
+      "sequence": 127364
+    },
+    "cmd_online": false,
+    "remote_receiver": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "task_remote": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "fdcan1": {
+      "PSR": 1901,
+      "ECR": 216,
+      "TXBRP": 0,
+      "TXBTO": 0
+    },
+    "motor_received": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  {
+    "host_time": 1794839843.4757564,
+    "tick": 128228,
+    "clock": 550000000,
+    "free_heap": 59256,
+    "cfsr": 0,
+    "hfsr": 0,
+    "dhcsr": 16842753,
+    "launcher": {
+      "mode": 0,
+      "stop_reason": 2,
+      "running": false,
+      "spun_up": false,
+      "firing": false,
+      "reversing": false,
+      "wheel_online": [
+        0,
+        0,
+        0
+      ],
+      "wheel_released": [
+        1,
+        1,
+        1
+      ],
+      "trigger_online": false,
+      "trigger_released": true,
+      "wheel_speed_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "wheel_target_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trigger_speed_rad_s": 0.0,
+      "wheel_current": [
+        0,
+        0,
+        0
+      ],
+      "trigger_current": 0,
+      "sequence": 127884
+    },
+    "cmd_online": false,
+    "remote_receiver": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "task_remote": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "fdcan1": {
+      "PSR": 1901,
+      "ECR": 176,
+      "TXBRP": 0,
+      "TXBTO": 0
+    },
+    "motor_received": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  {
+    "host_time": 1794839843.9957724,
+    "tick": 128748,
+    "clock": 550000000,
+    "free_heap": 59256,
+    "cfsr": 0,
+    "hfsr": 0,
+    "dhcsr": 16842753,
+    "launcher": {
+      "mode": 0,
+      "stop_reason": 2,
+      "running": false,
+      "spun_up": false,
+      "firing": false,
+      "reversing": false,
+      "wheel_online": [
+        0,
+        0,
+        0
+      ],
+      "wheel_released": [
+        1,
+        1,
+        1
+      ],
+      "trigger_online": false,
+      "trigger_released": true,
+      "wheel_speed_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "wheel_target_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trigger_speed_rad_s": 0.0,
+      "wheel_current": [
+        0,
+        0,
+        0
+      ],
+      "trigger_current": 0,
+      "sequence": 128404
+    },
+    "cmd_online": false,
+    "remote_receiver": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "task_remote": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "fdcan1": {
+      "PSR": 1925,
+      "ECR": 28672,
+      "TXBRP": 0,
+      "TXBTO": 0
+    },
+    "motor_received": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  {
+    "host_time": 1794839844.5161762,
+    "tick": 129268,
+    "clock": 550000000,
+    "free_heap": 59256,
+    "cfsr": 0,
+    "hfsr": 0,
+    "dhcsr": 16842753,
+    "launcher": {
+      "mode": 0,
+      "stop_reason": 2,
+      "running": false,
+      "spun_up": false,
+      "firing": false,
+      "reversing": false,
+      "wheel_online": [
+        0,
+        0,
+        0
+      ],
+      "wheel_released": [
+        1,
+        1,
+        1
+      ],
+      "trigger_online": false,
+      "trigger_released": true,
+      "wheel_speed_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "wheel_target_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trigger_speed_rad_s": 0.0,
+      "wheel_current": [
+        0,
+        0,
+        0
+      ],
+      "trigger_current": 0,
+      "sequence": 128925
+    },
+    "cmd_online": false,
+    "remote_receiver": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "task_remote": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "fdcan1": {
+      "PSR": 1901,
+      "ECR": 224,
+      "TXBRP": 0,
+      "TXBTO": 0
+    },
+    "motor_received": [
+      false,
+      false,
+      false,
+      false
+    ]
+  },
+  {
+    "host_time": 1794839845.0355217,
+    "tick": 129788,
+    "clock": 550000000,
+    "free_heap": 59256,
+    "cfsr": 0,
+    "hfsr": 0,
+    "dhcsr": 16842753,
+    "launcher": {
+      "mode": 0,
+      "stop_reason": 2,
+      "running": false,
+      "spun_up": false,
+      "firing": false,
+      "reversing": false,
+      "wheel_online": [
+        0,
+        0,
+        0
+      ],
+      "wheel_released": [
+        1,
+        1,
+        1
+      ],
+      "trigger_online": false,
+      "trigger_released": true,
+      "wheel_speed_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "wheel_target_mps": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "trigger_speed_rad_s": 0.0,
+      "wheel_current": [
+        0,
+        0,
+        0
+      ],
+      "trigger_current": 0,
+      "sequence": 129444
+    },
+    "cmd_online": false,
+    "remote_receiver": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "task_remote": {
+      "channels": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "switches": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "frame_lost": false,
+      "failsafe": false,
+      "online": false,
+      "sequence": 0,
+      "received_ms": 0
+    },
+    "fdcan1": {
+      "PSR": 1901,
+      "ECR": 176,
+      "TXBRP": 0,
+      "TXBTO": 0
+    },
+    "motor_received": [
+      false,
+      false,
+      false,
+      false
+    ]
+  }
+]

@@ -1,0 +1,69 @@
+CMake Warning at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/cmake/config.cmake:66 (message):
+  No driver selected.
+Call Stack (most recent call first):
+  /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/CMakeLists.txt:64 (include)
+
+
+-- Platform: linux
+CMake Warning (deprecated) at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/lib/Eigen/CMakeLists.txt:29 (cmake_policy):
+  The OLD behavior for policy CMP0146 will be removed from a future version
+  of CMake.
+
+  The cmake-policies(7) manual explains that the OLD behaviors of all
+  policies are deprecated and that a policy should be set to OLD only under
+  specific short-term circumstances.  Projects should be ported to the NEW
+  behavior and not rely on setting a policy to OLD.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+--
+-- Configured Eigen 3.4.90
+--
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/build/three_fric_host
+[0/2] Re-checking globbed directories...
+[1/37] Building CXX object CMakeFiles/three_fric_test.dir/reference/pid_controller.cpp.o
+[2/37] Building CXX object libxr/CMakeFiles/xr.dir/system/linux/mutex.cpp.o
+[3/37] Building CXX object libxr/CMakeFiles/xr.dir/system/linux/semaphore.cpp.o
+[4/37] Building CXX object libxr/CMakeFiles/xr.dir/system/linux/thread.cpp.o
+[5/37] Building CXX object libxr/CMakeFiles/xr.dir/system/linux/libxr_system.cpp.o
+[6/37] Building CXX object libxr/CMakeFiles/xr.dir/src/core/libxr_mem_cmp.cpp.o
+[7/37] Building CXX object libxr/CMakeFiles/xr.dir/src/core/libxr_mem_o3.cpp.o
+[8/37] Building CXX object libxr/CMakeFiles/xr.dir/src/system/async.cpp.o
+[9/37] Building CXX object libxr/CMakeFiles/xr.dir/src/system/timer.cpp.o
+[10/37] Building CXX object libxr/CMakeFiles/xr.dir/src/driver/flash.cpp.o
+[11/37] Building CXX object libxr/CMakeFiles/xr.dir/src/libxr.cpp.o
+[12/37] Building CXX object libxr/CMakeFiles/xr.dir/src/utils/crc_o3.cpp.o
+[13/37] Building CXX object CMakeFiles/three_fric_test.dir/test_launcher.cpp.o
+[14/37] Building CXX object libxr/CMakeFiles/xr.dir/src/structure/list.cpp.o
+[15/37] Building CXX object libxr/CMakeFiles/xr.dir/src/structure/double_buffer.cpp.o
+[16/37] Building CXX object libxr/CMakeFiles/xr.dir/src/structure/lockfree_list.cpp.o
+[17/37] Building CXX object libxr/CMakeFiles/xr.dir/src/structure/slot_pool.cpp.o
+[18/37] Building CXX object libxr/CMakeFiles/xr.dir/src/structure/queue/queue_base.cpp.o
+[19/37] Building CXX object libxr/CMakeFiles/xr.dir/src/driver/can.cpp.o
+[20/37] Building CXX object libxr/CMakeFiles/xr.dir/src/structure/queue/mpmc_queue_base.cpp.o
+[21/37] Building CXX object libxr/CMakeFiles/xr.dir/src/middleware/event.cpp.o
+[22/37] Building CXX object libxr/CMakeFiles/xr.dir/src/middleware/database/raw_sequential.cpp.o
+[23/37] Building CXX object libxr/CMakeFiles/xr.dir/src/middleware/logger/logger.cpp.o
+[24/37] Building CXX object libxr/CMakeFiles/xr.dir/src/middleware/message/publish.cpp.o
+[25/37] Building CXX object libxr/CMakeFiles/xr.dir/src/driver/power.cpp.o
+[26/37] Building CXX object libxr/CMakeFiles/xr.dir/src/middleware/ramfs/ramfs.cpp.o
+[27/37] Building CXX object libxr/CMakeFiles/xr.dir/src/middleware/message/topic.cpp.o
+[28/37] Building CXX object libxr/CMakeFiles/xr.dir/src/core/print/writer_runtime.cpp.o
+[29/37] Building CXX object libxr/CMakeFiles/xr.dir/src/middleware/message/packet/packet.cpp.o
+[30/37] Building CXX object libxr/CMakeFiles/xr.dir/src/middleware/message/server/server.cpp.o
+[31/37] Building CXX object libxr/CMakeFiles/xr.dir/src/core/rw/read_port.cpp.o
+[32/37] Building CXX object libxr/CMakeFiles/xr.dir/src/core/rw/stdio.cpp.o
+[33/37] Building CXX object libxr/CMakeFiles/xr.dir/src/core/rw/write_stream.cpp.o
+[34/37] Building CXX object libxr/CMakeFiles/xr.dir/src/core/rw/write_port.cpp.o
+[35/37] Building CXX object libxr/CMakeFiles/xr.dir/home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/LocalModules/ThreeFricLauncher/ThreeFricLauncher.cpp.o
+[36/37] Linking CXX static library libxr/libxr.a
+[37/37] Linking CXX executable three_fric_test
+Test project /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/build/three_fric_host
+    Start 1: three_fric_behavior
+1/1 Test #1: three_fric_behavior ..............   Passed    0.01 sec
+
+100% tests passed out of 1
+
+Total Test time (real) =   0.01 sec

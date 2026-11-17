@@ -1,0 +1,54 @@
+{
+  "scope": "local software changes only; no flash or actuation",
+  "profile": "User/three_fric.yaml",
+  "tools": {
+    "xrobot": "1.0.1",
+    "libxr_generator": "6.0.1",
+    "libxr_commit": "5161373dbe6d9d9fb1904d90e0ebd4344a44047a"
+  },
+  "source_commits": {
+    "CMD": "8f6533e472283f6c1e9bbed3fcf7beac9bb5df22",
+    "I6x": "4622d91898c51918a740a80d7f722d019fbb34fd",
+    "ThreeFricLauncher": "a792ea200f7ff2e73e68edc345eb32e91b13ce4d",
+    "Launcher": "643b50461ed7ae899f7309126ad717bcb8555f88",
+    "Gimbal": "db764cd71870f65cba8c8979c8ace3706c2e65dc",
+    "HostData": "5a008e2d4a00a829c223441b233f052cab86a64e",
+    "DR16": "55fad6dac55bcab6ee03e7064146bc57ee257a28",
+    "Referee": "49d2839752791f3169321b39ddbc4873cde462ac",
+    "ControlAlgorithms": "453e9356c3116449025641c519f954e398180b5f"
+  },
+  "firmware": {
+    "Debug": {
+      "path": "build/Debug/wdr_xrobot_dmmc02_framework.elf",
+      "sha256": "2ac4b36539d22696b2f8827b0a2b6cfc77f0ac531bcdf4ba97622fb8d3f6457d"
+    },
+    "Release": {
+      "path": "build/Release/wdr_xrobot_dmmc02_framework.elf",
+      "sha256": "876007ddec949cab3989949db8f7ea3a80a06015eeffa45b5b56424a77d292f9"
+    }
+  },
+  "lock_sha256": "6fb9b3b9700c8b5854e7473375289eb283bf81c70a3afc70e4222ac36920941e",
+  "config_sha256": "7df05056f539286aee010bb38ab476f39f061a9258a88364c394ea3d172133ba",
+  "checks": {
+    "default_host_tests": "PASS 2/2",
+    "integration_host_compile": "PASS actual modified Gimbal/components and HostData/DR16/Referee headers with read-only reference dependencies",
+    "debug": "PASS three_fric link",
+    "release": "PASS three_fric link",
+    "frozen_offline": "PASS 13 modules, 2 profiles"
+  },
+  "integration_dependencies": "/home/yunmo/WorkingSpace/STM32_Project/Xrobot/wdr_xrobot_dmmc02_framework/Modules/WDR-Xrobot-org",
+  "limitations": [
+    "No new firmware was flashed.",
+    "No physical mechanism test.",
+    "No complete WDR robot product link/runtime validation.",
+    "LibXR PID anti-windup and derivative behavior differ from the old discrete controller."
+  ],
+  "logs": [
+    "cmd_tests.log",
+    "cmd_tests_default.log",
+    "cmd_debug.log",
+    "cmd_release.log",
+    "cmd_frozen.log",
+    "cmd_setup.log"
+  ]
+}

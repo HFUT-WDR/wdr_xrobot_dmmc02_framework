@@ -1,0 +1,26 @@
+Open On-Chip Debugger 0.12.0
+Licensed under GNU GPL v2
+For bug reports, read
+	http://openocd.org/doc/doxygen/bugs.html
+swd
+Info : Using CMSIS-DAPv2 interface with VID:PID=0x1d50:0x6199, serial=XRobot-XRDAP-30EDA006A4D0
+Info : CMSIS-DAP: SWD supported
+Info : CMSIS-DAP: FW Version = 2.0.0
+Info : CMSIS-DAP: Serial# = XRobot-XRDAP-30EDA006A4D0
+Info : CMSIS-DAP: Interface Initialised (SWD)
+Info : SWCLK/TCK = 0 SWDIO/TMS = 1 TDI = 0 TDO = 0 nTRST = 0 nRESET = 1
+Info : CMSIS-DAP: Interface ready
+Info : clock speed 1000 kHz
+Info : SWD DPIDR 0x6ba02477
+Info : [stm32h7x.cpu0] Cortex-M7 r1p2 processor detected
+Info : [stm32h7x.cpu0] target has 8 breakpoints, 4 watchpoints
+Info : gdb port disabled
+Info : starting gdb server for stm32h7x.cpu0 on 3333
+Info : Listening on port 3333 for gdb connections
+[stm32h7x.cpu0] halted due to debug-request, current mode: Thread
+xPSR: 0x61000000 pc: 0x0800c722 psp: 0x24002360
+Info : Device: STM32H72x/73x
+Info : flash size probed value 1024k
+Info : STM32H7 flash has a single bank
+Info : Bank (0) size is 1024 kb, base address is 0x08000000
+shutdown command invoked

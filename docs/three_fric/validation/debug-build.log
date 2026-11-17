@@ -1,0 +1,170 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+Build type: Debug
+-- Normalized LIBXR_SYSTEM: FreeRTOS -> freertos
+-- Cross compiling.
+-- Platform: freertos
+CMake Warning (deprecated) at Middlewares/Third_Party/LibXR/lib/Eigen/CMakeLists.txt:29 (cmake_policy):
+  The OLD behavior for policy CMP0146 will be removed from a future version
+  of CMake.
+
+  The cmake-policies(7) manual explains that the OLD behaviors of all
+  policies are deprecated and that a policy should be set to OLD only under
+  specific short-term circumstances.  Projects should be ported to the NEW
+  behavior and not rely on setting a policy to OLD.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+--
+-- Configured Eigen 3.4.90
+--
+-- XRobot product: User/three_fric.yaml
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/build/Debug
+[0/2] Re-checking globbed directories...
+[1/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Core/Src/system_stm32h7xx.c.obj
+[2/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim_ex.c.obj
+[3/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_adc.c.obj
+[4/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc.c.obj
+[5/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_adc_ex.c.obj
+[6/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_tim.c.obj
+[7/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_rcc_ex.c.obj
+[8/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash.c.obj
+[9/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_flash_ex.c.obj
+[10/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_gpio.c.obj
+[11/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_hsem.c.obj
+[12/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma_ex.c.obj
+[13/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_mdma.c.obj
+[14/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr.c.obj
+[15/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dma.c.obj
+[16/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_cortex.c.obj
+[17/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pwr_ex.c.obj
+[18/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal.c.obj
+[19/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c_ex.c.obj
+[20/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_exti.c.obj
+[21/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dac.c.obj
+[22/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_dac_ex.c.obj
+[23/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_spi_ex.c.obj
+[24/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_i2c.c.obj
+[25/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_fdcan.c.obj
+[26/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_spi.c.obj
+[27/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart_ex.c.obj
+[28/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd_ex.c.obj
+[29/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/portable/Common/mpu_wrappers_v2.c.obj
+[30/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/croutine.c.obj
+[31/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_pcd.c.obj
+[32/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/list.c.obj
+[33/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/event_groups.c.obj
+[34/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c.obj
+[35/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_hal_uart.c.obj
+[36/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/timers.c.obj
+[37/135] Building C object cmake/stm32cubemx/CMakeFiles/STM32_Drivers.dir/__/__/Drivers/STM32H7xx_HAL_Driver/Src/stm32h7xx_ll_usb.c.obj
+[38/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/queue.c.obj
+[39/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F/port.c.obj
+[40/135] Checking that the generated XRobot entry is up to date
+[41/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c.obj
+[42/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/tasks.c.obj
+[43/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/main.c.obj
+[44/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/gpio.c.obj
+[45/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/adc.c.obj
+[46/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/freertos.c.obj
+[47/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/bdma.c.obj
+[48/135] Building C object cmake/stm32cubemx/CMakeFiles/FreeRTOS.dir/__/__/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c.obj
+[49/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/dac.c.obj
+[50/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/dma.c.obj
+[51/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/fdcan.c.obj
+[52/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/spi.c.obj
+[53/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/tim.c.obj
+[54/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/usart.c.obj
+[55/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/usb_otg.c.obj
+[56/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/sysmem.c.obj
+[57/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/stm32h7xx_it.c.obj
+[58/135] Building ASM object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/startup_stm32h723xx.s.obj
+[59/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/syscalls.c.obj
+[60/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/stm32h7xx_hal_msp.c.obj
+[61/135] Building C object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/Core/Src/stm32h7xx_hal_timebase_tim.c.obj
+[62/135] Building CXX object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/User/board_io.cpp.obj
+[63/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_adc.cpp.obj
+[64/135] Building CXX object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/User/board_commands.cpp.obj
+[65/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_adc_gpdma.cpp.obj
+[66/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_can.cpp.obj
+[67/135] Building CXX object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/User/app_main.cpp.obj
+[68/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_flash.cpp.obj
+[69/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_dac.cpp.obj
+[70/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_canfd.cpp.obj
+[71/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_gpio.cpp.obj
+[72/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_i2c.cpp.obj
+[73/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_timebase.cpp.obj
+[74/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_power.cpp.obj
+[75/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_pwm.cpp.obj
+[76/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_uart_gpdma.cpp.obj
+[77/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_spi.cpp.obj
+[78/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_usb_dev.cpp.obj
+[79/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_uart.cpp.obj
+[80/135] Building C object LibXR/CMakeFiles/xr.dir/driver/st/stm32_atomic_shim.c.obj
+[81/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_usb_ep.cpp.obj
+[82/135] Building CXX object LibXR/CMakeFiles/xr.dir/system/freertos/semaphore.cpp.obj
+[83/135] Building CXX object LibXR/CMakeFiles/xr.dir/system/freertos/mutex.cpp.obj
+[84/135] Building CXX object LibXR/CMakeFiles/xr.dir/system/freertos/thread.cpp.obj
+[85/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/core/libxr_mem_cmp.cpp.obj
+[86/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/core/libxr_mem_o3.cpp.obj
+[87/135] Building CXX object LibXR/CMakeFiles/xr.dir/driver/st/stm32_watchdog.cpp.obj
+[88/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/system/async.cpp.obj
+[89/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/system/timer.cpp.obj
+[90/135] Building CXX object LibXR/CMakeFiles/xr.dir/system/freertos/libxr_system.cpp.obj
+[91/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/libxr.cpp.obj
+[92/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/flash.cpp.obj
+[93/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/utils/crc_o3.cpp.obj
+[94/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/structure/list.cpp.obj
+[95/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/structure/double_buffer.cpp.obj
+[96/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/structure/lockfree_list.cpp.obj
+[97/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/structure/slot_pool.cpp.obj
+[98/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/can.cpp.obj
+[99/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/power.cpp.obj
+[100/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/structure/queue/mpmc_queue_base.cpp.obj
+[101/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/structure/queue/queue_base.cpp.obj
+[102/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/middleware/event.cpp.obj
+[103/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/middleware/message/publish.cpp.obj
+[104/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/middleware/database/raw_sequential.cpp.obj
+[105/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/middleware/logger/logger.cpp.obj
+[106/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/middleware/message/topic.cpp.obj
+[107/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/middleware/ramfs/ramfs.cpp.obj
+[108/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/middleware/message/packet/packet.cpp.obj
+[109/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/middleware/message/server/server.cpp.obj
+[110/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/core/print/writer_runtime.cpp.obj
+[111/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/core/rw/stdio.cpp.obj
+[112/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/core/rw/read_port.cpp.obj
+[113/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/core/rw/write_stream.cpp.obj
+[114/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/core/rw/write_port.cpp.obj
+[115/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/usb/core/desc_str.cpp.obj
+[116/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/usb/core/desc_dev.cpp.obj
+[117/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/usb/core/desc_cfg.cpp.obj
+[118/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/usb/core/ep_pool.cpp.obj
+[119/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/usb/device/device_class.cpp.obj
+[120/135] Building C object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/AttitudeEkf/dm_imu_l1_attitude.c.obj
+[121/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/usb/device/dev_core.cpp.obj
+[122/135] Building C object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/AttitudeEkf/vendor/CMSIS/DSP/Source/MatrixFunctions/arm_mat_init_f32.c.obj
+[123/135] Building C object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/AttitudeEkf/kalman_filter.c.obj
+[124/135] Building C object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/AttitudeEkf/vendor/CMSIS/DSP/Source/MatrixFunctions/arm_mat_add_f32.c.obj
+[125/135] Building C object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/AttitudeEkf/vendor/CMSIS/DSP/Source/MatrixFunctions/arm_mat_sub_f32.c.obj
+[126/135] Building C object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/AttitudeEkf/vendor/CMSIS/DSP/Source/MatrixFunctions/arm_mat_mult_f32.c.obj
+[127/135] Building C object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/AttitudeEkf/vendor/CMSIS/DSP/Source/MatrixFunctions/arm_mat_trans_f32.c.obj
+[128/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/usb/device/device_composition.cpp.obj
+[129/135] Building C object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/AttitudeEkf/vendor/CMSIS/DSP/Source/MatrixFunctions/arm_mat_inverse_f32.c.obj
+[130/135] Building C object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/AttitudeEkf/vendor/CMSIS/DSP/Source/MatrixFunctions/arm_mat_inverse_f64.c.obj
+[131/135] Building CXX object LibXR/CMakeFiles/xr.dir/src/driver/usb/device/cdc/cdc_uart.cpp.obj
+[132/135] Building CXX object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/ThreeFricLauncher/ThreeFricLauncher.cpp.obj
+[133/135] Building CXX object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/ESKF/eskf_core.cpp.obj
+[134/135] Linking CXX static library LibXR/libxr.a
+[135/135] Linking CXX executable wdr_xrobot_dmmc02_framework.elf
+Memory region         Used Size  Region Size  %age Used
+         DTCMRAM:       94720 B       128 KB     72.27%
+          RAM_D1:         22 KB       320 KB      6.88%
+          RAM_D2:           0 B        32 KB      0.00%
+          RAM_D3:         320 B        16 KB      1.95%
+         ITCMRAM:           0 B        64 KB      0.00%
+           FLASH:      150964 B       768 KB     19.20%
+   text	   data	    bss	    dec	    hex	filename
+ 150756	    152	 117408	 268316	  4181c	wdr_xrobot_dmmc02_framework.elf
+wdr_xrobot_dmmc02_framework.elf built for product: three_fric

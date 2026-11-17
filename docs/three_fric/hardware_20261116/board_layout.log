@@ -1,0 +1,7 @@
+$1 = 0x4000a044
+$2 = 0x4000a0d8
+Symbol "huart5" is static storage at address 0x24003374.
+Symbol "hdma_uart5_rx" is static storage at address 0x24003018.
+Symbol "xMinimumEverFreeBytesRemaining" is static storage at address 0x240023d8.
+Symbol "uxCurrentNumberOfTasks" is static storage at address 0x24001c94.
+Symbol "xTickCount" is static storage at address 0x24001c90.

@@ -1,0 +1,60 @@
+{
+  "board": "STM32H723",
+  "idcode": "0x10016483",
+  "uid": [
+    "0x00250001",
+    "0x3233510e",
+    "0x31333635"
+  ],
+  "probe": "XRobot-XRDAP-30EDA006A4D0",
+  "firmware": "build/Debug/wdr_xrobot_dmmc02_framework.elf",
+  "elf_sha256": "2ac4b36539d22696b2f8827b0a2b6cfc77f0ac531bcdf4ba97622fb8d3f6457d",
+  "profile": "User/three_fric.yaml",
+  "backup": "build/hardware_20261117/pre_flash.bin",
+  "backup_bytes": 1048576,
+  "backup_sha256": "bcf2d2d10404159411f827761547d4eb9606ec81d31c6a369e64253b83d44cf2",
+  "backup_verify": "PASS",
+  "flash_verify": "PASS",
+  "retained_on_board": "new Debug image; not restored",
+  "runtime_sampling": "running SWD reads, no runtime halt, current ELF DWARF offsets",
+  "last_sample": {
+    "tick": 29246,
+    "clock_hz": 550000000,
+    "free_heap": 59544,
+    "cfsr": 0,
+    "hfsr": 0,
+    "dhcsr": 16842753,
+    "cmd_online": false,
+    "remote_online": false,
+    "remote_sequence": 0,
+    "launcher": {
+      "mode": 0,
+      "stop_reason": 3,
+      "running": false,
+      "spun_up": false,
+      "firing": false,
+      "wheel_online": [
+        0,
+        0,
+        0
+      ],
+      "trigger_online": false,
+      "wheel_current": [
+        0,
+        0,
+        0
+      ],
+      "trigger_current": 0,
+      "sequence": 28899
+    }
+  },
+  "sequence_delta": 2550,
+  "tick_delta_ms": 2552,
+  "scope": "flash and non-actuating startup only",
+  "unverified": [
+    "remote input",
+    "CAN motor feedback",
+    "motor direction, spin-up, braking, PID transient and firing"
+  ],
+  "control_overrides": "none"
+}

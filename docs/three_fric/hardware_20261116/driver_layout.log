@@ -1,0 +1,12 @@
+$1 = 0x24004ac4
+$2 = 0x24004a44
+$3 = 0x24004a40
+Symbol "xFreeBytesRemaining" is static storage at address 0x240023dc.
+Symbol "pxCurrentTCB" is static storage at address 0x24002168.
+/* offset      |    size */  type = struct RMMotor::BusState {
+/*      0      |       4 */    class LibXR::CAN *can;
+/*      4      |      80 */    struct RMMotor::MotorGroupState groups[5];
+/*     84      |       4 */    struct RMMotor::BusState *next;
+
+                               /* total size (bytes):   88 */
+                             }

@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-17",
+  "modules": {
+    "ControlAlgorithms": "453e9356c3116449025641c519f954e398180b5f",
+    "ThreeFricLauncher": "da20d130da61fd2992ab0cdd6e4dd8cadead38a6",
+    "ThreeFricLauncherTask": "09a9fc222d5deedbc9e2937b6670db3f3ef89792"
+  },
+  "api": {
+    "Update(input)": "configured sample_hz",
+    "Update(input, dt)": "per-call dt in seconds; preserves histories",
+    "Reset()": "clears histories and restores configured coefficients"
+  },
+  "checks": {
+    "legacy_fixed_2000_samples": "PASS exact equality",
+    "variable_dt_and_mixed_defaults": "PASS independent direct-form-I reference",
+    "invalid_dt_and_reset": "PASS",
+    "mechanism_regression": "PASS",
+    "debug": "PASS",
+    "release": "PASS",
+    "frozen_offline": "PASS",
+    "format": "PASS"
+  },
+  "elf_sha256": {
+    "Debug": "1b1c9bd574dfeb9affa17aae48ca3554259bce88b77c0a529b4e4b4988232223",
+    "Release": "b8c7a1a2e7aa2df69dbe4a98ca8741060440b232f119d06faa25c4b1830d1f49"
+  },
+  "flashed": false
+}
