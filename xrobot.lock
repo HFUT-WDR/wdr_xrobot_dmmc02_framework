@@ -25,14 +25,21 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 1bfbc124cefb31559633bfc33b9e9289759d1880
+    commit: 01193bcc5430afdeb2ca8d9ca790af6a13a489a8
   WDR-Xrobot-org/BuzzerAlarm:
     repo: https://github.com/WDR-Xrobot-org/BuzzerAlarm.git
     source: ModuleIndex/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: a6f70132d657ae5d83dd6ebc1c0d6c4a68c71ab4
+    commit: e300574d315478a370acebcb02cddb18052a2f90
+  WDR-Xrobot-org/ControlAlgorithms:
+    repo: https://github.com/WDR-Xrobot-org/ControlAlgorithms.git
+    source: ModuleIndex/index.yaml
+    requested: same-or-dev
+    resolved_ref: dev
+    ref_kind: branch
+    commit: a5e80c1b810f8c95ea63f3ea8adb689a9c9ceed3
   WDR-Xrobot-org/ESKF:
     repo: https://github.com/WDR-Xrobot-org/ESKF.git
     source: ModuleIndex/index.yaml
