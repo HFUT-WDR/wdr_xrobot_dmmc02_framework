@@ -1,0 +1,42 @@
+CMake Warning at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/cmake/config.cmake:66 (message):
+  No driver selected.
+Call Stack (most recent call first):
+  /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/CMakeLists.txt:64 (include)
+
+
+-- Platform: linux
+CMake Warning (deprecated) at /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/Middlewares/Third_Party/LibXR/lib/Eigen/CMakeLists.txt:29 (cmake_policy):
+  The OLD behavior for policy CMP0146 will be removed from a future version
+  of CMake.
+
+  The cmake-policies(7) manual explains that the OLD behaviors of all
+  policies are deprecated and that a policy should be set to OLD only under
+  specific short-term circumstances.  Projects should be ported to the NEW
+  behavior and not rely on setting a policy to OLD.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+--
+-- Configured Eigen 3.4.90
+--
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/build/three_fric_host
+[0/2] Re-checking globbed directories...
+[1/6] Building CXX object libxr/CMakeFiles/xr.dir/home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/Modules/WDR-Xrobot-org/ThreeFricLauncher/ThreeFricLauncher.cpp.o
+[2/6] Linking CXX static library libxr/libxr.a
+[3/6] Linking CXX executable filter_dt_test
+[4/6] Linking CXX executable rmmotor_test
+[5/6] Building CXX object CMakeFiles/three_fric_test.dir/test_launcher.cpp.o
+[6/6] Linking CXX executable three_fric_test
+Test project /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/build/three_fric_host
+    Start 1: three_fric_behavior
+1/3 Test #1: three_fric_behavior ..............   Passed    0.01 sec
+    Start 2: public_filter_dt
+2/3 Test #2: public_filter_dt .................   Passed    0.00 sec
+    Start 3: rmmotor_typed_params
+3/3 Test #3: rmmotor_typed_params .............   Passed    0.00 sec
+
+100% tests passed out of 3
+
+Total Test time (real) =   0.01 sec

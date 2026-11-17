@@ -26,38 +26,30 @@ modules:
     id: trigger_motor
     args:
       - can_bus: can1
-      - param:
-          model: RMMotor::Model::MOTOR_M2006
+      - m2006_param:
           reverse: false
           feedback_id: 0x201
-          gm6020_mode: RMMotor::Gm6020Mode::CURRENT
   - module: WDR-Xrobot-org/RMMotor
     id: fric_left_motor
     args:
       - can_bus: can1
-      - param:
-          model: RMMotor::Model::MOTOR_M2006
+      - m2006_param:
           reverse: false
           feedback_id: 0x202
-          gm6020_mode: RMMotor::Gm6020Mode::CURRENT
   - module: WDR-Xrobot-org/RMMotor
     id: fric_right_motor
     args:
       - can_bus: can1
-      - param:
-          model: RMMotor::Model::MOTOR_M2006
+      - m2006_param:
           reverse: false
           feedback_id: 0x203
-          gm6020_mode: RMMotor::Gm6020Mode::CURRENT
   - module: WDR-Xrobot-org/RMMotor
     id: fric_upper_motor
     args:
       - can_bus: can1
-      - param:
-          model: RMMotor::Model::MOTOR_M2006
+      - m2006_param:
           reverse: false
           feedback_id: 0x204
-          gm6020_mode: RMMotor::Gm6020Mode::CURRENT
   - module: WDR-Xrobot-org/ThreeFricLauncher
     id: launcher
     args:
@@ -66,22 +58,10 @@ modules:
       - fric_upper: fric_upper_motor
       - trigger: trigger_motor
       - param:
-          wheel_diameter_m: '{0.040f, 0.040f, 0.040f}'
-          wheel_gear_ratio: '{1.0f, 1.0f, 1.0f}'
-          wheel_target_mps: '{21.0f, 21.0f, 21.0f}'
-          left_pid:
-            kp: 4000.0f
-            ki: 50.0f
-            kd: 0.0f
-            i_limit: 500.0f
-            out_limit: 10000.0f
-          right_pid:
-            kp: 4000.0f
-            ki: 50.0f
-            kd: 0.0f
-            i_limit: 500.0f
-            out_limit: 10000.0f
-          upper_pid:
+          fric_radius_m: 0.020f
+          firc_motor_ratio: 1.0f
+          fric_target_speed: '{21.0f, 21.0f, 21.0f}'
+          fric_pid:
             kp: 4000.0f
             ki: 50.0f
             kd: 0.0f
@@ -93,14 +73,18 @@ modules:
             kd: 0.0f
             i_limit: 1000.0f
             out_limit: 10000.0f
-          trigger_gear_ratio: 36.0f
+          pid_timing:
+            nominal_dt: 0.001f
+            min_dt: 0.0005f
+            max_dt: 0.004f
+          trigger_motor_ratio: 36.0f
           trigger_filter_sample_hz: 1000.0f
           trigger_filter_cutoff_hz: 27.951037f
-          ready_tolerance_mps: 0.3f
-          wheel_release_mps: 0.1f
+          fric_ready_speed_tolerance: 0.3f
+          fric_release_speed: 0.1f
           trigger_release_rad_s: 0.1f
           trigger_target_rad_s: 20.0f
-          jam_speed_rad_s: 1.0f
+          jam_speed_rad_s: 1.0f  #堵转检测阈值
           reverse_speed_rad_s: 13.0f
           jam_ms: 1000
           reverse_ms: 500

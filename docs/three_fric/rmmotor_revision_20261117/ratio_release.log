@@ -1,0 +1,40 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+Build type: Release
+-- Normalized LIBXR_SYSTEM: FreeRTOS -> freertos
+-- Cross compiling.
+-- Platform: freertos
+CMake Warning (deprecated) at Middlewares/Third_Party/LibXR/lib/Eigen/CMakeLists.txt:29 (cmake_policy):
+  The OLD behavior for policy CMP0146 will be removed from a future version
+  of CMake.
+
+  The cmake-policies(7) manual explains that the OLD behaviors of all
+  policies are deprecated and that a policy should be set to OLD only under
+  specific short-term circumstances.  Projects should be ported to the NEW
+  behavior and not rely on setting a policy to OLD.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+--
+-- Configured Eigen 3.4.90
+--
+-- XRobot product: User/three_fric.yaml
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/build/Release
+[0/2] Re-checking globbed directories...
+[1/5] Checking that the generated XRobot entry is up to date
+[2/5] Building CXX object LibXR/CMakeFiles/xr.dir/__/__/__/Modules/WDR-Xrobot-org/ThreeFricLauncher/ThreeFricLauncher.cpp.obj
+[3/5] Linking CXX static library LibXR/libxr.a
+[4/5] Building CXX object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/User/app_main.cpp.obj
+[5/5] Linking CXX executable wdr_xrobot_dmmc02_framework.elf
+Memory region         Used Size  Region Size  %age Used
+         DTCMRAM:       94720 B       128 KB     72.27%
+          RAM_D1:       22560 B       320 KB      6.88%
+          RAM_D2:           0 B        32 KB      0.00%
+          RAM_D3:         320 B        16 KB      1.95%
+         ITCMRAM:           0 B        64 KB      0.00%
+           FLASH:      156836 B       768 KB     19.94%
+   text	   data	    bss	    dec	    hex	filename
+ 156636	    148	 117440	 274224	  42f30	wdr_xrobot_dmmc02_framework.elf
+wdr_xrobot_dmmc02_framework.elf built for product: three_fric

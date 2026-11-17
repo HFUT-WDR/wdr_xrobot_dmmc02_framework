@@ -1,0 +1,38 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+Build type: Release
+-- Normalized LIBXR_SYSTEM: FreeRTOS -> freertos
+-- Cross compiling.
+-- Platform: freertos
+CMake Warning (deprecated) at Middlewares/Third_Party/LibXR/lib/Eigen/CMakeLists.txt:29 (cmake_policy):
+  The OLD behavior for policy CMP0146 will be removed from a future version
+  of CMake.
+
+  The cmake-policies(7) manual explains that the OLD behaviors of all
+  policies are deprecated and that a policy should be set to OLD only under
+  specific short-term circumstances.  Projects should be ported to the NEW
+  behavior and not rely on setting a policy to OLD.
+This warning is for project developers.  Use -Wno-author or -Wno-deprecated
+to suppress it.
+
+--
+-- Configured Eigen 3.4.90
+--
+-- XRobot product: User/three_fric.yaml
+-- Configuring done (0.1s)
+-- Generating done (0.1s)
+-- Build files have been written to: /home/yunmo/WorkingSpace/STM32_Project/Xrobot/three-fric-new/wdr_xrobot_dmmc02_framework/build/Release
+[0/2] Re-checking globbed directories...
+[1/3] Checking that the generated XRobot entry is up to date
+[2/3] Building CXX object CMakeFiles/wdr_xrobot_dmmc02_framework.dir/User/app_main.cpp.obj
+[3/3] Linking CXX executable wdr_xrobot_dmmc02_framework.elf
+Memory region         Used Size  Region Size  %age Used
+         DTCMRAM:       94720 B       128 KB     72.27%
+          RAM_D1:       22848 B       320 KB      6.97%
+          RAM_D2:           0 B        32 KB      0.00%
+          RAM_D3:         320 B        16 KB      1.95%
+         ITCMRAM:           0 B        64 KB      0.00%
+           FLASH:      158448 B       768 KB     20.15%
+   text	   data	    bss	    dec	    hex	filename
+ 158248	    148	 117728	 276124	  4369c	wdr_xrobot_dmmc02_framework.elf
+wdr_xrobot_dmmc02_framework.elf built for product: three_fric

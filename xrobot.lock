@@ -37,7 +37,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 1bfbc124cefb31559633bfc33b9e9289759d1880
+    commit: 0de06e30c3a58d8760881112ab73ba31c1514c71
   WDR-Xrobot-org/BuzzerAlarm:
     repo: https://github.com/WDR-Xrobot-org/BuzzerAlarm.git
     source: ModuleIndex/index.yaml
@@ -58,7 +58,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 453e9356c3116449025641c519f954e398180b5f
+    commit: 35b9d87408256b0888b057c5f7933869922306ac
   WDR-Xrobot-org/ESKF:
     repo: https://github.com/WDR-Xrobot-org/ESKF.git
     source: ModuleIndex/index.yaml
@@ -79,7 +79,7 @@ modules:
     requested: dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 643b50461ed7ae899f7309126ad717bcb8555f88
+    commit: ffdf85bfb224a649864cd319492847a89d63f68e
   WDR-Xrobot-org/Motor:
     repo: https://github.com/WDR-Xrobot-org/Motor.git
     source: ModuleIndex/index.yaml
@@ -93,7 +93,7 @@ modules:
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 412d787400783029ede0ff0c488c37ad3fafe405
+    commit: 35e72b6281fb224091726cb6add12247ec4910c7
   WDR-Xrobot-org/Referee:
     repo: https://github.com/WDR-Xrobot-org/Referee.git
     source: ModuleIndex/index.yaml
@@ -107,7 +107,7 @@ modules:
     requested: dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 250121756c74a0ef495341e061f8eea43fafbd09
+    commit: 38a9fb3b7dd5da09c8805679e1bf519a9efdb306
   xrobot-org/MadgwickAHRS:
     repo: https://github.com/xrobot-org/MadgwickAHRS
     source: https://xrobot.work/xrobot-modules/index.yaml
