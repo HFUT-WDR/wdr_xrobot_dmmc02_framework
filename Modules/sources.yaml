@@ -2,5 +2,5 @@ sources:
 # 官方索引与组织索引。HFUT-WDR 快照源已随 bundle 一起删除。
 - url: https://xrobot.work/xrobot-modules/index.yaml
   priority: 0
-- url: ../ModuleIndex/index.yaml
+- url: https://raw.githubusercontent.com/WDR-Xrobot-org/xrobot-ci/dev/index.yaml
   priority: -20
