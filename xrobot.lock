@@ -14,39 +14,39 @@ requests:
 modules:
   WDR-Xrobot-org/AttitudeEkf:
     repo: https://github.com/WDR-Xrobot-org/AttitudeEkf.git
-    source: ModuleIndex/index.yaml
+    source: https://raw.githubusercontent.com/WDR-Xrobot-org/xrobot-ci/dev/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 6f94a01fa6a00b709e71a3327cab1dad40b4da51
+    commit: a721a7a5b5397aca0ac9f8ea711bf1a083278646
   WDR-Xrobot-org/BMI088:
     repo: https://github.com/WDR-Xrobot-org/BMI088.git
-    source: ModuleIndex/index.yaml
+    source: https://raw.githubusercontent.com/WDR-Xrobot-org/xrobot-ci/dev/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 01193bcc5430afdeb2ca8d9ca790af6a13a489a8
+    commit: ccda9b05dcb7095a6a8385e70bcfc4654caa2bc9
   WDR-Xrobot-org/BuzzerAlarm:
     repo: https://github.com/WDR-Xrobot-org/BuzzerAlarm.git
-    source: ModuleIndex/index.yaml
+    source: https://raw.githubusercontent.com/WDR-Xrobot-org/xrobot-ci/dev/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: e300574d315478a370acebcb02cddb18052a2f90
+    commit: 13a6deb89e49f59930cb353a2fb8b4a4a8f364ae
   WDR-Xrobot-org/ControlAlgorithms:
     repo: https://github.com/WDR-Xrobot-org/ControlAlgorithms.git
-    source: ModuleIndex/index.yaml
+    source: https://raw.githubusercontent.com/WDR-Xrobot-org/xrobot-ci/dev/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: a5e80c1b810f8c95ea63f3ea8adb689a9c9ceed3
+    commit: 2848fd53269e0280f6a10a4c379a24a4cd2a6986
   WDR-Xrobot-org/ESKF:
     repo: https://github.com/WDR-Xrobot-org/ESKF.git
-    source: ModuleIndex/index.yaml
+    source: https://raw.githubusercontent.com/WDR-Xrobot-org/xrobot-ci/dev/index.yaml
     requested: same-or-dev
     resolved_ref: dev
     ref_kind: branch
-    commit: 84c1830183102991d447359d88462908145d4b44
+    commit: f5374ef836ad264024b21f56ce44579ef065d0ec
   xrobot-org/MadgwickAHRS:
     repo: https://github.com/xrobot-org/MadgwickAHRS
     source: https://xrobot.work/xrobot-modules/index.yaml

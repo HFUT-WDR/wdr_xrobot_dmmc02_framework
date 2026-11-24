@@ -145,7 +145,7 @@ extern "C" void app_main(void)
       USB::DescriptorStrings::Language::EN_US, "WDR", "MC02", "WDR-MC02-01");
   static USB::CDCUart usb_otg_hs_cdc(
       USB::Endpoint::EPNumber::EP1, USB::Endpoint::EPNumber::EP1,
-      USB::Endpoint::EPNumber::EP2, 256, 256, 8, "Log", "Log");
+      USB::Endpoint::EPNumber::EP2, 1024, 256, 8, "Log", "Log");
   static USB::CDCUart usb_otg_hs_cdc2(
       USB::Endpoint::EPNumber::EP3, USB::Endpoint::EPNumber::EP2,
       USB::Endpoint::EPNumber::EP4, 256, 256, 8, "Host", "Host");
@@ -167,7 +167,7 @@ extern "C" void app_main(void)
   STDIO::read_ = usb_otg_hs_cdc.read_port_;
   STDIO::write_ = usb_otg_hs_cdc.write_port_;
   static RamFS ramfs("XRobot");
-  static Terminal<32, 32, 5, 5> terminal(ramfs);
+  static Terminal<32, 128, 8, 5> terminal(ramfs);
   static Thread term_thread;
   term_thread.Create(&terminal, terminal.ThreadFun, "terminal", 2048,
                      Thread::Priority::MEDIUM);
@@ -228,7 +228,7 @@ extern "C" void app_main(void)
 
   XR_REGISTER(ramfs, LibXR::RamFS);
 
-  XR_REGISTER(terminal, LibXR::Terminal<32, 32, 5, 5>);
+  XR_REGISTER(terminal, LibXR::Terminal<32, 128, 8, 5>);
 
   XR_REGISTER(database, LibXR::Database);
 

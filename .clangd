@@ -50,6 +50,8 @@ Diagnostics:
       - misc-use-anonymous-namespace
       - cppcoreguidelines-pro-type-cstyle-cast
       - performance-no-int-to-ptr
+      - misc-include-cleaner
+      - clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling
     CheckOptions:
       misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: 1
       modernize-loop-convert.MinConfidence: risky
@@ -65,6 +67,7 @@ Diagnostics:
       readability-identifier-naming.EnumConstantCase: UPPER_CASE
       readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
       readability-identifier-naming.ConstantCase: UPPER_CASE
+      readability-identifier-naming.LocalConstantCase: lower_case
       readability-identifier-naming.ClassCase: CamelCase
       readability-identifier-naming.StructCase: CamelCase
       readability-identifier-naming.FunctionCase: lower_case
@@ -72,3 +75,26 @@ Diagnostics:
       readability-identifier-naming.MethodCase: CamelCase
 CompileFlags:
   CompilationDatabase: build/Debug
+
+---
+If:
+  PathMatch:
+    - User/app_main\.cpp
+    - User/xrobot_main\.hpp
+    - Core/.*
+    - Drivers/.*
+    - Middlewares/.*
+    - .*/vendor/.*
+Diagnostics:
+  ClangTidy:
+    Remove:
+      - '*'
+
+---
+If:
+  PathMatch:
+    - .*\.c
+Diagnostics:
+  ClangTidy:
+    Remove:
+      - google-readability-casting

@@ -1,6 +1,7 @@
 #include "board_io.hpp"
 
 #include <array>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 
@@ -107,7 +108,7 @@ int BoardIO::LedCommand(BoardIO* board, int argc, char** argv)
     for (int i = 1; i < 4; ++i)
     {
       char* end = nullptr;
-      const long value = std::strtol(argv[i], &end, 10);
+      const int64_t value = static_cast<int64_t>(std::strtol(argv[i], &end, 10));
       if (*argv[i] == '\0' || *end != '\0' || value < 0 || value > 255)
       {
         LibXR::STDIO::Print<"RGB must be integers 0..255\r\n">();
